@@ -2,12 +2,12 @@
 # Will write this later
 
 # Training parameters
-batch_size  = 200
-no_dense_layers = 5
-no_dense_layers = 4
+batch_size  = 2000
+no_dense_layers = 54
 HL_shape = (20,)
 stop_patience = 20
-no_epochs = 2000
+no_epochs = 5
+
 import datetime
 model_name = 'High_level_model' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
