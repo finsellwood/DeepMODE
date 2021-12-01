@@ -3,7 +3,7 @@
 
 # Training parameters
 batch_size  = 2000
-no_dense_layers = 54
+no_dense_layers = 4
 HL_shape = (20,)
 stop_patience = 20
 no_epochs = 5
