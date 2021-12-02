@@ -4,14 +4,10 @@
 # Also recovers y values and saves in a separate dataframe as yvalues.pkl
 
 print("importing packages...")
-#import uproot3
 import ROOT
 import root_numpy as rnp
 import numpy as np
 import pandas as pd
-import vector
-import awkward as ak  
-import numba as nb
 import time
 import sys
 
@@ -87,46 +83,9 @@ variables_tt_2 = ["tauFlag_2",
                 "pt_2",
                ]
 
-# List labels for later:
-pi_1_4mom = ["pi_E_1", "pi_px_1", "pi_py_1", "pi_pz_1", ]
-pi_2_4mom = ["pi_E_2", "pi_px_2", "pi_py_2", "pi_pz_2", ]
-pi2_1_4mom = ["pi2_E_1", "pi2_px_1", "pi2_py_1", "pi2_pz_1", ]
-pi2_2_4mom = ["pi2_E_2", "pi2_px_2", "pi2_py_2", "pi2_pz_2", ]
-pi3_1_4mom = ["pi3_E_1", "pi3_px_1", "pi3_py_1", "pi3_pz_1", ]
-pi3_2_4mom = ["pi3_E_2", "pi3_px_2", "pi3_py_2", "pi3_pz_2", ]
 
-pi0_1_4mom = ["pi0_E_1", "pi0_px_1", "pi0_py_1", "pi0_pz_1", ]
-pi0_2_4mom = ["pi0_E_2", "pi0_px_2", "pi0_py_2", "pi0_pz_2", ]
-
-gam1_1_4mom = ["gam1_E_1", "gam1_px_1", "gam1_py_1", "gam1_pz_1", ]
-gam2_1_4mom = ["gam2_E_1", "gam2_px_1", "gam2_py_1", "gam2_pz_1", ]
-gam1_2_4mom = ["gam1_E_2", "gam1_px_2", "gam1_py_2", "gam1_pz_2", ]
-gam2_2_4mom = ["gam2_E_2", "gam2_px_2", "gam2_py_2", "gam2_pz_2", ]
-
-sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
-# 4-mom of the supercluster
-
-gam_2_3mom = ["gam_E_2", "gam_px_2", "gam_py_2", "gam_pz_2", ]
-# 3-momentum of photons as vectors NOTE: gam_E_2 is not defined in the original dataframe but created after the fact
-
-cl_2_3mom = ["sc1_Nclusters_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
-# 3-momentum of supercluster components
-
-tau_1_4mom = ["tau_E_1", "tau_px_1", "tau_py_1", "tau_pz_1", ]
-tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
-# Visible tau components
-
-
-def energyfinder(dataframe, momvariablenames_1):
-    momvect1 = vector.arr({"px": dataframe[momvariablenames_1[1]],\
-                       "py": dataframe[momvariablenames_1[2]],\
-                       "pz": dataframe[momvariablenames_1[3]]})
-    dataframe[momvariablenames_1[0]] = abs(momvect1)
-# This function generates the energy of the gammas (magnitude of 3-mom) 
-# So that they can be treated the same as the other four-momenta later
 time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
-
 print("converting root files to dataframes...")
 time_start = time.time()
 
@@ -140,8 +99,9 @@ dfVBF_tt_1 = pd.DataFrame(arrVBF_tt_1)
 dfGG_tt_1 = pd.DataFrame(arrGG_tt_1)
 dfVBF_tt_2 = pd.DataFrame(arrVBF_tt_2)
 dfGG_tt_2 = pd.DataFrame(arrGG_tt_2)
-print("time elapsed = " + str(time_elapsed))
 
+time_elapsed = time_start - time.time()
+print("time elapsed = " + str(time_elapsed))
 print("Manipulating dataframes...")
 time_start = time.time()
 
@@ -208,104 +168,6 @@ del d_DM0, d_DM1, d_DM2, d_DM10, d_DM11, d_DMminus1
 time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
 
-print("producing new variables...")
-time_start = time.time()
-
-#~~ define sets of variables necessary ~~#
-measured4mom = [pi_2_4mom, pi2_2_4mom, pi3_2_4mom, gam_2_3mom, sc1_2_4mom, ]
-
-E_list = [a[0] for a in measured4mom]
-px_list = [a[1] for a in measured4mom]
-py_list = [a[2] for a in measured4mom]
-pz_list = [a[3] for a in measured4mom]
-
-# lists of the column names for each component of a four vector
-fourmom_list = [E_list, px_list, py_list, pz_list]
-# a list of strings pointing to columns with all fourmomenta in
-fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full_list"]
-# a list of actual columns with the lists of fourmomenta in
-
-#~~ Amend data
-
-energyfinder(df_ordered, gam_2_3mom)
-#firstlayer = df_ordered.head(1)
-
-
-def phi_eta(dataframe,momvariablenames_1):
-    fourvect = vector.arr({"px": dataframe[momvariablenames_1[1]],\
-                       "py": dataframe[momvariablenames_1[2]],\
-                       "pz": dataframe[momvariablenames_1[3]],\
-                        "E": dataframe[momvariablenames_1[0]]})
-    tauvisfourvect = vector.arr({"px": dataframe[tau_2_4mom[1]],\
-                               "py": dataframe[tau_2_4mom[2]],\
-                               "pz": dataframe[tau_2_4mom[3]],\
-                               "E": dataframe[tau_2_4mom[0]]})
-    phi = fourvect.deltaphi(tauvisfourvect) 
-    eta = fourvect.deltaeta(tauvisfourvect) 
-    energy = fourvect.E/tauvisfourvect.E
-    # fractional energy
-    return phi, eta, energy
-
-def inv_mass(Energ,Px,Py,Pz):
-    vect = vector.obj(px=Px, py=Py, pz=Pz, E=Energ)
-    return vect.mass
-
-df_ordered["pi0_2mass"] = inv_mass(df_ordered["pi0_E_2"],df_ordered["pi0_px_2"],df_ordered["pi0_py_2"],df_ordered["pi0_pz_2"]) #pion masses
-
-def rho_mass(dataframe, momvariablenames_1, momvariablenames_2):
-    momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],\
-                       py = dataframe[momvariablenames_1[2]],\
-                       pz = dataframe[momvariablenames_1[3]],\
-                       E = dataframe[momvariablenames_1[0]])
-    momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],\
-                       py = dataframe[momvariablenames_2[2]],\
-                       pz = dataframe[momvariablenames_2[3]],\
-                       E = dataframe[momvariablenames_2[0]])
-    rho_vect = momvect1+momvect2
-    dataframe["rho_mass"] = inv_mass(rho_vect.E, rho_vect.px, rho_vect.py, rho_vect.pz) #rho masses
-    
-rho_mass(df_ordered, pi_2_4mom, pi0_2_4mom)
-# rho mass is the addition of the four-momenta of the charged and neutral pions
-
-df_ordered["E_gam/E_tau"] = df_ordered["gam1_E_2"].divide(df_ordered["tau_E_2"]) #Egamma/Etau
-df_ordered["E_pi/E_tau"] = df_ordered["pi_E_2"].divide(df_ordered["tau_E_2"]) #Epi/Etau
-df_ordered["E_pi0/E_tau"] = df_ordered["pi0_E_2"].divide(df_ordered["tau_E_2"]) #Epi0/Etau
-
-def tau_eta(dataframe, momvariablenames_1):
-    momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],\
-                       py = dataframe[momvariablenames_1[2]],\
-                       pz = dataframe[momvariablenames_1[3]],\
-                       E = dataframe[momvariablenames_1[0]])
-    dataframe["tau_eta"] = momvect1.eta  #tau eta (tau pt just a variable)
-    
-tau_eta(df_ordered, tau_2_4mom)
-
-def ang_var(dataframe, momvariablenames_1, momvariablenames_2, particlename): #same for gammas and pions
-    momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],\
-                       py = dataframe[momvariablenames_1[2]],\
-                       pz = dataframe[momvariablenames_1[3]],\
-                       E = dataframe[momvariablenames_1[0]])
-    momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],\
-                       py = dataframe[momvariablenames_2[2]],\
-                       pz = dataframe[momvariablenames_2[3]],\
-                       E = dataframe[momvariablenames_2[0]])
-    
-    diffphi = momvect1.phi - momvect2.phi
-    diffeta = momvect1.eta - momvect2.eta
-    diffr = np.sqrt(diffphi**2 + diffeta**2)
-    Esum = dataframe[momvariablenames_1[0]] + dataframe[momvariablenames_2[0]]
-    dataframe["delR_"+ particlename] = diffr
-    dataframe["delPhi_"+ particlename] = diffphi
-    dataframe["delEta_" + particlename] = diffeta
-    dataframe["delR_xE_"+ particlename] = diffr * Esum
-    dataframe["delPhi_xE_"+ particlename] = diffphi * Esum
-    dataframe["delEta_xE_" + particlename] = diffeta * Esum
-        
-ang_var(df_ordered, gam1_2_4mom, gam2_2_4mom, "gam")
-ang_var(df_ordered, pi0_2_4mom, pi_2_4mom, "pi")
-
-time_elapsed = time_start - time.time()
-print("elapsed time = " + str(time_elapsed))
 
 df_ordered.to_pickle("/vols/cms/fjo18/Masters2021/Objects/ordereddf.pkl")
 y.to_pickle("/vols/cms/fjo18/Masters2021/Objects/yvalues.pkl")
