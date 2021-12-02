@@ -49,7 +49,7 @@ def energyfinder(dataframe, momvariablenames_1):
     momvect1 = vector.arr({"px": dataframe[momvariablenames_1[1]],\
                        "py": dataframe[momvariablenames_1[2]],\
                        "pz": dataframe[momvariablenames_1[3]]})
-    dataframe[momvariablenames_1[0]] = abs(momvect1)
+    dataframe[momvariablenames_1[0]] = [abs(momvect1)]
 # This function generates the energy of the given massless object (magnitude of 3-mom) 
 # So that can be treated the same as the other four-momenta later
 
