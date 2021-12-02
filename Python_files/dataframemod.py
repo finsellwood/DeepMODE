@@ -44,9 +44,9 @@ df_ordered = pd.read_pickle("/vols/cms/fjo18/Masters2021/Objects/ordereddf.pkl")
 
 print("producing new variables...")
 time_start = time.time()
+df_ordered_head = df_ordered.head(10000)
+pd.to_pickle(df_ordered_head, "/vols/cms/fjo18/Masters2021/Objects/testhead.pkl")
 
-for index, row in df_ordered.iterrows():
-    print(row["gam_px_2"], row["gam_py_2"], row["gam_pz_2"])
 # def energyfinder(dataframe, momvariablenames_1):
 #     momvect1 = vector.arr({"px": dataframe[momvariablenames_1[1]],\
 #                        "py": dataframe[momvariablenames_1[2]],\
