@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import classification_report, roc_curve, roc_auc_score
 import tensorflow as tf
-tf.debugging.set_log_device_placement(True)
+#tf.debugging.set_log_device_placement(True)
 # Code will now print the device on which it is running
 from tensorflow import TensorSpec
 from tensorflow import keras
