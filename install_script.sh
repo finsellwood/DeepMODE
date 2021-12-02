@@ -12,5 +12,5 @@ pip3 install --user vector
 pip3 install --user uproot3
 pip3 install --user tensorflow --upgrade
 pip3 install --user pandas --upgrade
-pip3 install --user root_numpy
+pip3 install --user root_numpy --upgrade
 ## a script for setting up the missing commans - to be run once 

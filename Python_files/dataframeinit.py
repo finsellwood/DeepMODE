@@ -4,7 +4,7 @@
 # Also recovers y values and saves in a separate dataframe as yvalues.pkl
 
 print("importing packages...")
-import uproot3
+#import uproot3
 import ROOT
 import root_numpy as rnp
 import numpy as np
@@ -18,9 +18,9 @@ import sys
 time_start = time.time()
 print("loading uproot files...")
 
-rootGG_tt = ROOT.TFile("/vols/cms/fjo18/Masters2021/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+rootGG_tt = ROOT.TFile("/vols/cms/fjo18/Masters2021/RootFiles/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
 intreeGG_tt = rootGG_tt.Get("ntuple")
-rootVBF_tt = ROOT.TFile("/vols/cms/fjo18/Masters2021/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+rootVBF_tt = ROOT.TFile("/vols/cms/fjo18/Masters2021/RootFiles/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
 intreeVBF_tt = rootVBF_tt.Get("ntuple")
 time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
