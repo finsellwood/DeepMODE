@@ -49,7 +49,24 @@ time_start = time.time()
 
 # for index, row in df_ordered.iterrows():
 #   print(row[fourmom_list[1]].values.tolist())
-
+def energyfinder(dataframe, momvariablenames_1):
+    arr = []
+    counter = -1
+    for i in dataframe[momvariablenames_1[1]]:
+        counter += 1
+        energ = []
+        if i.size > 0:
+            for j in range(len(i)):
+                momvect_j = [dataframe[momvariablenames_1[1]][counter][j],\
+                             dataframe[momvariablenames_1[2]][counter][j],\
+                             dataframe[momvariablenames_1[3]][counter][j]]
+                energ.append(np.sqrt(sum(x**2 for x in momvect_j)))
+            arr.append(energ)
+        else: arr.append([])
+    dataframe[momvariablenames_1[0]] = arr
+    
+energyfinder(df_ordered, gam_2_3mom)
+energyfinder(df_ordered, cl_2_3mom)
 # 
 output_dataframe = pd.DataFrame()
 output_dataframe["phis"] = [[]] * df_ordered.shape[0]
@@ -62,7 +79,7 @@ for index, row in df_ordered.iterrows():
     fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
                        "py": row[fourmom_list[2]].values.tolist(),\
                        "pz": row[fourmom_list[3]].values.tolist(),\
-                      })
+                       "E": row[fourmom_list[0]].values.tolist()})
     
     tauvisfourvect = vector.obj(px = row[tau_2_4mom[1]],\
                                py = row[tau_2_4mom[2]],\
@@ -91,21 +108,6 @@ print("elapsed time = " + str(time_elapsed))
 
 #  = fourvect.px
 #df_ordered["newline"].head()
-# def energyfinder(dataframe, momvariablenames_1):
-#     arr = []
-#     counter = -1
-#     for i in dataframe[momvariablenames_1[1]]:
-#         counter += 1
-#         energ = []
-#         if i.size > 0:
-#             for j in range(len(i)):
-#                 momvect_j = [dataframe[momvariablenames_1[1]][counter][j],\
-#                              dataframe[momvariablenames_1[2]][counter][j],\
-#                              dataframe[momvariablenames_1[3]][counter][j]]
-#                 energ.append(np.sqrt(sum(x**2 for x in momvect_j)))
-#             arr.append(energ)
-#         else: arr.append([])
-#     dataframe[momvariablenames_1[0]] = arr
 
 # This function generates the energy of the given massless object (magnitude of 3-mom) 
 # So that can be treated the same as the other four-momenta later
