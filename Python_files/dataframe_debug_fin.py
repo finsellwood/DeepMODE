@@ -70,7 +70,8 @@ energyfinder(df_ordered, cl_2_3mom)
 
 
 
-df_ordered['px_values'] += df_ordered[fourmom_list[1][0]].apply(lambda x: [x])
+df_ordered['px_values'] = df_ordered[fourmom_list[1][0]].apply(lambda x: [x])
+
 #df_ordered[fourmom_list[1][0]].apply(lambda x: [x]) + df_ordered[fourmom_list[1][1]].apply(lambda x: [x])
 #for a in range(len(fourmom_list[1]))])
 # df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
