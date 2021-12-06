@@ -51,14 +51,14 @@ time_start = time.time()
 #   print(row[fourmom_list[1]].values.tolist())
 
 # df_ordered["newline"] =
-vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
+print(vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
                        "py": df_ordered[fourmom_list[2]].values.tolist(),\
                        "pz": df_ordered[fourmom_list[3]].values.tolist(),\
-                      })
+                      }))
                         #"E": df_ordered[fourmom_list[0]].values.tolist()})
 
 #  = fourvect.px
-df_ordered["newline"].head()
+#df_ordered["newline"].head()
 # def energyfinder(dataframe, momvariablenames_1):
 #     arr = []
 #     counter = -1
