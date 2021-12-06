@@ -68,11 +68,10 @@ def energyfinder(dataframe, momvariablenames_1):
 energyfinder(df_ordered, gam_2_3mom)
 energyfinder(df_ordered, cl_2_3mom)
 
-def aggregator(dataframe):
-    return np.array([dataframe[fourmom_list[i]] for i in range(4)]).flatten()
 
 
-df_ordered['px_values'] = sum(df_ordered[fourmom_list[1]].apply(lambda x: [x]))
+# df_ordered['px_values'] = sum
+print(df_ordered[fourmom_list[1]].apply(lambda x: [x]))
 # df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
 print(df_ordered['px_values'].head())
 # output_dataframe = pd.DataFrame()
