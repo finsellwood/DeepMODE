@@ -72,9 +72,9 @@ def aggregator(dataframe):
     return np.array([dataframe[fourmom_list[i]] for i in range(4)]).flatten()
 
 
-
-df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
-print(df_ordered['newline'].head())
+df_ordered['px_values'] = sum(df_ordered[fourmom_list[1]].apply(lambda x: [x]))
+# df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
+print(df_ordered['px_values'].head())
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
 # output_dataframe["etas"] = [[]] * df_ordered.shape[0]
