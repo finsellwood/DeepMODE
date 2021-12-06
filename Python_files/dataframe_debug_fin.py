@@ -47,8 +47,15 @@ df_ordered = pd.read_pickle(rootpath + "/Objects/testhead.pkl")
 print("producing new variables...")
 time_start = time.time()
 
-for index, row in df_ordered.iterrows():
-  print(row[fourmom_list[1]].values.tolist())
+# for index, row in df_ordered.iterrows():
+#   print(row[fourmom_list[1]].values.tolist())
+
+fourvect = vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
+                       "py": df_ordered[fourmom_list[2]].values.tolist(),\
+                       "pz": df_ordered[fourmom_list[3]].values.tolist(),\
+                        "E": df_ordered[fourmom_list[0]].values.tolist()})
+
+
 # def energyfinder(dataframe, momvariablenames_1):
 #     arr = []
 #     counter = -1
