@@ -11,3 +11,4 @@ Unpacks .pkl dataframe (df_ordered) and creates new variables, and saves datafra
 5) dataframe_split.sh separates the data for HL vars, large images, small images and y values into training and test data, saves in tf.data.dataset format, which can be efficiently cycled in and out of ram to reduce memory usage.
 6) train_model.sh loads tensors from /vols/cms/fjo18/Masters2021/Tensors and trains a model on them, before saving the model back into /vols/. Note: only saves model if 'save_model' parameter is set to 'True' in the 'train_NN.py' file
 7) train_model_HL.sh trains only on the HL variables (using train_HLNN.py file). Same parameters options as for full model.
+Current to-dos and issues can be seen under the 'Projects' tab.
