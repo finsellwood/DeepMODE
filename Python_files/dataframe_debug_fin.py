@@ -99,14 +99,8 @@ def phi_eta_find(dataframe):
                                py = dataframe[tau_2_4mom[2]],\
                                pz = dataframe[tau_2_4mom[3]],\
                                E = dataframe[tau_2_4mom[0]])
-    
-#     for a in range(20):
-#         print(fourvect.deltaphi(tauvisfourvect)[a])
-#         print(fourvect.x[a], 'x')
-#         print(fourvect.y[a], 'y')
-#         print(fourvect.z[a], 'z')
-#         print(fourvect.t[a], 't')
-     output_dataframe[0] = fourvect.deltaphi(tauvisfourvect)
+
+    output_dataframe[0] = fourvect.deltaphi(tauvisfourvect)
 #     output_dataframe["phis"] = [[]] * dataframe.shape[0]
 #     output_dataframe["etas"] = [[]] * dataframe.shape[0]
 #     output_dataframe["frac_energies"] = [[]] * dataframe.shape[0]
@@ -114,6 +108,13 @@ def phi_eta_find(dataframe):
 #     output_dataframe["phis"] += fourvect.deltaphi(tauvisfourvect) 
 #     output_dataframe["etas"] += fourvect.deltaeta(tauvisfourvect) 
 #     output_dataframe["frac_energies"] += fourvect.E/tauvisfourvect.E
+    
+#     for a in range(20):
+#         print(fourvect.deltaphi(tauvisfourvect)[a])
+#         print(fourvect.x[a], 'x')
+#         print(fourvect.y[a], 'y')
+#         print(fourvect.z[a], 'z')
+#         print(fourvect.t[a], 't')
     
     return output_dataframe 
 phi_eta_find(df_ordered)
