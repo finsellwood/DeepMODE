@@ -51,21 +51,35 @@ time_start = time.time()
 #   print(row[fourmom_list[1]].values.tolist())
 
 # 
-df_ordered["newline"] = [[]] * df_ordered.shape[0]
-df_ordered.astype({'newline': 'object'})
-df_ordered.dtypes
-for index, row in df_ordered.iterrows():
-    fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
-                       "py": row[fourmom_list[2]].values.tolist(),\
-                       "pz": row[fourmom_list[3]].values.tolist(),\
-                      })
-    df_ordered["newline"].loc[index] = fourvect.px.tolist()
-#     print(df_ordered["newline"].loc[index])# = 
-#     print(fourvect.px)
-time_elapsed = time.time() - time_start
-print("elapsed time = " + str(time_elapsed)) 
-print(df_ordered["newline"].head())
-print(df_ordered["gam_px_2"].head())
+output_dataframe = pd.DataFrame()
+output_dataframe["phis"] = [[]] * df_ordered.shape[0]
+output_dataframe["etas"] = [[]] * df_ordered.shape[0]
+output_dataframe["frac_energies"] = [[]] * df_ordered.shape[0]
+
+output_dataframe.astype({'newline': 'object'})
+output_dataframe.dtypes
+# for index, row in df_ordered.iterrows():
+#     fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
+#                        "py": row[fourmom_list[2]].values.tolist(),\
+#                        "pz": row[fourmom_list[3]].values.tolist(),\
+#                       })
+    
+#     tauvisfourvect = vector.obj(px = dataframe[tau_2_4mom[1]],\
+#                                py = dataframe[tau_2_4mom[2]],\
+#                                pz = dataframe[tau_2_4mom[3]],\
+#                                E = dataframe[tau_2_4mom[0]])
+    
+#     output_dataframe["phis"].loc[index] = fourvect.deltaphi(tauvisfourvect).tolist() 
+#     output_dataframe["etas"].loc[index] = fourvect.deltaeta(tauvisfourvect).tolist() 
+#     output_dataframe["frac_energies"].loc[index] = (fourvect.E/tauvisfourvect.E).tolist()
+    
+#     df_ordered["newline"].loc[index] = fourvect.px.tolist()
+# #     print(df_ordered["newline"].loc[index])# = 
+# #     print(fourvect.px)
+# time_elapsed = time.time() - time_start
+# print("elapsed time = " + str(time_elapsed)) 
+# print(df_ordered["newline"].head())
+# print(df_ordered["gam_px_2"].head())
 # print(vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
 #                        "py": df_ordered[fourmom_list[2]].values.tolist(),\
 #                        "pz": df_ordered[fourmom_list[3]].values.tolist(),\
