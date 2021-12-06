@@ -76,10 +76,14 @@ output_dataframe["frac_energies"] = [[]] * df_ordered.shape[0]
 output_dataframe.astype({'phis': 'object', 'etas': 'object', 'frac_energies': 'object'})
 # print(output_dataframe.dtypes)
 for index, row in df_ordered.iterrows():
-    fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
-                       "py": row[fourmom_list[2]].values.tolist(),\
-                       "pz": row[fourmom_list[3]].values.tolist(),\
-                       "E": row[fourmom_list[0]].values.tolist()})
+    px = ak.flatten(ak.Array(row[fourmom_list[1]].values.tolist()), axis = None)
+    py = ak.flatten(ak.Array(row[fourmom_list[2]].values.tolist()), axis = None) 
+    pz = ak.flatten(ak.Array(row[fourmom_list[3]].values.tolist()), axis = None)
+    E = ak.flatten(ak.Array(row[fourmom_list[0]].values.tolist()), axis = None)
+    fourvect = vector.arr({"px": px,\
+                       "py": py,\
+                       "pz": pz,\
+                       "E": E})
     
     tauvisfourvect = vector.obj(px = row[tau_2_4mom[1]],\
                                py = row[tau_2_4mom[2]],\
@@ -88,9 +92,9 @@ for index, row in df_ordered.iterrows():
     phis = fourvect.deltaphi(tauvisfourvect)
     etas = fourvect.deltaeta(tauvisfourvect)
     frac_energies = (fourvect.E/tauvisfourvect.E)
-    output_dataframe["phis"].loc[index] = ak.flatten(phis, axis = None)
-    output_dataframe["etas"].loc[index] = ak.flatten(etas, axis = None)
-    output_dataframe["frac_energies"].loc[index] = ak.flatten(frac_energies, axis = None)
+    output_dataframe["phis"].loc[index] = phis
+    output_dataframe["etas"].loc[index] = etas
+    output_dataframe["frac_energies"].loc[index] = frac_energies
     print(index)
     
 #     df_ordered["newline"].loc[index] = fourvect.px.tolist()
