@@ -99,8 +99,9 @@ def phi_eta_find(dataframe):
                                py = dataframe[tau_2_4mom[2]],\
                                pz = dataframe[tau_2_4mom[3]],\
                                E = dataframe[tau_2_4mom[0]])
-
-    output_dataframe[0] = ak.to_list(fourvect.deltaphi(tauvisfourvect)).ravel()
+    print(output_dataframe[0])
+    print(ak.to_list(fourvect.deltaphi(tauvisfourvect)))
+    #output_dataframe[0] = ak.to_list(fourvect.deltaphi(tauvisfourvect)).ravel()
 #     output_dataframe["phis"] = [[]] * dataframe.shape[0]
 #     output_dataframe["etas"] = [[]] * dataframe.shape[0]
 #     output_dataframe["frac_energies"] = [[]] * dataframe.shape[0]
