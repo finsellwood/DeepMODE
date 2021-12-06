@@ -68,17 +68,23 @@ def energyfinder(dataframe, momvariablenames_1):
 energyfinder(df_ordered, gam_2_3mom)
 energyfinder(df_ordered, cl_2_3mom)
 
+def get_fourmomenta_lists(dataframe):
+    for a in range(4):
+        dataframe[fourmom_list_colnames[a]] = dataframe[fourmom_list[a][0]].apply(lambda x: np.array([x]).flatten().tolist())
+        for b in range(1, len(fourmom_list[1])):   
+            dataframe[fourmom_list_colnames[a]] += dataframe[fourmom_list[a][b]].apply(lambda x: np.array([x]).flatten().tolist())
+        
 
-
-df_ordered['px_values'] = df_ordered[fourmom_list[1][0]].apply(lambda x: np.array([x]).flatten().tolist())
-for a in range(1, len(fourmom_list[1])):   
-    df_ordered['px_values'] += df_ordered[fourmom_list[1][a]].apply(lambda x: np.array([x]).flatten().tolist())
+# df_ordered['px_values'] = df_ordered[fourmom_list[1][0]].apply(lambda x: np.array([x]).flatten().tolist())
+# for a in range(1, len(fourmom_list[1])):   
+#     df_ordered['px_values'] += df_ordered[fourmom_list[1][a]].apply(lambda x: np.array([x]).flatten().tolist())
 #df_ordered[fourmom_list[1][0]].apply(lambda x: [x]) + df_ordered[fourmom_list[1][1]].apply(lambda x: [x])
 #for a in range(len(fourmom_list[1]))])
 # df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
 #print(df_ordered['px_values'].head())
 for index, row in df_ordered.iterrows():
-    print(row['px_values'])
+    for a in range(4):
+        print(row[fourmom_list_colnames[a]])
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
 # output_dataframe["etas"] = [[]] * df_ordered.shape[0]
