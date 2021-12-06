@@ -90,10 +90,10 @@ get_fourmomenta_lists(df_ordered)
 def phi_eta_find(dataframe):  
     output_dataframe = pd.DataFrame()
 
-    fourvect = vector.arr({"px": dataframe[fourmom_list_colnames[1]].values.tolist(),\
-                       "py": dataframe[fourmom_list_colnames[2]].values.tolist(),\
-                       "pz": dataframe[fourmom_list_colnames[3]].values.tolist(),\
-                        "E": dataframe[fourmom_list_colnames[0]].values.tolist()})
+    fourvect = vector.arr({"px": dataframe[fourmom_list_colnames[1]],\
+                       "py": dataframe[fourmom_list_colnames[2]],\
+                       "pz": dataframe[fourmom_list_colnames[3]],\
+                        "E": dataframe[fourmom_list_colnames[0]]})
    
     tauvisfourvect = vector.obj(px = dataframe[tau_2_4mom[1]],\
                                py = dataframe[tau_2_4mom[2]],\
