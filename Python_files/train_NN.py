@@ -1,6 +1,6 @@
 #~~ TRAIN_NN.PY ~~# 
 # Will write this later
-
+rootpath = "/vols/cms/fjo18/Masters2021"
 # Training parameters
 batch_size = 2000
 no_dense_layers = 3
@@ -10,7 +10,7 @@ im_s_shape = (11,11,1)
 stop_patience = 20
 no_epochs = 1
 import datetime
-model_name = 'Full_model' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+model_name = 'Full_model_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 cache_dataset = True
 save_model = False
@@ -44,15 +44,15 @@ import time
 
 
 # load data
-X_train = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/X_train_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
-X_test = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/X_test_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
-y_train = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/y_train_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
-y_test = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/y_test_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
+X_train = tf.data.experimental.load(rootpath + "/Tensors/X_train_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
+X_test = tf.data.experimental.load(rootpath + "/Tensors/X_test_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
+y_train = tf.data.experimental.load(rootpath + "/Tensors/y_train_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
+y_test = tf.data.experimental.load(rootpath + "/Tensors/y_test_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
 
-l_im_train = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/l_im_train_tensor", element_spec = TensorSpec(shape=(21,21), dtype=tf.uint8, name=None)).batch(batch_size)
-l_im_test = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/l_im_test_tensor", element_spec = TensorSpec(shape=(21,21), dtype=tf.uint8, name=None)).batch(batch_size)
-s_im_train = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/s_im_train_tensor", element_spec = TensorSpec(shape=(11,11), dtype=tf.uint8, name=None)).batch(batch_size)
-s_im_test = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/s_im_test_tensor", element_spec = TensorSpec(shape=(11,11), dtype=tf.uint8, name=None)).batch(batch_size)
+l_im_train = tf.data.experimental.load(rootpath + "/Tensors/l_im_train_tensor", element_spec = TensorSpec(shape=(21,21), dtype=tf.uint8, name=None)).batch(batch_size)
+l_im_test = tf.data.experimental.load(rootpath + "/Tensors/l_im_test_tensor", element_spec = TensorSpec(shape=(21,21), dtype=tf.uint8, name=None)).batch(batch_size)
+s_im_train = tf.data.experimental.load(rootpath + "/Tensors/s_im_train_tensor", element_spec = TensorSpec(shape=(11,11), dtype=tf.uint8, name=None)).batch(batch_size)
+s_im_test = tf.data.experimental.load(rootpath + "/Tensors/s_im_test_tensor", element_spec = TensorSpec(shape=(11,11), dtype=tf.uint8, name=None)).batch(batch_size)
 
 train_inputs = tf.data.Dataset.zip((l_im_train, s_im_train, X_train))
 test_inputs = tf.data.Dataset.zip((l_im_test, s_im_test, X_test))
@@ -112,7 +112,7 @@ def CNN_creator_3input(inputshape_1, inputshape_2, inputshape_3, convlayers, den
     
     outputs = layers.Dense(6, name = "outputs", activation = "softmax")(x)
 
-    model = keras.Model(inputs=[image_input_l, image_input_s, input_hl], outputs=outputs, name="CNN_model_test")
+    model = keras.Model(inputs=[image_input_l, image_input_s, input_hl], outputs=outputs)
     model.compile(loss="mean_squared_error", optimizer=Adam(learning_rate=learningrate), metrics=["accuracy"],)
     model.summary()
     return model
@@ -134,7 +134,7 @@ model.fit(train_batch,
           validation_data = test_batch) 
 
 if save_model:
-    model.save("/vols/cms/fjo18/Masters2021/Models/%s" % model_name)
+    model.save(rootpath + "/Models/%s" % model_name)
 
 time_elapsed = time.time() - time_start 
 time_start = time.time()
