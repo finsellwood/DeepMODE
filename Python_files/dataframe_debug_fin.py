@@ -56,7 +56,7 @@ output_dataframe["phis"] = [[]] * df_ordered.shape[0]
 output_dataframe["etas"] = [[]] * df_ordered.shape[0]
 output_dataframe["frac_energies"] = [[]] * df_ordered.shape[0]
 
-output_dataframe.astype({'newline': 'object'})
+output_dataframe.astype({'phis': 'object', 'etas': 'object', 'frac_energies': 'object'})
 output_dataframe.dtypes
 # for index, row in df_ordered.iterrows():
 #     fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
