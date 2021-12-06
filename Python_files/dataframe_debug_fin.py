@@ -64,10 +64,10 @@ for index, row in df_ordered.iterrows():
                        "pz": row[fourmom_list[3]].values.tolist(),\
                       })
     
-    tauvisfourvect = vector.obj(px = df_ordered [tau_2_4mom[1]],\
-                               py = df_ordered [tau_2_4mom[2]],\
-                               pz = df_ordered [tau_2_4mom[3]],\
-                               E = df_ordered [tau_2_4mom[0]])
+    tauvisfourvect = vector.obj(px = row[tau_2_4mom[1]],\
+                               py = row[tau_2_4mom[2]],\
+                               pz = row[tau_2_4mom[3]],\
+                               E = row[tau_2_4mom[0]])
     phis = fourvect.deltaphi(tauvisfourvect)
     etas = fourvect.deltaeta(tauvisfourvect)
     frac_energies = (fourvect.E/tauvisfourvect.E)
