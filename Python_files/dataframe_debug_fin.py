@@ -76,7 +76,9 @@ for a in range(1, len(fourmom_list[1])):
 #df_ordered[fourmom_list[1][0]].apply(lambda x: [x]) + df_ordered[fourmom_list[1][1]].apply(lambda x: [x])
 #for a in range(len(fourmom_list[1]))])
 # df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
-print(df_ordered['px_values'].head())
+#print(df_ordered['px_values'].head())
+for index, row in df_ordered.iterrows():
+    print(row['px_values'])
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
 # output_dataframe["etas"] = [[]] * df_ordered.shape[0]
