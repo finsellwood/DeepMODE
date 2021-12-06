@@ -41,7 +41,9 @@ import time
 from sklearn.externals import joblib
 
 #~~ Load in pickled dataframe ~~#
-df_ordered = pd.read_pickle(rootpath + "/Objects/testhead.pkl")
+fullfile = rootpath + "/Objects/testhead.pkl"
+print(fullfile)
+#df_ordered = pd.read_pickle(fullfile)
 
 print("producing new variables...")
 time_start = time.time()
@@ -162,5 +164,5 @@ for index, row in df_ordered.iterrows():
 # time_elapsed = time_start - time.time()
 # print("elapsed time = " + str(time_elapsed))
 
-pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
-joblib.dump(imvar_df, rootpath + "/Objects/imvar_df.sav")
+# pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
+# joblib.dump(imvar_df, rootpath + "/Objects/imvar_df.sav")
