@@ -1,5 +1,6 @@
 #~~ TRAIN_NN.PY ~~# 
 # Will write this later
+rootpath = "/vols/cms/fjo18/Masters2021"
 
 # Training parameters
 batch_size  = 2000
@@ -9,7 +10,7 @@ stop_patience = 20
 no_epochs = 5
 
 import datetime
-model_name = 'High_level_model' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+model_name = 'High_level_model_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 cache_dataset = True
 save_model = False
@@ -41,10 +42,10 @@ from tensorflow.keras.utils import normalize
 import time
 
 # load data
-X_train = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/X_train_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
-X_test = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/X_test_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
-y_train = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/y_train_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
-y_test = tf.data.experimental.load("/vols/cms/fjo18/Masters2021/Tensors/y_test_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
+X_train = tf.data.experimental.load(rootpath + "/Tensors/X_train_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
+X_test = tf.data.experimental.load(rootpath + "/Tensors/X_test_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
+y_train = tf.data.experimental.load(rootpath + "/Tensors/y_train_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
+y_test = tf.data.experimental.load(rootpath + "/Tensors/y_test_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
 
 train_batch = tf.data.Dataset.zip((X_train, y_train))
 test_batch = tf.data.Dataset.zip((X_test, y_test))
@@ -97,8 +98,9 @@ model.fit(train_batch,
           epochs=no_epochs,
           callbacks=[history, early_stop],
           validation_data = test_batch) 
+
 if save_model:
-    model.save("/vols/cms/fjo18/Masters2021/Models/%s" % model_name)
+    model.save(rootpath + "/Models/%s" % model_name)
 
 time_elapsed = time.time() - time_start 
 time_start = time.time()
