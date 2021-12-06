@@ -41,9 +41,8 @@ import time
 from sklearn.externals import joblib
 
 #~~ Load in pickled dataframe ~~#
-fullfile = rootpath + "/Objects/testhead.pkl"
-print(fullfile)
-df_ordered = pd.read_pickle(fullfile)
+
+df_ordered = pd.read_pickle(rootpath + "/Objects/testhead.pkl")
 
 print("producing new variables...")
 time_start = time.time()
