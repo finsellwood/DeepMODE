@@ -73,7 +73,7 @@ def aggregator(dataframe):
 
 
 
-df_ordered['newline'] = df_ordered[fourmom_list[i] for i in range(4)].apply(lambda x: np.append(x), axis = 1)
+df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
 print(df_ordered['newline'].head())
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
