@@ -68,34 +68,36 @@ def energyfinder(dataframe, momvariablenames_1):
 energyfinder(df_ordered, gam_2_3mom)
 energyfinder(df_ordered, cl_2_3mom)
 # 
-output_dataframe = pd.DataFrame()
-output_dataframe["phis"] = [[]] * df_ordered.shape[0]
-output_dataframe["etas"] = [[]] * df_ordered.shape[0]
-output_dataframe["frac_energies"] = [[]] * df_ordered.shape[0]
+df_ordered['newline'] = ak.flatten(ak.Array(df_ordered[fourmom_list[1]]), axis = None)
+print(df_ordered['newline'].head())
+# output_dataframe = pd.DataFrame()
+# output_dataframe["phis"] = [[]] * df_ordered.shape[0]
+# output_dataframe["etas"] = [[]] * df_ordered.shape[0]
+# output_dataframe["frac_energies"] = [[]] * df_ordered.shape[0]
 
-output_dataframe.astype({'phis': 'object', 'etas': 'object', 'frac_energies': 'object'})
-# print(output_dataframe.dtypes)
-for index, row in df_ordered.iterrows():
-    px = ak.flatten(ak.Array(row[fourmom_list[1]].values.tolist()), axis = None)
-    py = ak.flatten(ak.Array(row[fourmom_list[2]].values.tolist()), axis = None) 
-    pz = ak.flatten(ak.Array(row[fourmom_list[3]].values.tolist()), axis = None)
-    E = ak.flatten(ak.Array(row[fourmom_list[0]].values.tolist()), axis = None)
-    fourvect = vector.arr({"px": px,\
-                       "py": py,\
-                       "pz": pz,\
-                       "E": E})
+# output_dataframe.astype({'phis': 'object', 'etas': 'object', 'frac_energies': 'object'})
+# # print(output_dataframe.dtypes)
+# for index, row in df_ordered.iterrows():
+#     px = ak.flatten(ak.Array(row[fourmom_list[1]].values.tolist()), axis = None)
+#     py = ak.flatten(ak.Array(row[fourmom_list[2]].values.tolist()), axis = None) 
+#     pz = ak.flatten(ak.Array(row[fourmom_list[3]].values.tolist()), axis = None)
+#     E = ak.flatten(ak.Array(row[fourmom_list[0]].values.tolist()), axis = None)
+#     fourvect = vector.arr({"px": px,\
+#                        "py": py,\
+#                        "pz": pz,\
+#                        "E": E})
     
-    tauvisfourvect = vector.obj(px = row[tau_2_4mom[1]],\
-                               py = row[tau_2_4mom[2]],\
-                               pz = row[tau_2_4mom[3]],\
-                               E = row[tau_2_4mom[0]])
-    phis = fourvect.deltaphi(tauvisfourvect)
-    etas = fourvect.deltaeta(tauvisfourvect)
-    frac_energies = (fourvect.E/tauvisfourvect.E)
-    output_dataframe["phis"].loc[index] = phis
-    output_dataframe["etas"].loc[index] = etas
-    output_dataframe["frac_energies"].loc[index] = frac_energies
-    print(index)
+#     tauvisfourvect = vector.obj(px = row[tau_2_4mom[1]],\
+#                                py = row[tau_2_4mom[2]],\
+#                                pz = row[tau_2_4mom[3]],\
+#                                E = row[tau_2_4mom[0]])
+#     phis = fourvect.deltaphi(tauvisfourvect)
+#     etas = fourvect.deltaeta(tauvisfourvect)
+#     frac_energies = (fourvect.E/tauvisfourvect.E)
+#     output_dataframe["phis"].loc[index] = phis
+#     output_dataframe["etas"].loc[index] = etas
+#     output_dataframe["frac_energies"].loc[index] = frac_energies
+#     print(index)
     
 #     df_ordered["newline"].loc[index] = fourvect.px.tolist()
 #     print(df_ordered["newline"].loc[index])# = 
