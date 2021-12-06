@@ -68,7 +68,7 @@ def energyfinder(dataframe, momvariablenames_1):
 energyfinder(df_ordered, gam_2_3mom)
 energyfinder(df_ordered, cl_2_3mom)
 # 
-df_ordered['newline'] = ak.flatten(ak.Array([df_ordered[fourmom_list[i]] for i in range(4)]), axis = None)
+df_ordered['newline'] = np.array([df_ordered[fourmom_list[i]] for i in range(4)]).flatten()
 print(df_ordered['newline'].head())
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
