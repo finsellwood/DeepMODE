@@ -99,8 +99,9 @@ def phi_eta_find(dataframe):
                                py = dataframe[tau_2_4mom[2]],\
                                pz = dataframe[tau_2_4mom[3]],\
                                E = dataframe[tau_2_4mom[0]])
-    print(fourvect.deltaphi(tauvisfourvect))
-#     for a in range(20):
+    
+    for a in range(20):
+        print(fourvect.deltaphi(tauvisfourvect)[a])
 #         print(fourvect.x[a], 'x')
 #         print(fourvect.y[a], 'y')
 #         print(fourvect.z[a], 'z')
