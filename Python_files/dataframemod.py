@@ -39,10 +39,12 @@ import awkward as ak
 import numba as nb
 import time
 from sklearn.externals import joblib
-
+time_start = time.time()
 #~~ Load in pickled dataframe ~~#
 df_ordered = pd.read_pickle(rootpath + "/Objects/ordereddf.pkl")
 
+time_elapsed = time_start - time.time()
+print("elapsed time = " + str(time_elapsed))
 print("producing new variables...")
 time_start = time.time()
 df_ordered_head = df_ordered.head(10000)
@@ -67,8 +69,8 @@ def energyfinder(dataframe, momvariablenames_1):
 # This function generates the energy of the given massless object (magnitude of 3-mom) 
 # So that can be treated the same as the other four-momenta later
 
-energyfinder(df_ordered, gam_2_3mom)
-energyfinder(df_ordered, cl_2_3mom)
+# energyfinder(df_ordered, gam_2_3mom)
+# energyfinder(df_ordered, cl_2_3mom)
 # define the energy variables for the photon and cluster lists
 
 
@@ -162,5 +164,5 @@ energyfinder(df_ordered, cl_2_3mom)
 # time_elapsed = time_start - time.time()
 # print("elapsed time = " + str(time_elapsed))
 
-pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
-joblib.dump(imvar_df, rootpath + "/Objects/imvar_df.sav")
+# pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
+# joblib.dump(imvar_df, rootpath + "/Objects/imvar_df.sav")
