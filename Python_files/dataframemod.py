@@ -47,17 +47,28 @@ time_start = time.time()
 df_ordered_head = df_ordered.head(10000)
 pd.to_pickle(df_ordered_head, "/vols/cms/fjo18/Masters2021/Objects/testhead.pkl")
 
-# def energyfinder(dataframe, momvariablenames_1):
-#     momvect1 = vector.arr({"px": dataframe[momvariablenames_1[1]],\
-#                        "py": dataframe[momvariablenames_1[2]],\
-#                        "pz": dataframe[momvariablenames_1[3]]})
-#     dataframe[momvariablenames_1[0]] = [abs(momvect1)]
-# # This function generates the energy of the given massless object (magnitude of 3-mom) 
-# # So that can be treated the same as the other four-momenta later
+def energyfinder(dataframe, momvariablenames_1):
+    arr = []
+    counter = -1
+    for i in dataframe[momvariablenames_1[1]]:
+        counter += 1
+        energ = []
+        if i.size > 0:
+            for j in range(len(i)):
+                momvect_j = [dataframe[momvariablenames_1[1]][counter][j],\
+                             dataframe[momvariablenames_1[2]][counter][j],\
+                             dataframe[momvariablenames_1[3]][counter][j]]
+                energ.append(np.sqrt(sum(x**2 for x in momvect_j)))
+            arr.append(energ)
+        else: arr.append([])
+    dataframe[momvariablenames_1[0]] = arr
 
-# energyfinder(df_ordered, gam_2_3mom)
-# energyfinder(df_ordered, cl_2_3mom)
-# # define the energy variables for the photon and cluster lists
+# This function generates the energy of the given massless object (magnitude of 3-mom) 
+# So that can be treated the same as the other four-momenta later
+
+energyfinder(df_ordered, gam_2_3mom)
+energyfinder(df_ordered, cl_2_3mom)
+# define the energy variables for the photon and cluster lists
 
 
 # def inv_mass(Energ,Px,Py,Pz):
@@ -150,5 +161,5 @@ pd.to_pickle(df_ordered_head, "/vols/cms/fjo18/Masters2021/Objects/testhead.pkl"
 # time_elapsed = time_start - time.time()
 # print("elapsed time = " + str(time_elapsed))
 
-# pd.to_pickle(df_ordered, "/vols/cms/fjo18/Masters2021/Objects/ordereddf_modified.pkl")
-# joblib.dump(imvar_df, "/vols/cms/fjo18/Masters2021/Objects/imvar_df.sav")
+pd.to_pickle(df_ordered, "/vols/cms/fjo18/Masters2021/Objects/ordereddf_modified.pkl")
+joblib.dump(imvar_df, "/vols/cms/fjo18/Masters2021/Objects/imvar_df.sav")
