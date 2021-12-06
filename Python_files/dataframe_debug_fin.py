@@ -74,7 +74,7 @@ def get_fourmomenta_lists(dataframe):
         for b in range(1, len(fourmom_list[1])):   
             dataframe[fourmom_list_colnames[a]] += dataframe[fourmom_list[a][b]].apply(lambda x: np.array([x]).flatten().tolist())
         
-
+get_fourmomenta_lists(df_ordered)
 # df_ordered['px_values'] = df_ordered[fourmom_list[1][0]].apply(lambda x: np.array([x]).flatten().tolist())
 # for a in range(1, len(fourmom_list[1])):   
 #     df_ordered['px_values'] += df_ordered[fourmom_list[1][a]].apply(lambda x: np.array([x]).flatten().tolist())
