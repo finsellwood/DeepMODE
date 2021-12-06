@@ -84,7 +84,7 @@ variables_tt_2 = ["tauFlag_2",
                ]
 
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 print("converting root files to dataframes...")
 time_start = time.time()
@@ -100,7 +100,7 @@ dfGG_tt_1 = pd.DataFrame(arrGG_tt_1)
 dfVBF_tt_2 = pd.DataFrame(arrVBF_tt_2)
 dfGG_tt_2 = pd.DataFrame(arrGG_tt_2)
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("time elapsed = " + str(time_elapsed))
 print("Manipulating dataframes...")
 time_start = time.time()
@@ -165,7 +165,7 @@ y = pd.concat([d_DM0, d_DM1, d_DM2, d_DM10, d_DM11, d_DMminus1], ignore_index = 
 
 del d_DM0, d_DM1, d_DM2, d_DM10, d_DM11, d_DMminus1
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 
 
