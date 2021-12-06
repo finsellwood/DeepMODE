@@ -2,7 +2,7 @@
 # Unpacks root files into a dataframe, selecting necessary columns in process.
 # Generates new variables and appends them to the dataframe as new columns before saving df_ordered as ordereddf.pkl
 # Also recovers y values and saves in a separate dataframe as yvalues.pkl
-
+rootpath = "/vols/cms/fjo18/Masters2021"
 print("importing packages...")
 import ROOT
 import root_numpy as rnp
@@ -14,9 +14,9 @@ import sys
 time_start = time.time()
 print("loading uproot files...")
 
-rootGG_tt = ROOT.TFile("/vols/cms/fjo18/Masters2021/RootFiles/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+rootGG_tt = ROOT.TFile(rootpath + "/RootFiles/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
 intreeGG_tt = rootGG_tt.Get("ntuple")
-rootVBF_tt = ROOT.TFile("/vols/cms/fjo18/Masters2021/RootFiles/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+rootVBF_tt = ROOT.TFile(rootpath + "/RootFiles/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
 intreeVBF_tt = rootVBF_tt.Get("ntuple")
 time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
@@ -169,5 +169,5 @@ time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
 
 
-df_ordered.to_pickle("/vols/cms/fjo18/Masters2021/Objects/ordereddf.pkl")
-y.to_pickle("/vols/cms/fjo18/Masters2021/Objects/yvalues.pkl")
+df_ordered.to_pickle(rootpath + "/Objects/ordereddf.pkl")
+y.to_pickle(rootpath + "/Objects/yvalues.pkl")
