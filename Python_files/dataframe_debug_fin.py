@@ -57,15 +57,13 @@ for index, row in df_ordered.iterrows():
                        "py": row[fourmom_list[2]].values.tolist(),\
                        "pz": row[fourmom_list[3]].values.tolist(),\
                       })
-    df_ordered["newline"].loc[index] = [fourvect.px]
+    df_ordered["newline"].loc[index] = fourvect.px
 #     print(df_ordered["newline"].loc[index])# = 
 #     print(fourvect.px)
 time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed)) 
-
-
-
 print(df_ordered["newline"].head())
+print(df_ordered["gam_px_2"].head())
 # print(vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
 #                        "py": df_ordered[fourmom_list[2]].values.tolist(),\
 #                        "pz": df_ordered[fourmom_list[3]].values.tolist(),\
