@@ -110,9 +110,9 @@ def phi_eta_find(dataframe):
     output_dataframe["etas"] = [[]] * dataframe.shape[0]
     output_dataframe["frac_energies"] = [[]] * dataframe.shape[0]
 
-    output_dataframe["phis"] = fourvect.deltaphi(tauvisfourvect) 
-    output_dataframe["etas"] = fourvect.deltaeta(tauvisfourvect) 
-    output_dataframe["frac_energies"] = fourvect.E/tauvisfourvect.E
+    output_dataframe["phis"] += fourvect.deltaphi(tauvisfourvect) 
+    output_dataframe["etas"] += fourvect.deltaeta(tauvisfourvect) 
+    output_dataframe["frac_energies"] += fourvect.E/tauvisfourvect.E
     
     return output_dataframe 
 phi_eta_find(df_ordered)
