@@ -49,26 +49,31 @@ time_start = time.time()
 
 # for index, row in df_ordered.iterrows():
 #   print(row[fourmom_list[1]].values.tolist())
-def energyfinder(dataframe, momvariablenames_1):
-    arr = []
-    counter = -1
-    for i in dataframe[momvariablenames_1[1]]:
-        counter += 1
-        energ = []
-        if i.size > 0:
-            for j in range(len(i)):
-                momvect_j = [dataframe[momvariablenames_1[1]][counter][j],\
-                             dataframe[momvariablenames_1[2]][counter][j],\
-                             dataframe[momvariablenames_1[3]][counter][j]]
-                energ.append(np.sqrt(sum(x**2 for x in momvect_j)))
-            arr.append(energ)
-        else: arr.append([])
-    dataframe[momvariablenames_1[0]] = arr
+# def energyfinder(dataframe, momvariablenames_1):
+#     arr = []
+#     counter = -1
+#     for i in dataframe[momvariablenames_1[1]]:
+#         counter += 1
+#         energ = []
+#         if i.size > 0:
+#             for j in range(len(i)):
+#                 momvect_j = [dataframe[momvariablenames_1[1]][counter][j],\
+#                              dataframe[momvariablenames_1[2]][counter][j],\
+#                              dataframe[momvariablenames_1[3]][counter][j]]
+#                 energ.append(np.sqrt(sum(x**2 for x in momvect_j)))
+#             arr.append(energ)
+#         else: arr.append([])
+#     dataframe[momvariablenames_1[0]] = arr
     
-energyfinder(df_ordered, gam_2_3mom)
-energyfinder(df_ordered, cl_2_3mom)
+# energyfinder(df_ordered, gam_2_3mom)
+# energyfinder(df_ordered, cl_2_3mom)
 # 
-df_ordered['newline'] = np.array([df_ordered[fourmom_list[i]] for i in range(4)]).flatten()
+def aggregator(dataframe):
+    return np.array([dataframe[fourmom_list[i]] for i in range(4)]).flatten()
+
+
+
+df_ordered['newline'] = np.array([df_ordered[fourmom_list[i]] for i in range(4)])
 print(df_ordered['newline'].head())
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
