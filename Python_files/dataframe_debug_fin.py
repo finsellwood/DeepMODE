@@ -57,7 +57,7 @@ for index, row in df_ordered.iterrows():
                        "py": row[fourmom_list[2]].values.tolist(),\
                        "pz": row[fourmom_list[3]].values.tolist(),\
                       })
-    df_ordered["newline"].loc[index] = fourvect.px
+    df_ordered["newline"].loc[[index]] = fourvect.px
 time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed)) 
 
