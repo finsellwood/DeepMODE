@@ -50,11 +50,19 @@ time_start = time.time()
 # for index, row in df_ordered.iterrows():
 #   print(row[fourmom_list[1]].values.tolist())
 
-# df_ordered["newline"] =
-print(vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
-                       "py": df_ordered[fourmom_list[2]].values.tolist(),\
-                       "pz": df_ordered[fourmom_list[3]].values.tolist(),\
-                      }).x)
+# 
+for index, row in df_ordered.iterrows():
+  fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
+                       "py": row[fourmom_list[2]].values.tolist(),\
+                       "pz": row[fourmom_list[3]].values.tolist(),\
+                      })
+  row["newline"] = fourvect.px
+  
+print(df_ordered.head())
+# print(vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
+#                        "py": df_ordered[fourmom_list[2]].values.tolist(),\
+#                        "pz": df_ordered[fourmom_list[3]].values.tolist(),\
+#                       }).x)
                         #"E": df_ordered[fourmom_list[0]].values.tolist()})
 
 #  = fourvect.px
