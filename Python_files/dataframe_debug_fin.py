@@ -81,10 +81,31 @@ get_fourmomenta_lists(df_ordered)
 #df_ordered[fourmom_list[1][0]].apply(lambda x: [x]) + df_ordered[fourmom_list[1][1]].apply(lambda x: [x])
 #for a in range(len(fourmom_list[1]))])
 # df_ordered['newline'] = df_ordered[px_list].apply(lambda x: np.append(x), axis = 1)
-#print(df_ordered['px_values'].head())
-for index, row in df_ordered.iterrows():
-    for a in range(4):
-        print(row[fourmom_list_colnames[a]])
+# print(df_ordered['px_values'].head())
+# for index, row in df_ordered.iterrows():
+#     for a in range(4):
+#         print(row[fourmom_list_colnames[a]])
+        
+        
+def phi_eta_find(dataframe):  
+    output_dataframe = pd.DataFrame()
+
+    fourvect = vector.arr({"px": dataframe[fourmom_list_colnames[1]],\
+                       "py": dataframe[fourmom_list_colnames[2]],\
+                       "pz": dataframe[fourmom_list_colnames[3]],\
+                        "E": dataframe[fourmom_list_colnames[0]]})
+   
+    tauvisfourvect = vector.obj(px = dataframe[tau_2_4mom[1]],\
+                               py = dataframe[tau_2_4mom[2]],\
+                               pz = dataframe[tau_2_4mom[3]],\
+                               E = dataframe[tau_2_4mom[0]])
+    
+    output_dataframe["phis"] = fourvect.deltaphi(tauvisfourvect) 
+    output_dataframe["etas"] = fourvect.deltaeta(tauvisfourvect) 
+    output_dataframe["frac_energies"] = fourvect.E/tauvisfourvect.E
+    
+    return output_dataframe 
+phi_eta_find(df_ordered)
 # output_dataframe = pd.DataFrame()
 # output_dataframe["phis"] = [[]] * df_ordered.shape[0]
 # output_dataframe["etas"] = [[]] * df_ordered.shape[0]
