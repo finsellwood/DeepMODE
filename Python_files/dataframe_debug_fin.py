@@ -51,8 +51,7 @@ time_start = time.time()
 #   print(row[fourmom_list[1]].values.tolist())
 
 # 
-#df_ordered["newline"] = 
-print([] * df_ordered.shape[0])
+df_ordered["newline"] = [0] * df_ordered.shape[0]
 for index, row in df_ordered.iterrows():
   fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
                        "py": row[fourmom_list[2]].values.tolist(),\
