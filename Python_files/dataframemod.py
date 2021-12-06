@@ -2,6 +2,7 @@
 # Takes the existing n-tuple dataframe (df_ordered) and uses data to create an additional dataframe (imvar_df)
 # with only the variables necessary for image creation. Then removes the columns used from df_ordered and saves
 # (under diff name)
+rootpath = "/vols/cms/fjo18/Masters2021"
 
 #~~ Store strings in memory ~~#
 
@@ -40,12 +41,12 @@ import time
 from sklearn.externals import joblib
 
 #~~ Load in pickled dataframe ~~#
-df_ordered = pd.read_pickle("/vols/cms/fjo18/Masters2021/Objects/ordereddf.pkl")
+df_ordered = pd.read_pickle(rootpath + "/Objects/ordereddf.pkl")
 
 print("producing new variables...")
 time_start = time.time()
 df_ordered_head = df_ordered.head(10000)
-pd.to_pickle(df_ordered_head, "/vols/cms/fjo18/Masters2021/Objects/testhead.pkl")
+pd.to_pickle(df_ordered_head, rootpath + "/Objects/testhead.pkl")
 
 def energyfinder(dataframe, momvariablenames_1):
     arr = []
@@ -161,5 +162,5 @@ energyfinder(df_ordered, cl_2_3mom)
 # time_elapsed = time_start - time.time()
 # print("elapsed time = " + str(time_elapsed))
 
-pd.to_pickle(df_ordered, "/vols/cms/fjo18/Masters2021/Objects/ordereddf_modified.pkl")
-joblib.dump(imvar_df, "/vols/cms/fjo18/Masters2021/Objects/imvar_df.sav")
+pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
+joblib.dump(imvar_df, rootpath + "/Objects/imvar_df.sav")
