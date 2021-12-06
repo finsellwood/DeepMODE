@@ -88,7 +88,7 @@ get_fourmomenta_lists(df_ordered)
         
         
 def phi_eta_find(dataframe):  
-    output_dataframe = pd.DataFrame()
+    output_dataframe = np.array([[[]] * dataframe.shape[0]] * 3)
 
     fourvect = vector.arr({"px": dataframe[fourmom_list_colnames[1]],\
                        "py": dataframe[fourmom_list_colnames[2]],\
@@ -106,13 +106,14 @@ def phi_eta_find(dataframe):
 #         print(fourvect.y[a], 'y')
 #         print(fourvect.z[a], 'z')
 #         print(fourvect.t[a], 't')
-    output_dataframe["phis"] = [[]] * dataframe.shape[0]
-    output_dataframe["etas"] = [[]] * dataframe.shape[0]
-    output_dataframe["frac_energies"] = [[]] * dataframe.shape[0]
+     output_dataframe[0] = fourvect.deltaphi(tauvisfourvect)
+#     output_dataframe["phis"] = [[]] * dataframe.shape[0]
+#     output_dataframe["etas"] = [[]] * dataframe.shape[0]
+#     output_dataframe["frac_energies"] = [[]] * dataframe.shape[0]
 
-    output_dataframe["phis"] += fourvect.deltaphi(tauvisfourvect) 
-    output_dataframe["etas"] += fourvect.deltaeta(tauvisfourvect) 
-    output_dataframe["frac_energies"] += fourvect.E/tauvisfourvect.E
+#     output_dataframe["phis"] += fourvect.deltaphi(tauvisfourvect) 
+#     output_dataframe["etas"] += fourvect.deltaeta(tauvisfourvect) 
+#     output_dataframe["frac_energies"] += fourvect.E/tauvisfourvect.E
     
     return output_dataframe 
 phi_eta_find(df_ordered)
