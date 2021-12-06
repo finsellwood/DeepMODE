@@ -58,7 +58,7 @@ for index, row in df_ordered.iterrows():
                       })
   row["newline"] = fourvect.px
   
-print(df_ordered.head())
+print(df_ordered["newline"].head())
 # print(vector.arr({"px": df_ordered[fourmom_list[1]].values.tolist(),\
 #                        "py": df_ordered[fourmom_list[2]].values.tolist(),\
 #                        "pz": df_ordered[fourmom_list[3]].values.tolist(),\
