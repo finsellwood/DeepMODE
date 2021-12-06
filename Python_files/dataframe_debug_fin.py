@@ -52,6 +52,8 @@ time_start = time.time()
 
 # 
 df_ordered["newline"] = [[]] * df_ordered.shape[0]
+df_ordered.astype({'newline': 'object'})
+df_ordered.dtypes
 for index, row in df_ordered.iterrows():
     fourvect = vector.arr({"px": row[fourmom_list[1]].values.tolist(),\
                        "py": row[fourmom_list[2]].values.tolist(),\
