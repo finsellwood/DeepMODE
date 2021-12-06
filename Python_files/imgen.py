@@ -1,6 +1,6 @@
 #~~ IMGEN.PY ~~#
 # Takes imvar_df dataframe and generates image files in batches of 100,000 events. Saves as numpy arrays.
-
+rootpath = "/vols/cms/fjo18/Masters2021"
 #~~ Packages ~~#
 import pandas as pd
 import numpy as np
@@ -11,7 +11,7 @@ import time
 from sklearn.externals import joblib
 
 #~~ Load the dataframe with image variables in ~~#
-imvar_df = joblib.load("/vols/cms/fjo18/Masters2021/Objects/imvar_df.sav")
+imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):    
@@ -46,14 +46,14 @@ def largegrid(dataframe, dimension_l, dimension_s):
         smallgridlist.append(grid2)
         counter +=1
         if counter ==100000:
-            np.save('/vols/cms/fjo18/Masters2021/Images/image_l_%02d.npy' % imcounter, largegridlist)
-            np.save('/vols/cms/fjo18/Masters2021/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+            np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
+            np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
             largegridlist = []
             smallgridlist = []
             print('Images saved = ', imcounter)
             imcounter+=1
             counter = 0
-    np.save('/vols/cms/fjo18/Masters2021/Images/image_l_%02d.npy' % imcounter, largegridlist)
-    np.save('/vols/cms/fjo18/Masters2021/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+    np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
+    np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
     
 largegrid(imvar_df, 21,11) 
