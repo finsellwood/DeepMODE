@@ -16,7 +16,7 @@
 #
 # OUTPUTS: should have 6 tensorflow files, 3 train and 3 test each for HL vars, Images and y values
 # Also a file 'element_specs.txt' which contains the datatype of each tensor, for use when loading in the tensors later
-
+rootpath = "/vols/cms/fjo18/Masters2021"
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -32,8 +32,8 @@ print("loading y,x files...")
 ###
 
 specfile = open('element_specs.txt', 'w')
-y = pd.read_pickle("/vols/cms/fjo18/Masters2021/Objects/yvalues.pkl")
-df_ordered = pd.read_pickle("/vols/cms/fjo18/Masters2021/Objects/ordereddf_modified.pkl")
+y = pd.read_pickle(rootpath + "/Objects/yvalues.pkl")
+df_ordered = pd.read_pickle(rootpath + "/Objects/ordereddf_modified.pkl")
 
 ###
 time_elapsed = time.time() - time_start 
@@ -100,8 +100,8 @@ print("elapsed time = " + str(time_elapsed))
 print("Saving X tensor files...")
 ###
 
-tf.data.experimental.save(t_X_train, "/vols/cms/fjo18/Masters2021/Tensors/X_train_tensor")
-tf.data.experimental.save(t_X_test, "/vols/cms/fjo18/Masters2021/Tensors/X_test_tensor")
+tf.data.experimental.save(t_X_train, rootpath + "/Tensors/X_train_tensor")
+tf.data.experimental.save(t_X_test, rootpath + "/Tensors/X_test_tensor")
 
 del t_X_train, t_X_test
 
@@ -115,7 +115,7 @@ print("loading in large image arrays...")
 num_arrays = 107
 list_of_arrays = []
 for a in range(num_arrays):
-  list_of_arrays.append(np.load('/vols/cms/fjo18/Masters2021/Images/image_l_%02d.npy' % a))
+  list_of_arrays.append(np.load(rootpath + "/Images/image_l_%02d.npy" % a))
 l_image_array = np.concatenate(list_of_arrays)
 list_of_arrays = []
 
@@ -156,8 +156,8 @@ print("elapsed time = " + str(time_elapsed))
 print("Saving large image tensor files...")
 ###
 
-tf.data.experimental.save(t_l_im_train, "/vols/cms/fjo18/Masters2021/Tensors/l_im_train_tensor")
-tf.data.experimental.save(t_l_im_test, "/vols/cms/fjo18/Masters2021/Tensors/l_im_test_tensor")
+tf.data.experimental.save(t_l_im_train, rootpath + "/Tensors/l_im_train_tensor")
+tf.data.experimental.save(t_l_im_test, rootpath + "/Tensors/l_im_test_tensor")
 
 del t_l_im_train, t_l_im_test
 
@@ -169,7 +169,7 @@ print("loading in small image arrays...")
 ###
 
 for a in range(num_arrays):
-  list_of_arrays.append(np.load('/vols/cms/fjo18/Masters2021/Images/image_s_%02d.npy' % a))
+  list_of_arrays.append(np.load(rootpath + "/Images/image_s_%02d.npy" % a))
 s_image_array = np.concatenate(list_of_arrays)
 list_of_arrays = []
 
@@ -218,10 +218,10 @@ print("elapsed time = " + str(time_elapsed))
 print("Saving small image tensor files...")
 ###
 
-tf.data.experimental.save(t_s_im_train, "/vols/cms/fjo18/Masters2021/Tensors/s_im_train_tensor")
-tf.data.experimental.save(t_s_im_test, "/vols/cms/fjo18/Masters2021/Tensors/s_im_test_tensor")
-tf.data.experimental.save(t_y_train, "/vols/cms/fjo18/Masters2021/Tensors/y_train_tensor")
-tf.data.experimental.save(t_y_test, "/vols/cms/fjo18/Masters2021/Tensors/y_test_tensor")
+tf.data.experimental.save(t_s_im_train, rootpath + "/Tensors/s_im_train_tensor")
+tf.data.experimental.save(t_s_im_test, rootpath + "/Tensors/s_im_test_tensor")
+tf.data.experimental.save(t_y_train, rootpath + "/Tensors/y_train_tensor")
+tf.data.experimental.save(t_y_test, rootpath + "/Tensors/y_test_tensor")
 
 del t_s_im_train, t_s_im_test, t_y_train, t_y_test
 
