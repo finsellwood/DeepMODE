@@ -88,9 +88,9 @@ for index, row in df_ordered.iterrows():
     phis = fourvect.deltaphi(tauvisfourvect)
     etas = fourvect.deltaeta(tauvisfourvect)
     frac_energies = (fourvect.E/tauvisfourvect.E)
-    output_dataframe["phis"].loc[index] = np.concatenate(phis).ravel().tolist()
-    output_dataframe["etas"].loc[index] = np.concatenate(etas).ravel().tolist()
-    output_dataframe["frac_energies"].loc[index] = np.concatenate(frac_energies).ravel().tolist()
+    output_dataframe["phis"].loc[index] = ak.flatten(phis, axis = None)
+    output_dataframe["etas"].loc[index] = ak.flatten(etas, axis = None)
+    output_dataframe["frac_energies"].loc[index] = ak.flatten(frac_energies, axis = None)
     print(index)
     
 #     df_ordered["newline"].loc[index] = fourvect.px.tolist()
