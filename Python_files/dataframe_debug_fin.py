@@ -22,7 +22,7 @@ cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
 sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
 tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
 
-measured4mom = [pi_2_4mom, pi2_2_4mom, pi3_2_4mom, sc1_2_4mom, gam_2_3mom, cl_2_3mom, ]
+measured4mom = [gam_2_3mom, cl_2_3mom, ]#pi_2_4mom, pi2_2_4mom, pi3_2_4mom, sc1_2_4mom, 
 E_list = [a[0] for a in measured4mom]
 px_list = [a[1] for a in measured4mom]
 py_list = [a[2] for a in measured4mom]
