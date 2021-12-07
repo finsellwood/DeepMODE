@@ -171,8 +171,8 @@ def phi_eta_find(dataframe):
                                E = dataframe[tau_2_4mom[0]])
     
     phis = ak.to_list(fourvect.deltaphi(tauvisfourvect))
-    etas = np.array(ak.to_list(fourvect.deltaeta(tauvisfourvect)))
-    frac_energies = np.array(ak.to_list((fourvect.E/tauvisfourvect.E)))
+    etas = ak.to_list(fourvect.deltaeta(tauvisfourvect))
+    frac_energies = ak.to_list((fourvect.E/tauvisfourvect.E))
     output_dataframe = pd.DataFrame({'phis' : phis, 'etas' : etas, 'frac_energies':frac_energies })   
     return output_dataframe 
 
