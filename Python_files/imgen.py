@@ -13,9 +13,9 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
-phis = np.array(imvar_df['phis'].to_numpy().flatten(), dtype = 'float16')
-etas = np.array(imvar_df['etas'].to_numpy().flatten(), dtype = 'float16')
-energies = np.array(imvar_df['frac_energies'].to_numpy().flatten(), dtype = 'float16')
+phis = np.array(imvar_df['phis'].to_numpy().flatten())
+etas = np.array(imvar_df['etas'].to_numpy().flatten())
+energies = np.array(imvar_df['frac_energies'].to_numpy().flatten())
 # phis = np.array([phis]) * np.array([energies])
 # etas = np.array([etas]) * np.array([energies])
 # print(max(phis), max(etas))
