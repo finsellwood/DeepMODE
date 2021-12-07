@@ -13,8 +13,8 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
-phis = imvar_df['phis'].to_numpy().flatten()
-etas = imvar_df['etas'].to_numpy().flatten()
+phis = imvar_df['phis'].to_numpy(dtype = 'float16').flatten()
+etas = imvar_df['etas'].to_numpy(dtype = 'float16').flatten()
 energies = imvar_df['frac_energies'].to_numpy().flatten()
 phis = np.array(phis) * np.array(energies)
 etas = np.array(etas) * np.array(energies)
