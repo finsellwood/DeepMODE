@@ -34,25 +34,21 @@ def largegrid(dataframe, dimension_l, dimension_s):
         #              inner is 11x11, -0.1 to 0.1 in phi/eta
 
 
-        phicoords =  np.floor((phis/1.21) * dimension_l + halfdim).astype(int)
-        etacoords =  np.floor(-1 * (etas/1.21) * dimension_l + halfdim).astype(int)
-        phicoords2 =  np.floor((phis/0.2) * dimension_s + halfdim2).astype(int)
-        etacoords2 =  np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int)
+        phicoords =  min(np.floor((phis/1.21) * dimension_l + halfdim).astype(int), 20)
+        etacoords =  min(np.floor(-1 * (etas/1.21) * dimension_l + halfdim).astype(int), 20)
+        phicoords2 =  min(np.floor((phis/0.2) * dimension_s + halfdim2).astype(int), 10)
+        etacoords2 =  min(np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int), 10)
         for a in range(len(energies)):
-            if energies[a] != 0.0:
-#                 if phis[a] > maxphi:
-#                     maxphi = phis[a]
-#                     print('phi_', maxphi, index, a)
-#                 if etas[a] > maxeta:
-#                     maxeta = etas[a]
-#                     print('eta_', maxeta, index, a)
-
-                grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
+            # if energies[a] != 0.0:
+                
+            grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
                 # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
-                if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
-                    grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
+            #if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
+            grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
+                
         largegridlist.append(grid)
         smallgridlist.append(grid2)
+        
         counter +=1
         if counter == 100000:
             np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
@@ -65,11 +61,6 @@ def largegrid(dataframe, dimension_l, dimension_s):
     np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
     np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
 
- 
-# maxphis = imvar_df['phis'].apply(lambda x: max(x))
-# maxetas = imvar_df['etas'].apply(lambda x: max(x))
-# print('max phi is' + str(maxphis.max()))
-# print('max eta is' + str(maxetas.max()))
 
      
 
