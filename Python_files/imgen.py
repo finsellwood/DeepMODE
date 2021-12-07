@@ -14,15 +14,6 @@ import pylab as pl
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
 
-small_df = imvar_df.sample(frac=0.00001)
-phis = np.array(small_df['phis'].sum(), dtype = 'float16')
-#etas = np.array(small_df['etas'].sum(), dtype = 'float16')
-frac_energies = np.array(small_df['frac_energies'].sum(), dtype = 'float16')
-pl.hist(phis * frac_energies)
-pl.show()
-pl.savefig('phis_histogram.png')
-#print(phis * frac_energies)
-
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):
