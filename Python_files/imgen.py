@@ -13,6 +13,10 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
+phis = imvar_df['phis'].sum(axis = 1)
+#small_df = imvar_df.sample(frac=0.001)
+print(phis)
+
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):
