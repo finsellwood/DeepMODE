@@ -58,8 +58,8 @@ def largegrid(dataframe, dimension_l, dimension_s):
  
 maxphis = imvar_df['phis'].apply(lambda x: max(x))
 maxetas = imvar_df['etas'].apply(lambda x: max(x))
-print('max phi is' + str(maxphis.max())
-print('max eta is' + str(maxetas.max())
+print('max phi is' + str(maxphis.max()))
+print('max eta is' + str(maxetas.max()))
 
      
 
