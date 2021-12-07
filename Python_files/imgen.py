@@ -14,7 +14,7 @@ from sklearn.externals import joblib
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
 
 #~~ Function to generate images ~~#
-def largegrid(dataframe, dimension_l, dimension_s):    
+def largegrid(dataframe, dimension_l, dimension_s):
     halfdim = dimension_l/2
     halfdim2 = dimension_s/2
     largegridlist = []
@@ -55,5 +55,12 @@ def largegrid(dataframe, dimension_l, dimension_s):
             counter = 0
     np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
     np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
-    
-largegrid(imvar_df, 21,11) 
+ 
+maxphis = imvar_df['phis'].apply(lambda x: max(x))
+maxetas = imvar_df['etas'].apply(lambda x: max(x))
+print('max phi is' + str(maxphis.max())
+print('max eta is' + str(maxetas.max())
+
+     
+
+#largegrid(imvar_df, 21,11) 
