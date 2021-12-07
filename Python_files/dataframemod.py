@@ -56,7 +56,7 @@ else:
     df_ordered = pd.read_pickle(rootpath + "/Objects/testhead.pkl")
     print("loading with small test array")
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 print("Finding HL variables...")
 time_start = time.time()
@@ -142,7 +142,7 @@ def ang_var(dataframe, momvariablenames_1, momvariablenames_2, particlename): #s
 ang_var(df_ordered, gam1_2_4mom, gam2_2_4mom, "gam")
 ang_var(df_ordered, pi0_2_4mom, pi_2_4mom, "pi")
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 print("Finding phis and etas")
 time_start = time.time()
@@ -184,7 +184,7 @@ for a in fourmom_list_colnames:
     df_ordered.drop(columns = a, inplace = True)
 # drop irrelevant columns now they have been used for variable creation
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 print("Saving dataframes...")
 time_start = time.time()
@@ -193,5 +193,5 @@ if load_full:
     pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
     joblib.dump(imvar_df, rootpath + "/Objects/imvar_df.sav")
 
-time_elapsed = time_start - time.time()
+time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
