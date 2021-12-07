@@ -2,6 +2,8 @@
 # Takes the existing n-tuple dataframe (df_ordered) and uses data to create an additional dataframe (imvar_df)
 # with only the variables necessary for image creation. Then removes the columns used from df_ordered and saves
 # (under diff name)
+# This is necessary as with the addition of columns of data (a previously bugged feature) the dataframes take a 
+# ridiculous time to load. Removing the lists (which aren't used for training anyway) is important
 rootpath = "/vols/cms/fjo18/Masters2021"
 load_full = False
 
