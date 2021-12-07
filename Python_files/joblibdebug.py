@@ -1,5 +1,5 @@
-#~~ IMGEN.PY ~~#
-# Takes imvar_df dataframe and generates image files in batches of 100,000 events. Saves as numpy arrays.
+#~~ joblibdebug.PY ~~#
+# Converts joblib .save file to pickle file so can vbe used more easily
 rootpath = "/vols/cms/fjo18/Masters2021"
 #~~ Packages ~~#
 import pandas as pd
