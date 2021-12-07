@@ -1,2 +1,0 @@
-TensorSpec(shape=(6,), dtype=tf.float32, name=None)
-TensorSpec(shape=(6,), dtype=tf.float32, name=None)

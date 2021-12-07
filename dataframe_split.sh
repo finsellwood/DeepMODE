@@ -8,5 +8,5 @@ source /vols/grid/cms/setup.sh
 source /vols/software/cuda/setup.sh 10.2.2
 eval `scramv1 runtime -sh`
 
-python3 Python_files/create_dataset.py
+python3 Python_files/create_dataset_pd.py
  
