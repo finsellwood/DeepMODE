@@ -13,9 +13,12 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
-phis = imvar_df['phis'].head(100).sum()
-#small_df = imvar_df.sample(frac=0.001)
-print(phis)
+
+small_df = imvar_df.sample(frac=0.00001)
+phis = np.array(small_df['phis'].sum(), dtype = 'float16')
+etas = np.array(small_df['etas'].sum(), dtype = 'float16')
+frac_energies = np.array(small_df['frac_energies'].sum(), dtype = 'float16')
+print(phis * frac_energies)
 
 
 #~~ Function to generate images ~~#
