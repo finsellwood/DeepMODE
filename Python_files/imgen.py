@@ -16,8 +16,8 @@ imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
 phis = imvar_df['phis'].to_numpy(dtype = 'float16').flatten()
 etas = imvar_df['etas'].to_numpy(dtype = 'float16').flatten()
 energies = imvar_df['frac_energies'].to_numpy().flatten()
-phis = np.array(phis) * np.array(energies)
-etas = np.array(etas) * np.array(energies)
+phis = np.array([phis]) * np.array([energies])
+etas = np.array([etas]) * np.array([energies])
 print(max(phis), max(etas))
 
 
