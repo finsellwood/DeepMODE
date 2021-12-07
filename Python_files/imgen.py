@@ -1,6 +1,7 @@
 #~~ IMGEN.PY ~~#
 # Takes imvar_df dataframe and generates image files in batches of 100,000 events. Saves as numpy arrays.
 rootpath = "/vols/cms/fjo18/Masters2021"
+debug  = True
 #~~ Packages ~~#
 import pandas as pd
 import numpy as np
@@ -13,6 +14,8 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
+if debug:
+    imvar_df = imvar_df.head(1000)
 
 
 #~~ Function to generate images ~~#
@@ -34,10 +37,10 @@ def largegrid(dataframe, dimension_l, dimension_s):
         #              inner is 11x11, -0.1 to 0.1 in phi/eta
 
 
-        phicoords =  min(np.floor((phis/1.21) * dimension_l + halfdim).astype(int), 20)
-        etacoords =  min(np.floor(-1 * (etas/1.21) * dimension_l + halfdim).astype(int), 20)
-        phicoords2 =  min(np.floor((phis/0.2) * dimension_s + halfdim2).astype(int), 10)
-        etacoords2 =  min(np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int), 10)
+        phicoords =  [min(a, 20) for a in np.floor((phis/1.21) * dimension_l + halfdim).astype(int)]
+        etacoords =  [min(a, 20) for a in np.floor(-1 * (etas/1.21) * dimension_l + halfdim).astype(int)]
+        phicoords2 = [min(a, 10) for a in np.floor((phis/0.2) * dimension_s + halfdim2).astype(int)]
+        etacoords2 = [min(a, 10) for a in np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int)]
         for a in range(len(energies)):
             # if energies[a] != 0.0:
                 
