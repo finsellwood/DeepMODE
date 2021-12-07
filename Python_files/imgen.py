@@ -32,8 +32,8 @@ def largegrid(dataframe, dimension_l, dimension_s):
         #              inner is 11x11, -0.1 to 0.1 in phi/eta
 
 
-        phicoords =  np.floor((phis/1.2) * dimension_l + halfdim).astype(int)
-        etacoords =  np.floor(-1 * (etas/1.2) * dimension_l + halfdim).astype(int)
+        phicoords =  np.floor((phis/1.21) * dimension_l + halfdim).astype(int)
+        etacoords =  np.floor(-1 * (etas/1.21) * dimension_l + halfdim).astype(int)
         phicoords2 =  np.floor((phis/0.2) * dimension_s + halfdim2).astype(int)
         etacoords2 =  np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int)
         for a in range(len(energies)):
