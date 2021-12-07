@@ -43,10 +43,11 @@ def largegrid(dataframe, dimension_l, dimension_s):
             if energies[a] != 0.0:
                 if phis[a] > maxphi:
                     maxphi = phis[a]
-                    print(maxphi)
+                    print('phi_', maxphi, index, a)
                 if etas[a] > maxeta:
                     maxeta = etas[a]
-                    print(maxeta)
+                    print('eta_', maxeta, index, a)
+
                 ## grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
                 # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
                 ##if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
