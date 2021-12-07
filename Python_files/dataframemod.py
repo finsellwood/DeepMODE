@@ -191,7 +191,7 @@ time_start = time.time()
 
 if load_full:
     pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
-    pd.to_pickle(imvar_df, rootpath + "/Objects/imvar_df.sav")
+    pd.to_pickle(imvar_df, rootpath + "/Objects/imvar_df.pkl")
 
 time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
