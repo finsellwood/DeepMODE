@@ -13,7 +13,7 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
-phis = imvar_df['phis'].sum(axis = 1)
+phis = imvar_df['phis'].sum()
 #small_df = imvar_df.sample(frac=0.001)
 print(phis)
 
