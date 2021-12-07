@@ -15,6 +15,9 @@ imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):
+    maxphi = 0
+    maxeta = 0
+    
     halfdim = dimension_l/2
     halfdim2 = dimension_s/2
     largegridlist = []
@@ -38,29 +41,37 @@ def largegrid(dataframe, dimension_l, dimension_s):
         etacoords2 =  np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int)
         for a in range(len(energies)):
             if energies[a] != 0.0:
-                grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
+                if phis[a] > maxphi:
+                    maxphi = phis[a]
+                    print(maxphi)
+                if etas[a] > maxeta:
+                    maxeta = etas[a]
+                    print(maxeta)
+                ## grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
                 # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
-                if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
-                    grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
-        largegridlist.append(grid)
-        smallgridlist.append(grid2)
+                ##if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
+                    ## grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
+        ##largegridlist.append(grid)
+        ##smallgridlist.append(grid2)
         counter +=1
-        if counter ==100000:
-            np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
-            np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
-            largegridlist = []
-            smallgridlist = []
-            print('Images saved = ', imcounter)
-            imcounter+=1
-            counter = 0
-    np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
-    np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+        return maxphi, maxeta
+#         if counter ==100000:
+#             np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
+#             np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+#             largegridlist = []
+#             smallgridlist = []
+#             print('Images saved = ', imcounter)
+#             imcounter+=1
+#             counter = 0
+#     np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
+#     np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+
  
-maxphis = imvar_df['phis'].apply(lambda x: max(x))
-maxetas = imvar_df['etas'].apply(lambda x: max(x))
-print('max phi is' + str(maxphis.max()))
-print('max eta is' + str(maxetas.max()))
+# maxphis = imvar_df['phis'].apply(lambda x: max(x))
+# maxetas = imvar_df['etas'].apply(lambda x: max(x))
+# print('max phi is' + str(maxphis.max()))
+# print('max eta is' + str(maxetas.max()))
 
      
 
-#largegrid(imvar_df, 21,11) 
+print(largegrid(imvar_df, 21,11))
