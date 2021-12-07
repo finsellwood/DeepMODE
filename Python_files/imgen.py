@@ -54,7 +54,7 @@ def largegrid(dataframe, dimension_l, dimension_s):
         ##largegridlist.append(grid)
         ##smallgridlist.append(grid2)
         counter +=1
-        return maxphi, maxeta
+    return maxphi, maxeta
 #         if counter ==100000:
 #             np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
 #             np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
