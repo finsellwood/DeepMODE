@@ -9,15 +9,20 @@ import awkward as ak
 import numba as nb
 import time
 from sklearn.externals import joblib
+import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
+phis = imvar_df['phis'].to_numpy().flatten()
+etas = imvar_df['etas'].to_numpy().flatten()
+energies = imvar_df['frac_energies'].to_numpy().flatten()
+phis = phis * energies
+etas = etas * energies
+print(max(phis), max(etas))
+
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):
-    maxphi = -9999
-    maxeta = -9999
-    
     halfdim = dimension_l/2
     halfdim2 = dimension_s/2
     largegridlist = []
@@ -41,31 +46,30 @@ def largegrid(dataframe, dimension_l, dimension_s):
         etacoords2 =  np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int)
         for a in range(len(energies)):
             if energies[a] != 0.0:
-                if phis[a] > maxphi:
-                    maxphi = phis[a]
-                    print('phi_', maxphi, index, a)
-                if etas[a] > maxeta:
-                    maxeta = etas[a]
-                    print('eta_', maxeta, index, a)
+#                 if phis[a] > maxphi:
+#                     maxphi = phis[a]
+#                     print('phi_', maxphi, index, a)
+#                 if etas[a] > maxeta:
+#                     maxeta = etas[a]
+#                     print('eta_', maxeta, index, a)
 
-                ## grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
+                grid[etacoords[a]][phicoords[a]] += int(min(abs(energies[a]), 1) * 255)
                 # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
-                ##if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
-                    ## grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
-        ##largegridlist.append(grid)
-        ##smallgridlist.append(grid2)
+                if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
+                    grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
+        largegridlist.append(grid)
+        smallgridlist.append(grid2)
         counter +=1
-    return maxphi, maxeta
-#         if counter ==100000:
-#             np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
-#             np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
-#             largegridlist = []
-#             smallgridlist = []
-#             print('Images saved = ', imcounter)
-#             imcounter+=1
-#             counter = 0
-#     np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
-#     np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+        if counter == 100000:
+            np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
+            np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
+            largegridlist = []
+            smallgridlist = []
+            print('Images saved = ', imcounter)
+            imcounter+=1
+            counter = 0
+    np.save(rootpath + '/Images/image_l_%02d.npy' % imcounter, largegridlist)
+    np.save(rootpath + '/Images/image_s_%02d.npy' % imcounter, smallgridlist)
 
  
 # maxphis = imvar_df['phis'].apply(lambda x: max(x))
@@ -75,4 +79,4 @@ def largegrid(dataframe, dimension_l, dimension_s):
 
      
 
-print(largegrid(imvar_df, 21,11))
+#largegrid(imvar_df, 21,11)
