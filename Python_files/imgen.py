@@ -15,8 +15,8 @@ imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):
-    maxphi = 0
-    maxeta = 0
+    maxphi = -9999
+    maxeta = -9999
     
     halfdim = dimension_l/2
     halfdim2 = dimension_s/2
