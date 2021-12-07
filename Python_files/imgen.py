@@ -13,13 +13,6 @@ import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
 imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
-phis = np.array(imvar_df['phis'].to_numpy().flatten()).flatten()
-#etas = np.array(imvar_df['etas'].to_numpy().flatten()).flatten()
-#energies = np.array(imvar_df['frac_energies'].to_numpy().flatten()).flatten()
-# phis = np.array([phis]) * np.array([energies])
-# etas = np.array([etas]) * np.array([energies])
-# print(max(phis), max(etas))
-print(phis)
 
 #~~ Function to generate images ~~#
 def largegrid(dataframe, dimension_l, dimension_s):
