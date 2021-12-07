@@ -1,4 +1,5 @@
-#~~ DATAFRAMEMOD.PY ~~#
+#~~ DATAFRAMEMOD_OLD.PY (DEFUNCT)~~#
+# Archive of old version of DFMod that doesn't parse lists properly.
 # Takes the existing n-tuple dataframe (df_ordered) and uses data to create an additional dataframe (imvar_df)
 # with only the variables necessary for image creation. Then removes the columns used from df_ordered and saves
 # (under diff name)
