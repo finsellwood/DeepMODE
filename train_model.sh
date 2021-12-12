@@ -7,5 +7,4 @@ conda activate icenet
 source ~/CMSSW_10_2_19/icenet/setenv.sh
 source /vols/grid/cms/setup.sh
 eval `scramv1 runtime -sh`
-
 python3 Python_files/train_NN.py

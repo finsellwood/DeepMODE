@@ -106,7 +106,7 @@ if sets:
 if frames:
   print("Saving X pd files...")
   pd.to_pickle(X_train, rootpath + "/DataFrames/X_train_df.pkl")
-  pd.to_pickle(X_train, rootpath + "/DataFrames/X_train_df.pkl")
+  pd.to_pickle(X_test, rootpath + "/DataFrames/X_test_df.pkl")
 
 del X_train, X_test
 
@@ -224,6 +224,10 @@ if frames:
   print("Saving small image numpy files...")
   np.save(rootpath + "/DataFrames/im_s_array_train.npy", im_s_array_train)
   np.save(rootpath + "/DataFrames/im_s_array_test.npy", im_s_array_test)
+
+  pd.to_pickle(y_train, rootpath + "/DataFrames/y_train_df.pkl")
+  pd.to_pickle(y_test, rootpath + "/DataFrames/y_test_df.pkl")
+
 
 del im_s_array_train, im_s_array_test, y_train, y_test
 
