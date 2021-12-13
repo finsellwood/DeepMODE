@@ -13,7 +13,7 @@ from sklearn.externals import joblib
 import pylab as pl
 
 #~~ Load the dataframe with image variables in ~~#
-imvar_df = joblib.load(rootpath + "/Objects/imvar_df.sav")
+imvar_df = pd.read_pickle(rootpath + "/Objects/imvar_df.pkl")
 if debug:
     imvar_df = imvar_df.head(1000)
 

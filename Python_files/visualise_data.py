@@ -64,6 +64,7 @@ if test_x_shape:
   X_train = pd.read_pickle(rootpath + "/DataFrames/X_train_df.pkl")
   X_test = pd.read_pickle(rootpath + "/DataFrames/X_test_df.pkl")
   print("X shapes are", X_train.shape, X_test.shape)
+  print(list(X_train.columns))
 if test_y_shape:
   y_train = pd.read_pickle(rootpath + "/DataFrames/y_train_df.pkl")
   y_test = pd.read_pickle(rootpath + "/DataFrames/y_test_df.pkl")

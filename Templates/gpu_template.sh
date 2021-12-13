@@ -10,3 +10,5 @@ source /vols/grid/cms/setup.sh
 eval `scramv1 runtime -sh`
 
 python3 Python_files/FILENAME.py
+
+conda deactivate

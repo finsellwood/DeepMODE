@@ -55,7 +55,7 @@ X = df_ordered.drop(["tauFlag_2",
                 #"pi3_px_2", "pi3_py_2", "pi3_pz_2", #"pi3_E_2",
                 # 4-momenta of the charged pions
                 # Note: pi2/pi3 only apply for 3pr modes
-                "pi0_px_2", "pi0_py_2", "pi0_pz_2", #"pi0_E_2", 
+                # "pi0_px_2", "pi0_py_2", "pi0_pz_2", "pi0_E_2", 
                 # 4-momenta of neutral pions
                 "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
                 "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
@@ -66,11 +66,11 @@ X = df_ordered.drop(["tauFlag_2",
                 # 4-momentum of the supercluster
                 #"cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2", 
                 # 3-momenta of clusters in supercluster
-                "tau_px_2", "tau_py_2", "tau_pz_2", "tau_E_2",
+                "tau_E_2", #"tau_px_2", "tau_py_2", "tau_pz_2", 
                 # 4-momenta of 'visible' tau
                 #"tau_decay_mode_2", 
                 # HPS algorithm decay mode
-                "pt_2",
+                #"pt_2",
            ], axis=1).reset_index(drop=True)
 
 del df_ordered

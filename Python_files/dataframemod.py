@@ -27,7 +27,8 @@ cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
 sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
 tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
 
-measured4mom = [pi_2_4mom, pi2_2_4mom, pi3_2_4mom, sc1_2_4mom, gam_2_3mom, cl_2_3mom, ]# 
+measured4mom = [pi0_2_4mom, pi_2_4mom, pi2_2_4mom, pi3_2_4mom, sc1_2_4mom, gam_2_3mom, cl_2_3mom, ]
+# Updated to include pi0 (previously excluded for some reason (13.12.21))
 E_list = [a[0] for a in measured4mom]
 px_list = [a[1] for a in measured4mom]
 py_list = [a[2] for a in measured4mom]
@@ -178,8 +179,11 @@ def phi_eta_find(dataframe):
 
 imvar_df = phi_eta_find(df_ordered)
 
-for a in fourmom_list:
+for a in measured4mom[4:]:
     df_ordered.drop(columns = a, inplace = True)
+for a in measured4mom[:4]:
+    df_ordered.drop(columns = a[1:])
+    # Keeps the energies for pi0, pi, pi2, pi3 as HL variables
 for a in fourmom_list_colnames:
     df_ordered.drop(columns = a, inplace = True)
 # drop irrelevant columns now they have been used for variable creation
