@@ -60,7 +60,7 @@ X = df_ordered.drop(["tauFlag_2",
                 "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
                 "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
                 # 4-momenta of two leading photons
-                "n_gammas_2", #"gam_px_2", "gam_py_2", "gam_pz_2", 
+                #"n_gammas_2", #"gam_px_2", "gam_py_2", "gam_pz_2", 
                 # 3-momenta vectors of all photons
                 #"sc1_px_2", "sc1_py_2", "sc1_pz_2",# "sc1_E_2",
                 # 4-momentum of the supercluster

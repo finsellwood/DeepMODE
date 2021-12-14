@@ -48,7 +48,7 @@ def largegrid(dataframe, dimension_l, dimension_s):
                 # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
             #if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
             grid2[etacoords2[a]][phicoords2[a]] += int(min(abs(energies[a]), 1) * 255)
-                
+            
         largegridlist.append(grid)
         smallgridlist.append(grid2)
         
@@ -67,4 +67,4 @@ def largegrid(dataframe, dimension_l, dimension_s):
 
      
 
-largegrid(imvar_df, 21,11)
+largegrid(imvar_df, 21, 11)

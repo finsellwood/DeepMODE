@@ -7,8 +7,9 @@ use_dataset = True
 # For choosing either the original (imgen.py) images or the final test/train set
 plot_images = False
 # saves time if doesn't save .png to cwd
-test_x_shape = True
-test_y_shape = True
+test_x_shape = False
+test_y_shape = False
+test_full_df_shape = True
 
 import numpy as np
 import pandas as pd
@@ -69,3 +70,8 @@ if test_y_shape:
   y_train = pd.read_pickle(rootpath + "/DataFrames/y_train_df.pkl")
   y_test = pd.read_pickle(rootpath + "/DataFrames/y_test_df.pkl")
   print("y shapes are", y_train.shape, y_test.shape)
+if test_full_df_shape:
+  df = pd.read_pickle(rootpath + "/Objects/ordereddf_modified.pkl")
+  print("full_df shapes are", df.shape, df.shape)
+  print(list(df.columns))
+
