@@ -1,10 +1,10 @@
 #~~ TRAIN_NN.PY ~~# 
 # Will write this later
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_name = "H_model_0.630_20211216_174935"
+model_name = "LS_model_0.556_20211217_155442"
 model_path = rootpath + "/Models/" + model_name
 
-use_inputs = [False, False, True]
+use_inputs = [True, True, False]
 use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model

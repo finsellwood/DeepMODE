@@ -2,7 +2,7 @@
 # Will write this later
 rootpath = "/vols/cms/fjo18/Masters2021"
 
-drop_variables = True
+drop_variables = False
 # Training parameters
 batch_size = 2000 #1024
 stop_patience = 10
@@ -24,7 +24,7 @@ dropout_rate = [0, 0.4]
 # 1st no. is conv and 2nd is dense
 # Convolutional layers should have a much lower dropout rate than dense
 
-use_inputs = [False, True, True]
+use_inputs = [True, True, False]
 # A mask to check which inputs to use for the model - above indicates HL only
 
 use_unnormalised = True
@@ -45,10 +45,10 @@ small_dataset_size = 100000
 
 training_parameters = [batch_size, conv_layers, dense_layers, inc_dropout, \
     dropout_rate, use_inputs, learningrate, no_epochs, stop_patience, save_model, \
-        small_dataset, use_res_blocks,]
+        small_dataset, use_res_blocks, use_unnormalised, drop_variables]
 training_parameter_names = ["batch size", "conv layers", "dense layers", "include dropout?", \
     "dropout rate", "inputs mask", "learning rate", "no. epochs", "stop patience", "save model?", \
-        "small dataset?", "Use residual blocks?"]
+        "small dataset?", "Use residual blocks?", "use unnormalised data?", "drop some variables?"]
 
 # Load packages
 import numpy as np
