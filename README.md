@@ -12,3 +12,4 @@ Unpacks .pkl dataframe (df_ordered) and creates new variables, and saves datafra
 6) train_model.sh loads tensors from /vols/cms/fjo18/Masters2021/Tensors and trains a model on them, before saving the model back into /vols/. Note: only saves model if 'save_model' parameter is set to 'True' in the 'train_NN.py' file
 7) train_model_HL.sh trains only on the HL variables (using train_HLNN.py file). Same parameters options as for full model.
 Current to-dos and issues can be seen under the 'Projects' tab.
+8) Update: We now have various files which train networks, depending on whether a CPU or GPU is needed. cpu_train_NN.sh and gpu_train_NN.sh are the main ones. These run train_NN_pd.py, which is now the main file in where models are built. 
