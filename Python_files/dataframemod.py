@@ -182,7 +182,7 @@ imvar_df = phi_eta_find(df_ordered)
 for a in measured4mom[4:]:
     df_ordered.drop(columns = a, inplace = True)
 for a in measured4mom[:4]:
-    df_ordered.drop(columns = a[1:])
+    df_ordered.drop(columns = a[1:], inplace = True)
     # Keeps the energies for pi0, pi, pi2, pi3 as HL variables
 for a in fourmom_list_colnames:
     df_ordered.drop(columns = a, inplace = True)

@@ -7,8 +7,8 @@ use_dataset = True
 # For choosing either the original (imgen.py) images or the final test/train set
 plot_images = False
 # saves time if doesn't save .png to cwd
-test_x_shape = False
-test_y_shape = False
+test_x_shape = True
+test_y_shape = True
 test_full_df_shape = True
 
 import numpy as np
