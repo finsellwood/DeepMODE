@@ -5,26 +5,29 @@ rootpath = "/vols/cms/fjo18/Masters2021"
 drop_variables = False
 # Training parameters
 batch_size = 2000 #1024
-stop_patience = 10
-no_epochs = 50
+stop_patience = 25
+no_epochs = 5
 learningrate = 0.001
 
 # Model architecture parameters
 #dense_layers = [(4,128, False), (2, 54, False)]
 # dense_layers = [(6, 512, True), (4, 32, False)]
-dense_layers = [(4, 32, False), (4, 32, False)]
+dense_layers = [(4, 512, True), (4, 512, True)]
 
 
-conv_layers = [(1,4), (2,3)]
+conv_layers = [(4,4), (4,3)]
+flat_preprocess = True
+# Determines if the initial (no pooling) conv layers have a constant no. filters
+# (True = constant)
 HL_shape = (27,)
 im_l_shape = (21,21,1)
 im_s_shape = (11,11,1)
 inc_dropout = True
-dropout_rate = [0, 0.4]
+dropout_rate = [0.1, 0.4]
 # 1st no. is conv and 2nd is dense
 # Convolutional layers should have a much lower dropout rate than dense
 
-use_inputs = [True, True, False]
+use_inputs = [True, True, True]
 # A mask to check which inputs to use for the model - above indicates HL only
 
 use_unnormalised = True
@@ -40,15 +43,15 @@ model_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 view_model = False
 # DOESN'T WORK - HAVE TO INSTALL IF NECESSARY
 save_model = True
-small_dataset = True
+small_dataset = False
 small_dataset_size = 100000
 
 training_parameters = [batch_size, conv_layers, dense_layers, inc_dropout, \
     dropout_rate, use_inputs, learningrate, no_epochs, stop_patience, save_model, \
-        small_dataset, use_res_blocks, use_unnormalised, drop_variables]
+        small_dataset, use_res_blocks, use_unnormalised, drop_variables, flat_preprocess]
 training_parameter_names = ["batch size", "conv layers", "dense layers", "include dropout?", \
     "dropout rate", "inputs mask", "learning rate", "no. epochs", "stop patience", "save model?", \
-        "small dataset?", "Use residual blocks?", "use unnormalised data?", "drop some variables?"]
+        "small dataset?", "Use residual blocks?", "use unnormalised data?", "drop some variables?", "use constant filter size?"]
 
 # Load packages
 import numpy as np
@@ -202,7 +205,7 @@ def add_res_1_block(x: Tensor, dense_width, layer_name) -> Tensor:
 
 def CNN_creator_3input(inputshape_l, inputshape_s, inputshape_hl, convlayers, denselayers, dropout_rate, \
                        kernelsize = (3,3), learningrate = 0.001, input_mask = [True,True,True], input_norm = False,\
-                            model_image = False, dropout = True):
+                            model_image = False, dropout = True, flat_filters = True):
     # Inputshape should be a 3-comp tuple, where 1st two els are height x width and 3rd is no. layers
     # conv/denselayers denote number of convolutional and dense layers in network
     # convlayers should be a tuple
@@ -242,19 +245,27 @@ def CNN_creator_3input(inputshape_l, inputshape_s, inputshape_hl, convlayers, de
     # CONVOLUTIONAL LAYERS #
         
     for a in range(no_conv_layers_l_flat):
-        if use_res_blocks:
-            y_l = add_conv_res_block(y_l, 32*(a+1), "L_Conv_Res_" + str(a))
+        if flat_filters:
+            no_filters = 32
         else:
-            conv_l = layers.Conv2D(32 *(a+1), kernelsize, padding="same", name = "L_Conv_Flat_" + str(a))(y_l)
+            no_filters = 32*(a+1)
+        if use_res_blocks:
+            y_l = add_conv_res_block(y_l, no_filters, "L_Conv_Res_" + str(a))
+        else:
+            conv_l = layers.Conv2D(no_filters, kernelsize, padding="same", name = "L_Conv_Flat_" + str(a))(y_l)
             y_l = relu_bn(conv_l)
         if dropout:
             y_l = layers.Dropout(conv_dropout_rate, name = "L_Dropout_Flat_" + str(a))(y_l)
         
     for a in range(no_conv_layers_s_flat):
-        if use_res_blocks:
-            y_s = add_conv_res_block(y_s, 32*(a+1), "S_Conv_Res_" + str(a))
+        if flat_filters:
+            no_filters = 32
         else:
-            conv_s = layers.Conv2D(32*(a+1), kernelsize, padding="same", name = "S_Conv_Flat_" + str(a))(y_s)
+            no_filters = 32*(a+1)
+        if use_res_blocks:
+            y_s = add_conv_res_block(y_s, no_filters, "S_Conv_Res_" + str(a))
+        else:
+            conv_s = layers.Conv2D(no_filters, kernelsize, padding="same", name = "S_Conv_Flat_" + str(a))(y_s)
             y_s = relu_bn(conv_s)
         if dropout:
             y_s = layers.Dropout(conv_dropout_rate, name = "S_Dropout_Flat_" + str(a))(y_s)
@@ -337,7 +348,7 @@ def CNN_creator_3input(inputshape_l, inputshape_s, inputshape_hl, convlayers, de
 
 model = CNN_creator_3input(im_l_shape, im_s_shape, HL_shape, conv_layers, dense_layers, \
                            dropout_rate, learningrate = learningrate, input_mask = use_inputs, \
-                               model_image=view_model, dropout=inc_dropout)
+                               model_image=view_model, dropout=inc_dropout, flat_filters=flat_preprocess)
 
 early_stop = EarlyStopping(monitor = 'val_loss', patience = stop_patience)
 history = History()

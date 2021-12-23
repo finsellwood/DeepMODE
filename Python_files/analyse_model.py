@@ -1,21 +1,21 @@
 #~~ TRAIN_NN.PY ~~# 
 # Will write this later
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_name = "LS_model_0.556_20211217_155442"
+model_name = "LSH_model_0.687_20211222_141338"
 model_path = rootpath + "/Models/" + model_name
 
-use_inputs = [True, True, False]
+use_inputs = [True, True, True]
 use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = False
 small_dataset_size = 10000
+plot_timeline = True
 
 plot_confusion_matrices = True
 
 import datetime
 from math import ceil
-model_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # Load packages
 import numpy as np
@@ -46,8 +46,13 @@ from sklearn.metrics import accuracy_score
 from tensorflow.keras.callbacks import History 
 from tensorflow.keras.utils import normalize, plot_model
 import time
-
+import pickle
 # load data
+
+###
+time_start = time.time()
+print("Loading test data")
+###
 
 y_train = pd.read_pickle(rootpath + "/DataFrames/y_train_df.pkl")
 y_test = pd.read_pickle(rootpath + "/DataFrames/y_test_df.pkl")
@@ -94,13 +99,32 @@ for a in range(len(use_inputs)):
         test_inputs.append(test_full_inputs[a])
 # Setting up test inputs based on the mask
 
-# create model
+# load model
+
+###
+time_elapsed = time.time() - time_start 
+time_start = time.time()
+print("elapsed time = " + str(time_elapsed))
+print("Loading model")
+###
 
 model = keras.models.load_model(model_path)
+if plot_timeline:   
+    history = pickle.load(open(model_path + '_history',  'rb'))
+    # doesnt work i dont know why
+
+
+###
+time_elapsed = time.time() - time_start 
+time_start = time.time()
+print("elapsed time = " + str(time_elapsed))
+print("Evaluating test dataset")
+###
+
 prediction = model.predict(test_inputs)
 idx = prediction.argmax(axis=1)
 y_pred = (idx[:,None] == np.arange(prediction.shape[1])).astype(float)
-# for a in range(50):
+# for a in range(50):s
 #     #print(y_pred[a], y_test[a])
 #     print(y_train[a])
 
@@ -110,6 +134,13 @@ flattest = np.argmax(y_test, axis=-1)
 accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
 #~~ Creating confusion arrays ~~#
+
+###
+time_elapsed = time.time() - time_start 
+time_start = time.time()
+print("elapsed time = " + str(time_elapsed))
+print("Plotting confusion matrices")
+###
 
 if plot_confusion_matrices:
     truelabels = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]) #for true modes 0,1,2,10,11,Other
@@ -170,5 +201,36 @@ if plot_confusion_matrices:
     ax[1].set_ylabel('True Mode')
 
 
-    plt.savefig( model_path + '.png', dpi = 100)
+    plt.savefig( model_path + '_cm_' + '.png', dpi = 100)
+
+###
+time_elapsed = time.time() - time_start 
+time_start = time.time()
+print("elapsed time = " + str(time_elapsed))
+print("Plotting timeline")
+###
+
+if plot_timeline:
+    # Extract number of run epochs from the training history
+    epochs = range(1, len(history["loss"])+1)
+    fig, ax = plt.subplots(2,1)
+    # Extract loss on training and validation ddataset and plot them together
+    ax[0].plot(epochs, history["loss"], "o-", label="Training")
+    ax[0].plot(epochs, history["val_loss"], "o-", label="Test")
+    ax[0].set_xlabel("Epochs"), ax[0].set_ylabel("Loss")
+    ax[0].set_yscale("log")
+    ax[0].legend()
+
+    # do the same for the accuracy:
+    # Extract number of run epochs from the training history
+    epochs2 = range(1, len(history["accuracy"])+1)
+
+    # Extract accuracy on training and validation ddataset and plot them together
+    ax[1].plot(epochs2, history["accuracy"], "o-", label="Training")
+    ax[1].plot(epochs2, history["val_accuracy"], "o-", label="Test")
+    ax[1].set_xlabel("Epochs"), ax[1].set_ylabel("accuracy")
+    ax[1].legend()
+    
+    plt.savefig( model_path + '_tl_' + '.png', dpi = 100)
+
 
