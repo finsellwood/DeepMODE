@@ -6,7 +6,7 @@ drop_variables = False
 # Training parameters
 batch_size = 2000 #1024
 stop_patience = 25
-no_epochs = 5
+no_epochs = 20
 learningrate = 0.001
 
 # Model architecture parameters

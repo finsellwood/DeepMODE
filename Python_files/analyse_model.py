@@ -1,7 +1,7 @@
 #~~ TRAIN_NN.PY ~~# 
 # Will write this later
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_name = "LSH_model_0.687_20211222_141338"
+model_name = "LSH_model_0.692_20211218_194420"
 model_path = rootpath + "/Models/" + model_name
 
 use_inputs = [True, True, True]
@@ -9,7 +9,7 @@ use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = False
-small_dataset_size = 10000
+small_dataset_size = 100000
 plot_timeline = True
 
 plot_confusion_matrices = True
