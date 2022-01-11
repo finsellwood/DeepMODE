@@ -15,7 +15,7 @@ learningrate = 0.001
 dense_layers = [(4, 512, True), (4, 512, True)]
 
 
-conv_layers = [(4,4), (4,3)]
+conv_layers = [(6,4), (7,3)]
 flat_preprocess = True
 # Determines if the initial (no pooling) conv layers have a constant no. filters
 # (True = constant)
