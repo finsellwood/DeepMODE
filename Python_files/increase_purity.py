@@ -4,15 +4,15 @@
 # confusion matrices show purity and efficiency of model based on predicted and true decay mode
 # bargraphs compare the model's purity and efficiency to the MVA score and HPS classification
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_name = "H_model_0.670_20211219_004316"
+model_name = "LSH_model_0.692_20211218_194420"
 model_path = rootpath + "/Models/" + model_name
 
-use_inputs = [False, False, True]
+use_inputs = [True, True, True]
 use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = False
-small_dataset_size = 10000
+small_dataset_size = 100000
 
 plot_timeline = False
 plot_confusion_matrices = False
@@ -45,7 +45,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score
 from tensorflow.keras.callbacks import History 
 from tensorflow.keras.utils import normalize, plot_model
 import time
@@ -126,25 +126,46 @@ print("elapsed time = " + str(time_elapsed))
 print("Evaluating test dataset")
 ###
 
+def predictor(prediction, threshold):
+    idx = np.array([])
+    for j in prediction:
+        if np.amax(j) > (np.amax(np.delete(j, np.argmax(j))) + threshold):
+            idx = np.append(idx, np.argmax(j))
+        else:
+            idx = np.append(idx, 6)
+    # y_pred = (idx[:,None] == np.arange(prediction.shape[1]+ 1)).astype(float)
+    # Still works, but after using 'flatpred', this returns the same value as idx
+    return idx.astype(int) #,y_pred 
+
+def predictor2(prediction, true_vals, threshold):
+    # True values must be a flat (not one-hot) array
+    idx = np.array([])
+    true_filtered = np.array([])
+    for j,k in zip(prediction, true_vals):
+        if np.amax(j) > (np.amax(np.delete(j, np.argmax(j))) + threshold):
+            idx = np.append(idx, np.argmax(j))
+            true_filtered = np.append(true_filtered, k)
+    # y_pred = (idx[:,None] == np.arange(prediction.shape[1]+ 1)).astype(float)
+    # Still works, but after using 'flatpred', this returns the same value as idx
+    return idx.astype(int), true_filtered.astype(int)
+
 prediction = model.predict(test_inputs)
-idx = prediction.argmax(axis=1)
-y_pred = (idx[:,None] == np.arange(prediction.shape[1])).astype(float)
-# for a in range(50):s
-#     #print(y_pred[a], y_test[a])
-#     print(y_train[a])
-
-flatpred = np.argmax(y_pred, axis=-1)
-#print(flatpred)
+# flatpred = predictor(prediction, 0.2)
 flattest = np.argmax(y_test, axis=-1)
-accuracy = accuracy_score(y_test, y_pred)
-#print(accuracy)
-print(confusion_matrix(flattest, flatpred, normalize = 'true'))
-# normalize = 'true' gives EFFICIENCY
-print(confusion_matrix(flattest, flatpred, normalize = 'pred'))
-# normalize = 'pred' gives PURITY
+flatpred2, flattest2 = predictor2(prediction, flattest, 0.2)
+# accuracy = accuracy_score(flattest, flatpred)
+accuracy2 = accuracy_score(flattest2, flatpred2)
+# print(accuracy, len(flattest))
+print(accuracy2, len(flattest))
+testrange = 10
+for a in range(testrange):
+    y,ytest = predictor2(prediction, flattest, (a/testrange))
+    print(accuracy_score(ytest, y), len(y))
 
-#print(classification_report(y_test, y_pred))
-# Interesting metric here
+# By reducing tolerance on results, accuracy (% of results properly classified)\
+# can be increased by ~10%, at the expense of fewer data points
+# 
+
 #~~ Creating confusion arrays ~~#
 
 ###
@@ -161,7 +182,7 @@ if plot_confusion_matrices:
     for a in range(len(flattest)):
         truelabels[int(flattest[a])][int(flatpred[a])] +=1
         lengthstrue[int(flattest[a])] +=1
-        lengthspred[int(flatpred[a])] +=1
+        lengthspred[int(flatpred2[a])] +=1
     truelabelpurity = truelabels/lengthspred
     truelabelefficiency = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]], dtype = float)
     for a in range(6):

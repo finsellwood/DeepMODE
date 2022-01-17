@@ -1,7 +1,6 @@
-#~~ DATAFRAMEINIT.PY ~~#
-# Unpacks root files into a dataframe, selecting necessary columns in process.
-# Generates new variables and appends them to the dataframe as new columns before saving df_ordered as ordereddf.pkl
-# Also recovers y values and saves in a separate dataframe as yvalues.pkl
+#~~ recover_MVA.py ~~#
+# Extracts MVA score from root files. This is normally neglected
+
 rootpath = "/vols/cms/fjo18/Masters2021"
 print("importing packages...")
 import uproot3
@@ -24,16 +23,6 @@ print("elapsed time = " + str(time_elapsed))
 
 print("Loading lists...")
 time_start = time.time()
-
-#~~ Variables to use ~~#
-# Need mass of rho and pi0
-# E_gamma/E_tauvis for leading photon
-
-# TO ACTUALLY INCLUDE
-# Generator Level:
-    # tauflag_1, tauflag_2 (for leading subleading)
-    # 
-# Visible tau 4-momentum
 
 variables_tt_1 = ["tauFlag_1",
                 "mva_dm_1",

@@ -137,107 +137,6 @@ flattest = np.argmax(y_test, axis=-1)
 accuracy = accuracy_score(y_test, y_pred)
 print(accuracy)
 
-HPS_values = test_inputs[-1]["tau_decay_mode_2"]
-MVA_values = mva_test["mva_dm_2"]
-
-dm_indices = [0,1,2,10,11,-1]
-dm_output_indices = [0,1,2,3,4,5]
-def remapper(function, inputs, outputs):
-    output = (function == inputs[0]) * outputs[0] + (function == inputs[1]) * outputs[1] + \
-    (function == inputs[2]) * outputs[2] + (function == inputs[3]) * outputs[3] + \
-    (function == inputs[4]) * outputs[4] + (function == inputs[5]) * outputs[5]
-    return output 
-
-transformed_HPS = remapper(HPS_values, dm_indices, dm_output_indices)
-transformed_MVA = remapper(MVA_values, dm_indices, dm_output_indices)
-transformed_HPS = transformed_HPS.to_numpy()
-transformed_MVA = transformed_MVA.to_numpy()
-print(transformed_HPS, transformed_MVA)
-
-# HPS data but with the same values as the fitted function
-if plot_EP:    
-    diag_elements_NN = np.array([0,0,0,0,0,0])
-    diag_elements_HPS = np.array([0,0,0,0,0,0])
-    diag_elements_MVA = np.array([0,0,0,0,0,0])
-
-
-    lengthstrue = np.array([0,0,0,0,0,0])
-    lengthspred_NN = np.array([0,0,0,0,0,0])
-    lengthspred_HPS = np.array([0,0,0,0,0,0])
-    lengthspred_MVA = np.array([0,0,0,0,0,0])
-
-    for a in range(len(flattest)):
-        if flattest[a] == flatpred[a]:
-            diag_elements_NN[int(flattest[a])] +=1
-        if flattest[a] == transformed_MVA[a]:
-            diag_elements_MVA[int(flattest[a])] +=1
-        if flattest[a] == transformed_HPS[a]:
-            diag_elements_HPS[int(flattest[a])] +=1
-        
-        # truelabels[int(flattest[a])][int(flatpred[a])] +=1
-        lengthstrue[int(flattest[a])] +=1
-        lengthspred_NN[int(flatpred[a])] +=1
-        lengthspred_HPS[int(transformed_HPS[a])] +=1
-        lengthspred_MVA[int(transformed_MVA[a])] +=1
-
-
-    diag_purity_NN = diag_elements_NN/lengthspred_NN
-    diag_purity_HPS = diag_elements_HPS/lengthspred_HPS
-    diag_purity_MVA = diag_elements_MVA/lengthspred_MVA
-
-    # Purity is /by reconstructed lengths
-    diag_efficiency_NN = diag_elements_NN/lengthstrue
-    diag_efficiency_HPS = diag_elements_HPS/lengthstrue
-    diag_efficiency_MVA = diag_elements_MVA/lengthstrue
-
-    # Efficiency is /by true lengths
-    print(diag_purity_NN, diag_purity_MVA, diag_purity_HPS)
-    print(diag_efficiency_NN, diag_efficiency_MVA, diag_efficiency_HPS)
-    
-    fig, ax = plt.subplots(1,2)
-    plt.rcParams.update({'figure.autolayout': True})
-    plt.tight_layout()
-    labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$', r'$3\pi^{\pm}$', r'$3\pi^{\pm} \pi^0$', 'other']
-    fig.set_size_inches(12,8)
-    indices = np.array([0,1,2,3,4,5])
-    
-    ax[1].bar(indices - 0.2, diag_efficiency_NN, width = 0.2)
-    ax[1].bar(indices, diag_efficiency_MVA, width = 0.2)
-    ax[1].bar(indices + 0.2, diag_efficiency_HPS, width = 0.2)
-    
-    
-    ax[1].set_ylim([0,1])
-    ax[1].set_title('Efficiency')
-    ax[1].set_xticks([0,1,2,3,4,5])
-    ax[1].set_xticklabels(labellist)
-    ax[1].set_xlabel('Predicted Mode')
-    ax[1].set_ylabel('Efficiency')
-
-    ax[0].bar(indices - 0.2, diag_purity_NN, width = 0.2)
-    ax[0].bar(indices, diag_purity_MVA, width = 0.2)
-    ax[0].bar(indices + 0.2, diag_purity_HPS, width = 0.2)
-
-    ax[0].set_ylim([0,1])
-    ax[0].set_title('Purity')
-    ax[0].set_xticks([0,1,2,3,4,5])
-    ax[0].set_xticklabels(labellist)
-    ax[0].set_xlabel('Predicted Mode')
-    ax[0].set_ylabel('Purity')
-    for a in range(len(indices)):
-        ax[0].text(indices[a] - 0.2, diag_purity_NN[a]+0.02, round(diag_purity_NN[a], 2), 
-        ha="center", va="center", color = 'black')
-        ax[0].text(indices[a], diag_purity_MVA[a]+0.02, round(diag_purity_MVA[a], 2), 
-        ha="center", va="center", color = 'black')
-        ax[0].text(indices[a] + 0.2, diag_purity_HPS[a]+0.02, round(diag_purity_HPS[a], 2), 
-        ha="center", va="center", color = 'black')
-    
-        ax[1].text(indices[a] - 0.2, diag_efficiency_NN[a]+0.02, round(diag_efficiency_NN[a], 2), 
-        ha="center", va="center", color = 'black')
-        ax[1].text(indices[a], diag_efficiency_MVA[a]+0.02, round(diag_efficiency_MVA[a], 2), 
-        ha="center", va="center", color = 'black')
-        ax[1].text(indices[a] + 0.2, diag_efficiency_HPS[a]+0.02, round(diag_efficiency_HPS[a], 2), 
-        ha="center", va="center", color = 'black')
-    plt.savefig( model_path + '_NNvsHPS_' + '.png', dpi = 100)
 
 # def score(X, y):
 #     y_pred = model.predict(X)
@@ -246,10 +145,10 @@ if plot_EP:
 # base_score, score_decreases = eli5.permutation_importance.get_score_importances(score, test_inputs, y_test)
 # feature_importances = np.mean(score_decreases, axis=0)
 
-# perm = PermutationImportance(model, scoring = 'accuracy', random_state=1).fit(test_inputs, y_test)
-# # eli5.show_weights(perm, feature_names = test_inputs.columns.tolist())
-# featurenames = ['L_images', 'S_images'] + test_inputs[-1].columns.tolist()
+perm = PermutationImportance(model, scoring = 'accuracy', random_state=1).fit(test_inputs, y_test)
+# eli5.show_weights(perm, feature_names = test_inputs.columns.tolist())
+featurenames = ['L_images', 'S_images'] + test_inputs[-1].columns.tolist()
 # print(featurenames)
-# eli5.show_weights(perm, feature_names = featurenames)
+eli5.show_weights(perm, feature_names = featurenames)
 
 

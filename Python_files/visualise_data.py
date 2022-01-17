@@ -2,20 +2,24 @@
 # This file loads in the numpy image arrays to ensure they're working properly
 # Saves a figure with 20 images on (large + small side-by-side) for examination
 rootpath = "/vols/cms/fjo18/Masters2021"
-num_arrays = 73
-use_dataset = True
+l_image_prefix = '/Images/m_image_l_'
+s_image_prefix = '/Images/m_image_s_'
+
+num_arrays = 1
+use_dataset = False
 # For choosing either the original (imgen.py) images or the final test/train set
 plot_images = False
 # saves time if doesn't save .png to cwd
-test_x_shape = True
-test_y_shape = True
-test_full_df_shape = True
+test_x_shape = False
+test_y_shape = False
+test_full_df_shape = False
+print_to_console = True
 
 import numpy as np
 import pandas as pd
 import time
 import matplotlib.pyplot as plt
-
+import random
 #~~ Load pkl files ~~#
 ###
 time_start = time.time()
@@ -26,7 +30,7 @@ if use_dataset:
 else:
   list_of_arrays = []
   for a in range(num_arrays):
-    list_of_arrays.append(np.load(rootpath + "/Images/image_l_%02d.npy" % a))
+    list_of_arrays.append(np.load(rootpath + l_image_prefix + "%02d.npy" % a))
   l_image_array = np.concatenate(list_of_arrays)
   list_of_arrays = []
 print('large arrays shape' + str(l_image_array.shape))
@@ -42,7 +46,7 @@ if use_dataset:
 else:
   list_of_arrays = []
   for a in range(num_arrays):
-    list_of_arrays.append(np.load(rootpath + "/Images/image_s_%02d.npy" % a))
+    list_of_arrays.append(np.load(rootpath + s_image_prefix + "%02d.npy" % a))
   s_image_array = np.concatenate(list_of_arrays)
   list_of_arrays = []
 print('small arrays shape' + str(s_image_array.shape))
@@ -75,3 +79,8 @@ if test_full_df_shape:
   print("full_df shapes are", df.shape, df.shape)
   print(list(df.columns))
 
+no = random.randint(0,1000)
+if print_to_console:
+  #print(l_image_array[no])
+  print(s_image_array[107])
+  print(no)

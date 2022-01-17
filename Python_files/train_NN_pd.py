@@ -15,7 +15,7 @@ learningrate = 0.001
 dense_layers = [(4, 512, True), (4, 512, True)]
 
 
-conv_layers = [(6,4), (7,3)]
+conv_layers = [(10,4), (10,3)]
 flat_preprocess = True
 # Determines if the initial (no pooling) conv layers have a constant no. filters
 # (True = constant)
@@ -23,7 +23,7 @@ HL_shape = (27,)
 im_l_shape = (21,21,1)
 im_s_shape = (11,11,1)
 inc_dropout = True
-dropout_rate = [0.1, 0.4]
+dropout_rate = [0.1, 0.3]
 # 1st no. is conv and 2nd is dense
 # Convolutional layers should have a much lower dropout rate than dense
 
