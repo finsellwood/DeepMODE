@@ -4,19 +4,19 @@
 # confusion matrices show purity and efficiency of model based on predicted and true decay mode
 # bargraphs compare the model's purity and efficiency to the MVA score and HPS classification
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_name = "H_model_0.670_20211219_004316"
+model_name = "LSH_model_0.698_20220117_202804"
 model_path = rootpath + "/Models/" + model_name
 
-use_inputs = [False, False, True]
+use_inputs = [True, True, True]
 use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = False
 small_dataset_size = 10000
 
-plot_timeline = False
-plot_confusion_matrices = False
-plot_bargraphs = False
+plot_timeline = True
+plot_confusion_matrices = True
+plot_bargraphs = True
 import datetime
 from math import ceil
 

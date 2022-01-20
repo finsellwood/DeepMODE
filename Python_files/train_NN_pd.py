@@ -1,6 +1,7 @@
 #~~ TRAIN_NN.PY ~~# 
 # Will write this later
 rootpath = "/vols/cms/fjo18/Masters2021"
+rootpath_save = "/vols/cms/fjo18/Masters2021"
 
 drop_variables = False
 # Training parameters
@@ -15,13 +16,13 @@ learningrate = 0.001
 dense_layers = [(4, 512, True), (4, 512, True)]
 
 
-conv_layers = [(10,4), (10,3)]
-flat_preprocess = True
+conv_layers = [(4,4), (4,3)]
+flat_preprocess = False
 # Determines if the initial (no pooling) conv layers have a constant no. filters
 # (True = constant)
 HL_shape = (27,)
-im_l_shape = (21,21,1)
-im_s_shape = (11,11,1)
+im_l_shape = (21,21,4)
+im_s_shape = (11,11,4)
 inc_dropout = True
 dropout_rate = [0.1, 0.3]
 # 1st no. is conv and 2nd is dense
@@ -48,10 +49,11 @@ small_dataset_size = 100000
 
 training_parameters = [batch_size, conv_layers, dense_layers, inc_dropout, \
     dropout_rate, use_inputs, learningrate, no_epochs, stop_patience, save_model, \
-        small_dataset, use_res_blocks, use_unnormalised, drop_variables, flat_preprocess]
+        small_dataset, use_res_blocks, use_unnormalised, drop_variables, flat_preprocess, HL_shape, im_l_shape, im_s_shape]
 training_parameter_names = ["batch size", "conv layers", "dense layers", "include dropout?", \
     "dropout rate", "inputs mask", "learning rate", "no. epochs", "stop patience", "save model?", \
-        "small dataset?", "Use residual blocks?", "use unnormalised data?", "drop some variables?", "use constant filter size?"]
+        "small dataset?", "Use residual blocks?", "use unnormalised data?", "drop some variables?", \
+            "use constant filter size?", "HL Shape?", "Large image shape?", "Small image shape?"]
 
 # Load packages
 import numpy as np
@@ -75,7 +77,7 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score
-from tensorflow.keras.callbacks import History 
+from tensorflow.keras.callbacks import History, ModelCheckpoint
 from tensorflow.keras.utils import normalize, plot_model
 import pickle
 
@@ -231,13 +233,13 @@ def CNN_creator_3input(inputshape_l, inputshape_s, inputshape_hl, convlayers, de
     decrease_dense_full = denselayers[1][2]
 
     # INPUTS #
-    image_input_l = keras.Input(shape = inputshape_l, name = "L_Input")
+    image_input_l = keras.Input(shape = inputshape_l, name = "l_input")
     y_l = image_input_l
-    image_input_s = keras.Input(shape = inputshape_s, name = "S_Input")
+    image_input_s = keras.Input(shape = inputshape_s, name = "s_input")
     y_s = image_input_s
-    input_hl = keras.Input(shape = inputshape_hl, name = "HL_Input")
+    input_hl = keras.Input(shape = inputshape_hl, name = "hl_input")
     if input_norm:
-        y_hl = layers.Normalization(name = 'HL_Norm_Input')(input_hl)
+        y_hl = layers.Normalization(name = 'hl_norm_input')(input_hl)
     else:
         y_hl = input_hl
     # Normalise the hl inputs (feature wise) before running them
@@ -352,6 +354,9 @@ model = CNN_creator_3input(im_l_shape, im_s_shape, HL_shape, conv_layers, dense_
 
 early_stop = EarlyStopping(monitor = 'val_loss', patience = stop_patience)
 history = History()
+checkpoint_filepath = rootpath_save + "/Checkpoints/checkpoint"
+model_checkpoint = ModelCheckpoint(filepath = checkpoint_filepath, monitor = "val_loss", mode = "min",\
+     verbose = 0, save_best_only = True, save_weights_only = True)
 
 # fit model
 time_start = time.time()
@@ -363,9 +368,10 @@ for a, b in zip(training_parameters, training_parameter_names):
 model.fit(train_inputs, y_train,
           batch_size = batch_size,
           epochs = no_epochs,
-          callbacks=[history, early_stop],
+          callbacks=[history, early_stop, model_checkpoint],
           validation_data = (test_inputs, y_test)) 
 
+model.load_weights(checkpoint_filepath)
 
 prediction = model.predict(test_inputs)
 idx = prediction.argmax(axis=1)
@@ -382,14 +388,14 @@ if save_model:
         if use_inputs[a]:
             input_string += inputflags[a]
 
-    param_file = open(rootpath + "/Models/%s_model_%.3f_%s_params.txt" % (input_string, accuracy, model_datetime), 'w')
-    model.save(rootpath + "/Models/%s_model_%.3f_%s" % (input_string, accuracy, model_datetime))
+    param_file = open(rootpath_save + "/Models/%s_model_%.3f_%s_params.txt" % (input_string, accuracy, model_datetime), 'w')
+    model.save(rootpath_save + "/Models/%s_model_%.3f_%s" % (input_string, accuracy, model_datetime))
     for a in training_parameters:
         param_file.write(str(a) + '\n')
     param_file.write(str(accuracy) + '\n' )
     param_file.close()
     # Saves model parameters in a corresponding .txt file
-    with open(rootpath + "/Models/%s_model_%.3f_%s_history" % (input_string, accuracy, model_datetime), 'wb') as file_pi:
+    with open(rootpath_save + "/Models/%s_model_%.3f_%s_history" % (input_string, accuracy, model_datetime), 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
 

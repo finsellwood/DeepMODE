@@ -4,16 +4,16 @@
 rootpath = "/vols/cms/fjo18/Masters2021"
 l_image_prefix = '/Images/m_image_l_'
 s_image_prefix = '/Images/m_image_s_'
-
-num_arrays = 1
+no_layers = 4
+num_arrays = 73
 use_dataset = False
 # For choosing either the original (imgen.py) images or the final test/train set
-plot_images = False
+plot_images = True
 # saves time if doesn't save .png to cwd
 test_x_shape = False
 test_y_shape = False
 test_full_df_shape = False
-print_to_console = True
+print_to_console = False
 
 import numpy as np
 import pandas as pd
@@ -55,14 +55,14 @@ if plot_images:
   import random
   no_images = 10
   no_arrays = s_image_array.shape[0]
-  fig, ax = plt.subplots(no_images,2)
-  fig.set_size_inches(12, 40)
+  fig, ax = plt.subplots(no_images,2 * no_layers)
+  fig.set_size_inches(12*no_layers, 40)
   for a in range(no_images):
     g = random.randint(0,no_arrays)
-
-    ax[a][0].imshow(l_image_array[g], cmap='gray_r')
-    ax[a][1].imshow(s_image_array[g], cmap='gray_r')
-    
+    for b in range(no_layers):
+      ax[a][b].imshow(l_image_array[g][:,:,b], cmap='gray_r')
+      ax[a][b + no_layers].imshow(s_image_array[g][:,:,b], cmap='gray_r')
+      
   plt.savefig('images.png', dpi = 500)
 
 if test_x_shape:
