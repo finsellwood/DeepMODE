@@ -7,5 +7,6 @@ export PYTHONPATH=/home/hep/fjo18/.local/lib/python3.6/site-packages:$PYTHONPATH
 source /vols/grid/cms/setup.sh
 eval `scramv1 runtime -sh`
 
-python3 Python_files/train_NN_pd.py
-
+conda activate icenet
+python3 Python_files/train_NN_pd_1pr.py
+conda deactivate

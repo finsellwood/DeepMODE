@@ -4,19 +4,28 @@
 # confusion matrices show purity and efficiency of model based on predicted and true decay mode
 # bargraphs compare the model's purity and efficiency to the MVA score and HPS classification
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_name = "LSH_model_0.698_20220117_202804"
-model_path = rootpath + "/Models/" + model_name
+model_folder = "/Models/"
+data_folder = "/DataFrames/"
+
+all_decay_modes = False
+no_modes = 3
+if not all_decay_modes:
+    model_folder = "/Models_DM2/"
+    data_folder = "/DataFrames_DM2/"
+
+model_name = "LSH_model_0.718_20220128_125750"
+model_path = rootpath + model_folder + model_name
 
 use_inputs = [True, True, True]
 use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = False
-small_dataset_size = 10000
+small_dataset_size = 100000
 
-plot_timeline = True
+plot_timeline = False
 plot_confusion_matrices = True
-plot_bargraphs = True
+plot_bargraphs = False
 import datetime
 from math import ceil
 
@@ -57,8 +66,8 @@ time_start = time.time()
 print("Loading test data")
 ###
 
-y_train = pd.read_pickle(rootpath + "/DataFrames/y_train_df.pkl")
-y_test = pd.read_pickle(rootpath + "/DataFrames/y_test_df.pkl")
+y_train = pd.read_pickle(rootpath + data_folder + "y_train_df.pkl")
+y_test = pd.read_pickle(rootpath + data_folder + "y_test_df.pkl")
 
 l_im_test = []
 s_im_test = []
@@ -66,17 +75,17 @@ X_test = pd.DataFrame()
 # These need to be here so that the later operations don't break when you only use some inputs
 if use_inputs[0]:
     #l_im_train = np.load(rootpath + "/DataFrames/im_l_array_train.npy")
-    l_im_test = np.load(rootpath + "/DataFrames/im_l_array_test.npy")
+    l_im_test = np.load(rootpath + data_folder + "im_l_array_test.npy")
 if use_inputs[1]:
     #s_im_train = np.load(rootpath + "/DataFrames/im_s_array_train.npy")
-    s_im_test = np.load(rootpath + "/DataFrames/im_s_array_test.npy")
+    s_im_test = np.load(rootpath + data_folder + "im_s_array_test.npy")
 if use_inputs[2]:
     if use_unnormalised:
         #X_train = pd.read_pickle(rootpath + "/DataFrames/X_n_train_df.pkl")
-        X_test = pd.read_pickle(rootpath + "/DataFrames/X_n_test_df.pkl")
+        X_test = pd.read_pickle(rootpath + data_folder + "X_test_df.pkl")
     else:
         #X_train = pd.read_pickle(rootpath + "/DataFrames/X_train_df.pkl")
-        X_test = pd.read_pickle(rootpath + "/DataFrames/X_test_df.pkl")
+        X_test = pd.read_pickle(rootpath + data_folder + "X_n_test_df.pkl")
 
 if drop_variables:
     vars_to_drop = ['pi2_E_2', 'pi3_E_2','n_gammas_2','sc1_Nclusters_2','tau_E_2',]
@@ -138,9 +147,9 @@ flatpred = np.argmax(y_pred, axis=-1)
 flattest = np.argmax(y_test, axis=-1)
 accuracy = accuracy_score(y_test, y_pred)
 #print(accuracy)
-print(confusion_matrix(flattest, flatpred, normalize = 'true'))
+# print(confusion_matrix(flattest, flatpred, normalize = 'true'))
 # normalize = 'true' gives EFFICIENCY
-print(confusion_matrix(flattest, flatpred, normalize = 'pred'))
+# print(confusion_matrix(flattest, flatpred, normalize = 'pred'))
 # normalize = 'pred' gives PURITY
 
 #print(classification_report(y_test, y_pred))
@@ -155,18 +164,21 @@ print("Plotting confusion matrices")
 ###
 
 if plot_confusion_matrices:
-    truelabels = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]) #for true modes 0,1,2,10,11,Other
-    lengthstrue = [0,0,0,0,0,0]
-    lengthspred = [0,0,0,0,0,0]
-    for a in range(len(flattest)):
-        truelabels[int(flattest[a])][int(flatpred[a])] +=1
-        lengthstrue[int(flattest[a])] +=1
-        lengthspred[int(flatpred[a])] +=1
-    truelabelpurity = truelabels/lengthspred
-    truelabelefficiency = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]], dtype = float)
-    for a in range(6):
-        for b in range(6):
-            truelabelefficiency[a][b] = truelabels[a][b]/lengthstrue[a]
+    # truelabels = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]) #for true modes 0,1,2,10,11,Other
+    # lengthstrue = [0,0,0,0,0,0]
+    # lengthspred = [0,0,0,0,0,0]
+    # for a in range(len(flattest)):
+    #     truelabels[int(flattest[a])][int(flatpred[a])] +=1
+    #     lengthstrue[int(flattest[a])] +=1
+    #     lengthspred[int(flatpred[a])] +=1
+    # truelabelpurity = truelabels/lengthspred
+    # truelabelefficiency = np.array([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]], dtype = float)
+    # for a in range(6):
+    #     for b in range(6):
+    #         truelabelefficiency[a][b] = truelabels[a][b]/lengthstrue[a]
+
+    truelabelefficiency = confusion_matrix(flattest, flatpred, normalize = 'true')
+    truelabelpurity = confusion_matrix(flattest, flatpred, normalize = 'pred')
 
     plt.rcParams.update({'figure.autolayout': True})
     labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$', r'$3\pi^{\pm}$', r'$3\pi^{\pm} \pi^0$', 'other']
@@ -175,8 +187,8 @@ if plot_confusion_matrices:
     fig.set_size_inches(12, 8)
 
     ax[0].imshow(truelabelefficiency, cmap = 'Blues')
-    for i in range(6):
-        for j in range(6):
+    for i in range(truelabelefficiency.shape[0]):
+        for j in range(truelabelefficiency.shape[1]):
             if truelabelefficiency[i, j] > 0.5:
                 text = ax[0].text(j, i, round(truelabelefficiency[i, j], 3),
                             ha="center", va="center", color="w")
@@ -186,8 +198,10 @@ if plot_confusion_matrices:
 
             
     ax[0].set_title('Efficiency')
-    ax[0].set_xticks([0,1,2,3,4,5])
-    ax[0].set_yticks([0,1,2,3,4,5])
+    labellist = labellist[:no_modes]
+    ticklocs = np.linspace(0, len(labellist)-1, len(labellist))    
+    ax[0].set_xticks(ticklocs)
+    ax[0].set_yticks(ticklocs)
     ax[0].set_xticklabels(labellist)
     ax[0].set_yticklabels(labellist)
     ax[0].set_xlabel('Predicted Mode')
@@ -195,8 +209,8 @@ if plot_confusion_matrices:
 
 
     ax[1].imshow(truelabelpurity, cmap = 'Blues')
-    for i in range(6):
-        for j in range(6):
+    for i in range(truelabelefficiency.shape[0]):
+        for j in range(truelabelefficiency.shape[1]):
             if truelabelpurity[i, j] > 0.5:
                 text = ax[1].text(j, i, round(truelabelpurity[i, j], 3),
                             ha="center", va="center", color="w")
@@ -205,8 +219,8 @@ if plot_confusion_matrices:
                             ha="center", va="center", color="black")
 
     ax[1].set_title('Purity')
-    ax[1].set_xticks([0,1,2,3,4,5])
-    ax[1].set_yticks([0,1,2,3,4,5])
+    ax[1].set_xticks(ticklocs)
+    ax[1].set_yticks(ticklocs)
     ax[1].set_xticklabels(labellist)
     ax[1].set_yticklabels(labellist)
     ax[1].set_xlabel('Predicted Mode')

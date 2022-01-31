@@ -5,6 +5,7 @@
 # (under diff name)
 # This is necessary as with the addition of columns of data (a previously bugged feature) the dataframes take a 
 # ridiculous time to load. Removing the lists (which aren't used for training anyway) is important
+# Now (22/1/22) this file also rotates the generated coordinates s.t. the charged and neutral pion are on/parallel to the axis
 
 rootpath = "/vols/cms/fjo18/Masters2021"
 load_full = True
@@ -40,11 +41,12 @@ fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full
 
 import pandas as pd
 import numpy as np
+from pyrsistent import v
 import vector
 import awkward as ak  
 import numba as nb
 import time
-from sklearn.externals import joblib
+import matplotlib.pyplot as plt
 
 #~~ Load in pickled dataframe ~~#
 print("loading dataframes...")
@@ -161,6 +163,16 @@ def phi_eta_find(dataframe):
     # Call the function for retrieving lists of 4-mom first
     output_dataframe = pd.DataFrame
     
+    pi0vect = vector.obj(px = dataframe[pi0_2_4mom[1]],\
+                        py = dataframe[pi0_2_4mom[2]],\
+                        pz = dataframe[pi0_2_4mom[3]],\
+                        E = dataframe[pi0_2_4mom[0]])
+
+    pivect = vector.obj(px = dataframe[pi_2_4mom[1]],\
+                        py = dataframe[pi_2_4mom[2]],\
+                        pz = dataframe[pi_2_4mom[3]],\
+                        E = dataframe[pi_2_4mom[0]])
+
     fourvect = vector.arr({"px": dataframe[fourmom_list_colnames[1]],\
                        "py": dataframe[fourmom_list_colnames[2]],\
                        "pz": dataframe[fourmom_list_colnames[3]],\
@@ -170,14 +182,57 @@ def phi_eta_find(dataframe):
                                py = dataframe[tau_2_4mom[2]],\
                                pz = dataframe[tau_2_4mom[3]],\
                                E = dataframe[tau_2_4mom[0]])
-    
+
+    pi0_phi = pi0vect.deltaphi(tauvisfourvect)
+    pi0_eta = pi0vect.deltaeta(tauvisfourvect)
+    pi_phi = pivect.deltaphi(tauvisfourvect)
+    pi_eta = pivect.deltaphi(tauvisfourvect)
+
+    pi0_transformed = vector.obj(px = pi0_phi, py = pi0_eta)
+    pi_transformed = vector.obj(px = pi_phi, py = pi_eta)
+    diff = pi_transformed - pi0_transformed
+
+    unitvector = vector.obj(px = 1, py =0)
+    rot_angles = ak.to_list(unitvector.deltaphi(diff))
+
     phis = ak.to_list(fourvect.deltaphi(tauvisfourvect))
     etas = ak.to_list(fourvect.deltaeta(tauvisfourvect))
     frac_energies = ak.to_list((fourvect.E/tauvisfourvect.E))
-    output_dataframe = pd.DataFrame({'phis' : phis, 'etas' : etas, 'frac_energies':frac_energies })   
+    frac_momenta = ak.to_list(fourvect.mag/tauvisfourvect.mag)
+
+    output_dataframe = pd.DataFrame({'phis' : phis, 'etas' : etas, \
+        'frac_energies' : frac_energies, 'frac_momenta' : frac_momenta, 'angles': rot_angles}) 
     return output_dataframe 
 
 imvar_df = phi_eta_find(df_ordered)
+def rot_x(x, y, theta):
+    return np.array(x) * np.cos(theta) - np.array(y) * np.sin(theta)
+def rot_y(x, y, theta):
+    return np.array(x) * np.sin(theta) + np.array(y) * np.cos(theta)
+imvar_df["rot_phi"] = imvar_df.apply(lambda x : rot_x(x["phis"], x["etas"], x["angles"]), axis = 1)
+imvar_df["rot_eta"] = imvar_df.apply(lambda x : rot_y(x["phis"], x["etas"], x["angles"]), axis = 1)
+
+cols_to_drop = ["phis", "etas", "angles"]
+imvar_df.drop(columns = cols_to_drop, inplace = True)
+
+visualise = False
+if visualise:
+    x = []
+    y = []
+    x2 = []
+    y2 = []
+    for index, row in imvar_df.iterrows():
+        for a in range(len(row["frac_energies"])):
+            if a != 0.0:
+                x.append(row["rot_phi"][a])
+                y.append(row["rot_eta"][a])
+                x2.append(row["phis"][a])
+                y2.append(row["etas"][a])
+    plt.plot(x,y, 'x')
+    plt.savefig('testimage.png')
+    plt.plot(x2,y2, 'x')
+    plt.savefig('testimage2.png')
+print(imvar_df.columns)
 
 for a in measured4mom[4:]:
     df_ordered.drop(columns = a, inplace = True)

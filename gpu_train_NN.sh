@@ -9,6 +9,6 @@ source /vols/grid/cms/setup.sh
 
 eval `scramv1 runtime -sh`
 
-python3 Python_files/train_NN_pd.py
+python3 Python_files/train_NN_pd_1pr.py
 
 conda deactivate

@@ -5,7 +5,7 @@ rootpath = "/vols/cms/fjo18/Masters2021"
 debug  = False
 large_image_dim = 21
 small_image_dim = 11
-no_layers = 4
+no_layers = 6
 
 #~~ Packages ~~#
 import pandas as pd
@@ -14,7 +14,7 @@ import vector
 import awkward as ak  
 import numba as nb
 import time
-#from sklearn.externals import joblib
+#from sklearnr.externals import joblib
 import pylab as pl
 
 
@@ -33,9 +33,10 @@ time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 time_start = time.time()
 
-pi_indices = np.array([0,1,1,1])
-pi0_indices = np.array([1,0,0,0,])
-gamma_indices = np.array([0,0,0,0,])
+pi_indices = np.array([0,1,1,1,0])
+pi0_indices = np.array([1,0,0,0,0])
+gamma_indices = np.array([0,0,0,0,0,])
+sc_indices = np.array([0,0,0,0,1])
 # pi0, pi1, pi2, pi3, sc1, gam_list, cluster_list 
 # Should be enough zeros to account for the last bulk of the coordinates, which are neutral photons etc
 #~~ Function to generate images ~~#
@@ -53,9 +54,10 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         grid = np.zeros((dimension_l,dimension_l, no_layers), np.uint8)
         grid2 = np.zeros((dimension_s,dimension_s, no_layers), np.uint8)
         # Two image grids (two vals per cell, [0] for energy and [1] for charge)
-        phis = np.array(row["phis"])
-        etas = np.array(row["etas"])
+        phis = np.array(row["rot_phi"])
+        etas = np.array(row["rot_eta"])
         energies = row["frac_energies"]
+        momenta = row["frac_momenta"]
 
         # ARRAY SIZES: outer is 21x21, -0.6 to 0.6 in phi/eta
         #              inner is 11x11, -0.1 to 0.1 in phi/eta
@@ -67,16 +69,19 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         etacoords2 = [max(min(a, 10), 0) for a in np.floor(-1 * (etas/0.2) * dimension_s + halfdim2).astype(int)]
 
         int_energies = (np.minimum(np.abs(energies), 1) * 255).astype(np.uint8)
+        int_momenta = (np.minimum(np.abs(momenta), 1) * 255).astype(np.uint8)
+
         real_mask = int_energies != 0
         masklen = len(real_mask)
         #print(real_mask)
         # Create a mask to remove imaginary particles
-        zerobuffer = np.zeros(masklen-4)
-        onebuffer = np.ones(masklen-4)
+        zerobuffer = np.zeros(masklen-5)
+        onebuffer = np.ones(masklen-5)
         pi_count = np.append(pi_indices, zerobuffer)
         pi0_count = np.append(pi0_indices, zerobuffer)
         gamma_count = np.append(gamma_indices, onebuffer)
-        layerlist = [int_energies, pi_count*real_mask, pi0_count*real_mask, gamma_count*real_mask]
+        sc_count = np.append(sc_indices, zerobuffer)
+        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, gamma_count*real_mask, sc_count*real_mask]
 
         for a in range(len(energies)):
             # if energies[a] != 0.0:
@@ -103,7 +108,7 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
 
 
 
-largegrid(imvar_df, large_image_dim, small_image_dim, 4)
+largegrid(imvar_df, large_image_dim, small_image_dim, no_layers)
 
 time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
