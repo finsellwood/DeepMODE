@@ -10,22 +10,23 @@ data_folder = "/DataFrames/"
 all_decay_modes = False
 no_modes = 3
 if not all_decay_modes:
-    model_folder = "/Models_DM2/"
-    data_folder = "/DataFrames_DM2/"
+    model_folder = "/Models_DM3/"
+    data_folder = "/DataFrames_DM/"
 
-model_name = "LSH_model_0.718_20220128_125750"
+model_name = "LSH_model_0.696_20220130_152436"
 model_path = rootpath + model_folder + model_name
 
 use_inputs = [True, True, True]
 use_unnormalised = True
 drop_variables = False
 # Initial parameters of the original model
-small_dataset = False
+small_dataset = True
 small_dataset_size = 100000
 
 plot_timeline = False
 plot_confusion_matrices = True
-plot_bargraphs = False
+plot_bargraphs = True
+plot_roc_curves = True
 import datetime
 from math import ceil
 
@@ -36,7 +37,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-from sklearn.metrics import classification_report, roc_curve, roc_auc_score
+from sklearn.metrics import classification_report, roc_curve, roc_auc_score, auc
 import tensorflow as tf
 #tf.debugging.set_log_device_placement(True)
 # Code will now print the device on which it is running
@@ -138,12 +139,7 @@ print("Evaluating test dataset")
 prediction = model.predict(test_inputs)
 idx = prediction.argmax(axis=1)
 y_pred = (idx[:,None] == np.arange(prediction.shape[1])).astype(float)
-# for a in range(50):s
-#     #print(y_pred[a], y_test[a])
-#     print(y_train[a])
-
 flatpred = np.argmax(y_pred, axis=-1)
-#print(flatpred)
 flattest = np.argmax(y_test, axis=-1)
 accuracy = accuracy_score(y_test, y_pred)
 #print(accuracy)
@@ -260,6 +256,8 @@ if plot_timeline:
     plt.savefig( model_path + '_tl_' + '.png', dpi = 100)
 
 if plot_bargraphs:
+
+
     HPS_values = test_inputs[-1]["tau_decay_mode_2"]
     MVA_values = mva_test["mva_dm_2"]
 
@@ -324,40 +322,81 @@ if plot_bargraphs:
     fig.set_size_inches(12,8)
     indices = np.array([0,1,2,3,4,5])
 
-    ax[1].bar(indices - 0.2, diag_efficiency_NN, width = 0.2)
-    ax[1].bar(indices, diag_efficiency_MVA, width = 0.2)
-    ax[1].bar(indices + 0.2, diag_efficiency_HPS, width = 0.2)
-
+    if no_modes ==6:
+        ax[1].bar(indices - 0.2, diag_efficiency_NN, width = 0.2)
+        ax[1].bar(indices, diag_efficiency_MVA, width = 0.2)
+        ax[1].bar(indices + 0.2, diag_efficiency_HPS, width = 0.2)
+    else:
+        bodge_mva_efficiency = [0.76,0.79,0.44]
+        ax[1].bar(indices[:no_modes] - 0.1, diag_efficiency_NN[:no_modes], width = 0.2, label = 'NN')
+        ax[1].bar(indices[:no_modes] + 0.1, bodge_mva_efficiency, width = 0.2, label = 'MVA')
+        #ax[1].bar(indices[:no_modes] + 0.2, diag_efficiency_HPS[:no_modes], width = 0.2)
 
     ax[1].set_ylim([0,1])
     ax[1].set_title('Efficiency')
-    ax[1].set_xticks([0,1,2,3,4,5])
-    ax[1].set_xticklabels(labellist)
+    ax[1].set_xticks([0,1,2,3,4,5][:no_modes])
+    ax[1].set_xticklabels(labellist[:no_modes])
     ax[1].set_xlabel('Predicted Mode')
     ax[1].set_ylabel('Efficiency')
+    ax[1].legend()
 
-    ax[0].bar(indices - 0.2, diag_purity_NN, width = 0.2)
-    ax[0].bar(indices, diag_purity_MVA, width = 0.2)
-    ax[0].bar(indices + 0.2, diag_purity_HPS, width = 0.2)
+    if no_modes == 6:
+        ax[0].bar(indices - 0.2, diag_purity_NN, width = 0.2)
+        ax[0].bar(indices, diag_purity_MVA, width = 0.2)
+        ax[0].bar(indices + 0.2, diag_purity_HPS, width = 0.2)
+    else:
+        bodge_mva_purity = [0.78,0.68, 0.54]
+        ax[0].bar(indices[:no_modes] - 0.1, diag_purity_NN[:no_modes], width = 0.2, label = 'NN')
+        ax[0].bar(indices[:no_modes] + 0.1, bodge_mva_purity, width = 0.2, label = 'MVA')       
 
     ax[0].set_ylim([0,1])
     ax[0].set_title('Purity')
-    ax[0].set_xticks([0,1,2,3,4,5])
-    ax[0].set_xticklabels(labellist)
+    ax[0].set_xticks([0,1,2,3,4,5][:no_modes])
+    ax[0].set_xticklabels(labellist[:no_modes])
     ax[0].set_xlabel('Predicted Mode')
     ax[0].set_ylabel('Purity')
-    for a in range(len(indices)):
+    ax[0].legend()
+    # for a in range(len(indices)):
+    #     ax[0].text(indices[a] - 0.2, diag_purity_NN[a]+0.02, round(diag_purity_NN[a], 2), 
+    #     ha="center", va="center", color = 'black')
+    #     ax[0].text(indices[a], diag_purity_MVA[a]+0.02, round(diag_purity_MVA[a], 2), 
+    #     ha="center", va="center", color = 'black')
+    #     ax[0].text(indices[a] + 0.2, diag_purity_HPS[a]+0.02, round(diag_purity_HPS[a], 2), 
+    #     ha="center", va="center", color = 'black')
+
+    #     ax[1].text(indices[a] - 0.2, diag_efficiency_NN[a]+0.02, round(diag_efficiency_NN[a], 2), 
+    #     ha="center", va="center", color = 'black')
+    #     ax[1].text(indices[a], diag_efficiency_MVA[a]+0.02, round(diag_efficiency_MVA[a], 2), 
+    #     ha="center", va="center", color = 'black')
+    #     ax[1].text(indices[a] + 0.2, diag_efficiency_HPS[a]+0.02, round(diag_efficiency_HPS[a], 2), 
+    #     ha="center", va="center", color = 'black')
+    for a in range(len(indices)-3):
         ax[0].text(indices[a] - 0.2, diag_purity_NN[a]+0.02, round(diag_purity_NN[a], 2), 
         ha="center", va="center", color = 'black')
-        ax[0].text(indices[a], diag_purity_MVA[a]+0.02, round(diag_purity_MVA[a], 2), 
+        ax[0].text(indices[a], bodge_mva_purity[a]+0.02, round(bodge_mva_purity[a], 2), 
         ha="center", va="center", color = 'black')
-        ax[0].text(indices[a] + 0.2, diag_purity_HPS[a]+0.02, round(diag_purity_HPS[a], 2), 
-        ha="center", va="center", color = 'black')
+
 
         ax[1].text(indices[a] - 0.2, diag_efficiency_NN[a]+0.02, round(diag_efficiency_NN[a], 2), 
         ha="center", va="center", color = 'black')
-        ax[1].text(indices[a], diag_efficiency_MVA[a]+0.02, round(diag_efficiency_MVA[a], 2), 
+        ax[1].text(indices[a], bodge_mva_efficiency[a]+0.02, round(bodge_mva_efficiency[a], 2), 
         ha="center", va="center", color = 'black')
-        ax[1].text(indices[a] + 0.2, diag_efficiency_HPS[a]+0.02, round(diag_efficiency_HPS[a], 2), 
-        ha="center", va="center", color = 'black')
+
     plt.savefig( model_path + '_NNvsHPS_' + '.png', dpi = 100)
+if plot_roc_curves:
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(no_modes):
+        fpr[i], tpr[i], _ = roc_curve(y_test[:,i], prediction[:,i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+    fig2, ax2 = plt.subplots(1, 1)
+    for i in range(no_modes):
+        ax2.plot(fpr[i], tpr[i], label="Mode %s ROC curve (area = %0.2f)" % (i, roc_auc[i]))
+    ax2.set_xlim([0,1])
+    ax2.set_ylim([0,1.05])
+    ax2.set_xlabel("False Positive Rate")
+    ax2.set_ylabel("True Positive Rate")
+    ax2.set_title("ROC_Curve for One Prong Tau Decays")
+    ax2.legend()
+    plt.savefig(model_path + '_roc_' + '.png', dpi = 100)

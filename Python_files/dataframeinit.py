@@ -56,7 +56,6 @@ variables_tt_1 = ["tauFlag_1",
                 "tau_decay_mode_1",
                 #HPS algorithm decay mode
                 "pt_1",
-                "n_gammas_1",
                ]
 
 variables_tt_2 = ["tauFlag_2", 
@@ -82,7 +81,6 @@ variables_tt_2 = ["tauFlag_2",
                 "tau_decay_mode_2", 
                 # HPS algorithm decay mode
                 "pt_2",
-                "n_gammas_2",
                ]
 
 

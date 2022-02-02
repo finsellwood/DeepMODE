@@ -12,8 +12,8 @@ stop_patience = 25
 no_epochs = 25
 learningrate = 0.0005
 no_modes = 3
-data_folder = "/DataFrames_DM3/"
-model_folder = "/Models_DM3/"
+data_folder = "/DataFrames_DM2/"
+model_folder = "/Models_DM2/"
 # Model architecture parameters
 #dense_layers = [(4,128, False), (2, 54, False)]
 # dense_layers = [(6, 512, True), (4, 32, False)]
