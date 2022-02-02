@@ -5,7 +5,7 @@ rootpath = "/vols/cms/fjo18/Masters2021"
 debug  = False
 large_image_dim = 21
 small_image_dim = 11
-no_layers = 6
+no_layers = 7
 
 #~~ Packages ~~#
 import pandas as pd
@@ -35,7 +35,7 @@ time_start = time.time()
 
 pi_indices = np.array([0,1,1,1,0])
 pi0_indices = np.array([1,0,0,0,0])
-gamma_indices = np.array([0,0,0,0,0,])
+gamma_indices = np.array([0,0,0,0,0])
 sc_indices = np.array([0,0,0,0,1])
 # pi0, pi1, pi2, pi3, sc1, gam_list, cluster_list 
 # Should be enough zeros to account for the last bulk of the coordinates, which are neutral photons etc
@@ -58,6 +58,7 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         etas = np.array(row["rot_eta"])
         energies = row["frac_energies"]
         momenta = row["frac_momenta"]
+        photon_num = row["n_gammas_2"]
 
         # ARRAY SIZES: outer is 21x21, -0.6 to 0.6 in phi/eta
         #              inner is 11x11, -0.1 to 0.1 in phi/eta
@@ -76,12 +77,14 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         #print(real_mask)
         # Create a mask to remove imaginary particles
         zerobuffer = np.zeros(masklen-5)
-        onebuffer = np.ones(masklen-5)
+        gamma_buffer = np.append(np.ones(photon_num), np.zeros(masklen-5-photon_num))
+        cluster_buffer = np.append(np.zeros(photon_num), np.ones(masklen-5-photon_num))
         pi_count = np.append(pi_indices, zerobuffer)
         pi0_count = np.append(pi0_indices, zerobuffer)
-        gamma_count = np.append(gamma_indices, onebuffer)
         sc_count = np.append(sc_indices, zerobuffer)
-        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, gamma_count*real_mask, sc_count*real_mask]
+        gamma_count = np.append(gamma_indices, gamma_buffer)
+        cluster_count = np.append(gamma_indices, cluster_buffer)
+        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, sc_count*real_mask, gamma_count*real_mask,\ 				cluster_count*real_mask,]
 
         for a in range(len(energies)):
             # if energies[a] != 0.0:
