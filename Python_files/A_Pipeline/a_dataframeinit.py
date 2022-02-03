@@ -2,7 +2,11 @@
 # Unpacks root files into a dataframe, selecting necessary columns in process.
 # Generates new variables and appends them to the dataframe as new columns before saving df_ordered as ordereddf.pkl
 # Also recovers y values and saves in a separate dataframe as yvalues.pkl
-rootpath = "/vols/cms/fjo18/Masters2021"
+rootpath_load = "/vols/cms/fjo18/Masters2021/RootFiles"
+# rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
+# For new danny ntuples with new MVA probs on 
+rootpath_save = "/vols/cms/fjo18/Masters2021"
+
 print("importing packages...")
 import ROOT
 import root_numpy as rnp
@@ -14,9 +18,9 @@ import sys
 time_start = time.time()
 print("loading uproot files...")
 
-rootGG_tt = ROOT.TFile(rootpath + "/RootFiles/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+rootGG_tt = ROOT.TFile(rootpath_load + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
 intreeGG_tt = rootGG_tt.Get("ntuple")
-rootVBF_tt = ROOT.TFile(rootpath + "/RootFiles/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+rootVBF_tt = ROOT.TFile(rootpath_load + "/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
 intreeVBF_tt = rootVBF_tt.Get("ntuple")
 time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
@@ -48,6 +52,8 @@ variables_tt_1 = ["tauFlag_1",
                 "gam_px_1", "gam_py_1", "gam_pz_1", "n_gammas_1",
                 # 3-momenta vectors of all photons
                 "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
+                # Shower-shape variables
+                # "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", "sc1_r9_1", "sc1_ietaieta_1",
                 # 4-momentum of the supercluster
                 "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
                 # 3-momenta of clusters in supercluster
@@ -73,6 +79,8 @@ variables_tt_2 = ["tauFlag_2",
                 "gam_px_2", "gam_py_2", "gam_pz_2", "n_gammas_2",
                 # 3-momenta vectors of all photons
                 "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
+                # Shower-shape variables
+                # "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", "sc1_r9_2", "sc1_ietaieta_2",
                 # 4-momentum of the supercluster
                 "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
                 # 3-momenta of clusters in supercluster
@@ -169,5 +177,5 @@ time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 
 
-df_ordered.to_pickle(rootpath + "/Objects/ordereddf.pkl")
-y.to_pickle(rootpath + "/Objects/yvalues.pkl")
+df_ordered.to_pickle(rootpath_save + "/Objects/ordereddf.pkl")
+y.to_pickle(rootpath_save + "/Objects/yvalues.pkl")

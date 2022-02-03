@@ -84,7 +84,8 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         sc_count = np.append(sc_indices, zerobuffer)
         gamma_count = np.append(gamma_indices, gamma_buffer)
         cluster_count = np.append(gamma_indices, cluster_buffer)
-        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, sc_count*real_mask, gamma_count*real_mask,\ 				cluster_count*real_mask,]
+        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, sc_count*real_mask, gamma_count*real_mask,
+        		cluster_count*real_mask,]
 
         for a in range(len(energies)):
             # if energies[a] != 0.0:

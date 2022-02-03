@@ -2,10 +2,13 @@
 #$-m ea -M fjo18@ic.ac.uk
 
 cd ~/CMSSW_10_2_19/src/UserCode/DeepLearning
-export PYTHONPATH=/home/hep/fjo18/.local/lib/python2.7/site-packages:$PYTHONPATH
+# export PYTHONPATH=/home/hep/fjo18/.local/lib/python2.7/site-packages:$PYTHONPATH
 
-source /vols/grid/cms/setup.sh
-eval `scramv1 runtime -sh`
+conda activate icenet
+source ~/CMSSW_10_2_19/icenet/setenv.sh
+# source /vols/grid/cms/setup.sh
+# eval `scramv1 runtime -sh`
 
-python2.7 Python_files/dataframeinit.py
- 
+python3.9 Python_files/dataframeinit.py
+
+conda deactivate

@@ -6,6 +6,7 @@
 rootpath = "/vols/cms/fjo18/Masters2021"
 data_folder = "/DataFrames_DM3/"
 split_X = True
+split_MVA = True
 split_images = True
 no_categories = 6
 
