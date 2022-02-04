@@ -7,7 +7,10 @@
 # ridiculous time to load. Removing the lists (which aren't used for training anyway) is important
 # Now (22/1/22) this file also rotates the generated coordinates s.t. the charged and neutral pion are on/parallel to the axis
 
-rootpath = "/vols/cms/fjo18/Masters2021"
+rootpath_load = "/vols/cms/fjo18/Masters2021/Objects3"
+rootpath_save = "/vols/cms/fjo18/Masters2021/Objects3"
+# Objects3 is for new data, which contains the SC HL vars and comes from dw515 dataframes
+
 load_full = True
 
 #~~ Store strings in memory ~~#
@@ -41,7 +44,7 @@ fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full
 
 import pandas as pd
 import numpy as np
-from pyrsistent import v
+# from pyrsistent import v
 import vector
 import awkward as ak  
 import numba as nb
@@ -53,10 +56,10 @@ print("loading dataframes...")
 time_start = time.time()
 
 if load_full:
-    df_ordered = pd.read_pickle(rootpath + "/Objects/ordereddf.pkl")
+    df_ordered = pd.read_pickle(rootpath_load + "/ordereddf.pkl")
     print("loading with full array")
 else:
-    df_ordered = pd.read_pickle(rootpath + "/Objects/testhead.pkl")
+    df_ordered = pd.read_pickle(rootpath_load + "/testhead.pkl")
     print("loading with small test array")
 
 time_elapsed = time.time() - time_start
@@ -202,7 +205,9 @@ def phi_eta_find(dataframe):
     frac_momenta = ak.to_list(fourvect.mag/tauvisfourvect.mag)
 
     output_dataframe = pd.DataFrame({'phis' : phis, 'etas' : etas, \
-        'frac_energies' : frac_energies, 'frac_momenta' : frac_momenta, 'angles': rot_angles}) 
+        'frac_energies' : frac_energies, 'frac_momenta' : frac_momenta, 'angles': rot_angles, "n_gammas_2": dataframe["n_gammas_2"]}) 
+    # Added "n_gammas_2" column for proper parsing of photons and clusters
+
     return output_dataframe 
 
 imvar_df = phi_eta_find(df_ordered)
@@ -250,8 +255,8 @@ print("Saving dataframes...")
 time_start = time.time()
 
 if load_full:
-    pd.to_pickle(df_ordered, rootpath + "/Objects/ordereddf_modified.pkl")
-    pd.to_pickle(imvar_df, rootpath + "/Objects/imvar_df.pkl")
+    pd.to_pickle(df_ordered, rootpath_save + "/ordereddf_modified.pkl")
+    pd.to_pickle(imvar_df, rootpath_save + "/imvar_df.pkl")
 
 time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))

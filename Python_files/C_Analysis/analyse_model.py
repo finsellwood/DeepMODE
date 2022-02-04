@@ -5,27 +5,27 @@
 # bargraphs compare the model's purity and efficiency to the MVA score and HPS classification
 rootpath = "/vols/cms/fjo18/Masters2021"
 model_folder = "/Models/"
-data_folder = "/DataFrames/"
+data_folder = "/.Archive3/DataFrames2/"
 
-all_decay_modes = False
-no_modes = 3
+all_decay_modes = True
+no_modes = 6
 if not all_decay_modes:
     model_folder = "/Models_DM3/"
     data_folder = "/DataFrames_DM/"
 
-model_name = "LSH_model_0.696_20220130_152436"
+model_name = "LSH_model_0.700_20220119_112408"
 model_path = rootpath + model_folder + model_name
 
 use_inputs = [True, True, True]
-use_unnormalised = True
+use_unnormalised = False # Flipped 3/2/22
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = True
 small_dataset_size = 100000
 
 plot_timeline = False
-plot_confusion_matrices = True
-plot_bargraphs = True
+plot_confusion_matrices = False
+plot_bargraphs = False
 plot_roc_curves = True
 import datetime
 from math import ceil

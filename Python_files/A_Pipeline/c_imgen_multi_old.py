@@ -1,14 +1,11 @@
 #~~ IMGEN.PY ~~#
 # Takes imvar_df dataframe and generates image files in batches of 100,000 events. Saves as numpy arrays.
 # IMGEN_MULTI - adds multiple layers rather than just one for energy
-rootpath_load = "/vols/cms/fjo18/Masters2021/Objects3"
-rootpath_save = "/vols/cms/fjo18/Masters2021/Images3"
-# New image folder
-
+rootpath = "/vols/cms/fjo18/Masters2021"
 debug  = False
 large_image_dim = 21
 small_image_dim = 11
-no_layers = 7
+no_layers = 6
 
 #~~ Packages ~~#
 import pandas as pd
@@ -27,9 +24,9 @@ print("Loading dataframes...")
 time_start = time.time()
 
 if debug:
-    imvar_df = pd.read_pickle(rootpath_load + "/imvar_df_debug.pkl")
+    imvar_df = pd.read_pickle(rootpath + "/Objects/imvar_df_debug.pkl")
 else:
-    imvar_df = pd.read_pickle(rootpath_load + "/imvar_df.pkl")
+    imvar_df = pd.read_pickle(rootpath + "/Objects/imvar_df.pkl")
 print("loaded")
 
 time_elapsed = time.time() - time_start
@@ -38,7 +35,7 @@ time_start = time.time()
 
 pi_indices = np.array([0,1,1,1,0])
 pi0_indices = np.array([1,0,0,0,0])
-gamma_indices = np.array([0,0,0,0,0])
+gamma_indices = np.array([0,0,0,0,0,])
 sc_indices = np.array([0,0,0,0,1])
 # pi0, pi1, pi2, pi3, sc1, gam_list, cluster_list 
 # Should be enough zeros to account for the last bulk of the coordinates, which are neutral photons etc
@@ -61,7 +58,6 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         etas = np.array(row["rot_eta"])
         energies = row["frac_energies"]
         momenta = row["frac_momenta"]
-        photon_num = row["n_gammas_2"]
 
         # ARRAY SIZES: outer is 21x21, -0.6 to 0.6 in phi/eta
         #              inner is 11x11, -0.1 to 0.1 in phi/eta
@@ -80,15 +76,12 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         #print(real_mask)
         # Create a mask to remove imaginary particles
         zerobuffer = np.zeros(masklen-5)
-        gamma_buffer = np.append(np.ones(photon_num), np.zeros(masklen-5-photon_num))
-        cluster_buffer = np.append(np.zeros(photon_num), np.ones(masklen-5-photon_num))
+        onebuffer = np.ones(masklen-5)
         pi_count = np.append(pi_indices, zerobuffer)
         pi0_count = np.append(pi0_indices, zerobuffer)
+        gamma_count = np.append(gamma_indices, onebuffer)
         sc_count = np.append(sc_indices, zerobuffer)
-        gamma_count = np.append(gamma_indices, gamma_buffer)
-        cluster_count = np.append(gamma_indices, cluster_buffer)
-        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, sc_count*real_mask, gamma_count*real_mask,
-        		cluster_count*real_mask,]
+        layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, gamma_count*real_mask, sc_count*real_mask]
 
         for a in range(len(energies)):
             # if energies[a] != 0.0:
@@ -103,15 +96,15 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         
         counter +=1
         if counter == 100000:
-            np.save(rootpath_save + '/m_image_l_%02d.npy' % imcounter, largegridlist)
-            np.save(rootpath_save + '/m_image_s_%02d.npy' % imcounter, smallgridlist)
+            np.save(rootpath + '/Images/m_image_l_%02d.npy' % imcounter, largegridlist)
+            np.save(rootpath + '/Images/m_image_s_%02d.npy' % imcounter, smallgridlist)
             largegridlist = []
             smallgridlist = []
             print('Images saved = ', imcounter)
             imcounter+=1
             counter = 0
-    np.save(rootpath_save + '/m_image_l_%02d.npy' % imcounter, largegridlist)
-    np.save(rootpath_save + '/m_image_s_%02d.npy' % imcounter, smallgridlist)
+    np.save(rootpath + '/Images/m_image_l_%02d.npy' % imcounter, largegridlist)
+    np.save(rootpath + '/Images/m_image_s_%02d.npy' % imcounter, smallgridlist)
 
 
 

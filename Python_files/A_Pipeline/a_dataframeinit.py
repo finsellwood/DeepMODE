@@ -1,11 +1,13 @@
 #~~ DATAFRAMEINIT.PY ~~#
+# HAS TO BE RUN IN PYTHON2 - use command 'python2 a_dataframeinit.py'
+# Due to root compatability
 # Unpacks root files into a dataframe, selecting necessary columns in process.
 # Generates new variables and appends them to the dataframe as new columns before saving df_ordered as ordereddf.pkl
 # Also recovers y values and saves in a separate dataframe as yvalues.pkl
-rootpath_load = "/vols/cms/fjo18/Masters2021/RootFiles"
-# rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
+# rootpath_load = "/vols/cms/fjo18/Masters2021/RootFiles"
+rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
 # For new danny ntuples with new MVA probs on 
-rootpath_save = "/vols/cms/fjo18/Masters2021"
+rootpath_save = "/vols/cms/fjo18/Masters2021/Objects3"
 
 print("importing packages...")
 import ROOT
@@ -53,7 +55,7 @@ variables_tt_1 = ["tauFlag_1",
                 # 3-momenta vectors of all photons
                 "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
                 # Shower-shape variables
-                # "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", "sc1_r9_1", "sc1_ietaieta_1",
+                "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", #  "sc1_r9_1", "sc1_ietaieta_1",
                 # 4-momentum of the supercluster
                 "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
                 # 3-momenta of clusters in supercluster
@@ -80,7 +82,7 @@ variables_tt_2 = ["tauFlag_2",
                 # 3-momenta vectors of all photons
                 "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
                 # Shower-shape variables
-                # "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", "sc1_r9_2", "sc1_ietaieta_2",
+                "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", # "sc1_r9_2", "sc1_ietaieta_2",
                 # 4-momentum of the supercluster
                 "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
                 # 3-momenta of clusters in supercluster
@@ -177,5 +179,5 @@ time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 
 
-df_ordered.to_pickle(rootpath_save + "/Objects/ordereddf.pkl")
-y.to_pickle(rootpath_save + "/Objects/yvalues.pkl")
+df_ordered.to_pickle(rootpath_save + "/ordereddf.pkl")
+y.to_pickle(rootpath_save + "/yvalues.pkl")
