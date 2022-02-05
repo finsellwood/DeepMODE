@@ -3,8 +3,11 @@
 # Can change weighting with dataset_weights and use_as_mask, which keeps original ratios 
 # But only returns modes with nonzero weights
 # E.g. only 1pr in original ratio would use dataset_weights = [1,1,1,0,0,0], use_as_mask = True
-rootpath = "/vols/cms/fjo18/Masters2021"
-data_folder = "/DataFrames_DM2/"
+rootpath_load = "/vols/cms/fjo18/Masters2021"
+rootpath_save = "/vols/cms/fjo18/Masters2021"
+dataframe_prefix = "/DataFrames3"
+
+data_folder = "/DataFrames3_DM2/"
 split_X = True
 split_MVA = False
 split_images = True
@@ -35,8 +38,8 @@ print("loading y,x files...")
 ###
 
 
-y_train = pd.read_pickle(rootpath + "/DataFrames/y_train_df.pkl")
-y_test = pd.read_pickle(rootpath + "/DataFrames/y_test_df.pkl")
+y_train = pd.read_pickle(rootpath_load + dataframe_prefix + "/y_train_df.pkl")
+y_test = pd.read_pickle(rootpath_load + dataframe_prefix + "/y_test_df.pkl")
 y_train_flat = pd.DataFrame(np.argmax(y_train, axis=-1), columns = ["tauFlag_2"])
 y_test_flat = pd.DataFrame(np.argmax(y_test, axis=-1), columns = ["tauFlag_2"])
 
@@ -54,8 +57,8 @@ if debug:
 
 if split_X:
       print('Splitting X')
-      x_train = pd.read_pickle(rootpath + "/DataFrames/X_n_train_df.pkl").head(no_train_events).reset_index(drop=True)
-      x_test = pd.read_pickle(rootpath + "/DataFrames/X_n_test_df.pkl").head(no_test_events).reset_index(drop=True)
+      x_train = pd.read_pickle(rootpath_load + dataframe_prefix + "/X_train_df.pkl").head(no_train_events).reset_index(drop=True)
+      x_test = pd.read_pickle(rootpath_load + dataframe_prefix + "/X_test_df.pkl").head(no_test_events).reset_index(drop=True)
 
       x_train_concat = pd.concat([x_train, y_train_flat], axis = 1, join='inner')
       x_test_concat = pd.concat([x_test, y_test_flat], axis = 1, join='inner')
@@ -162,10 +165,10 @@ if split_X:
       y_test_split = keras.utils.to_categorical(y_test_indices, no_categories)
       # Convert y arrays back to one-hot form
 
-      pd.to_pickle(train_dataset, rootpath + data_folder + "X_train_df.pkl")
-      pd.to_pickle(test_dataset, rootpath + data_folder + "X_test_df.pkl")
-      pd.to_pickle(y_train_split, rootpath + data_folder + "y_train_df.pkl")
-      pd.to_pickle(y_test_split, rootpath + data_folder + "y_test_df.pkl")
+      pd.to_pickle(train_dataset, rootpath_save + data_folder + "X_train_df.pkl")
+      pd.to_pickle(test_dataset, rootpath_save + data_folder + "X_test_df.pkl")
+      pd.to_pickle(y_train_split, rootpath_save + data_folder + "y_train_df.pkl")
+      pd.to_pickle(y_test_split, rootpath_save + data_folder + "y_test_df.pkl")
       print(train_dataset.shape, 'X_train shape')
       print(test_dataset.shape, 'X_test shape')
       print(y_train_split.shape, 'y_train shape')
@@ -176,10 +179,10 @@ if split_X:
 if split_images:
       print('Splitting images')
       # Create numpy arrays for simple iteration
-      im_l_array_train = np.load(rootpath + "/DataFrames/im_l_array_train.npy")[:no_train_events]
-      im_l_array_test = np.load(rootpath + "/DataFrames/im_l_array_test.npy")[:no_test_events]
-      im_s_array_train = np.load(rootpath + "/DataFrames/im_s_array_train.npy")[:no_train_events]
-      im_s_array_test = np.load(rootpath + "/DataFrames/im_s_array_test.npy")[:no_test_events]
+      im_l_array_train = np.load(rootpath_load + dataframe_prefix + "/im_l_array_train.npy")[:no_train_events]
+      im_l_array_test = np.load(rootpath_load + dataframe_prefix + "/im_l_array_test.npy")[:no_test_events]
+      im_s_array_train = np.load(rootpath_load + dataframe_prefix + "/im_s_array_train.npy")[:no_train_events]
+      im_s_array_test = np.load(rootpath_load + dataframe_prefix + "/im_s_array_test.npy")[:no_test_events]
 
       im_l_train_dataset = im_l_array_train[train_index]
       im_l_test_dataset = im_l_array_test[test_index]
@@ -191,10 +194,10 @@ if split_images:
       print(im_s_train_dataset.shape, 'im_l_train shape')
       print(im_s_test_dataset.shape, 'im_l_test shape')
 
-      np.save(rootpath + data_folder + "im_l_array_train.npy", im_l_train_dataset)
-      np.save(rootpath + data_folder + "im_l_array_test.npy", im_l_test_dataset)
-      np.save(rootpath + data_folder + "im_s_array_train.npy", im_s_train_dataset)
-      np.save(rootpath + data_folder + "im_s_array_test.npy", im_s_test_dataset)
+      np.save(rootpath_save + data_folder + "im_l_array_train.npy", im_l_train_dataset)
+      np.save(rootpath_save + data_folder + "im_l_array_test.npy", im_l_test_dataset)
+      np.save(rootpath_save + data_folder + "im_s_array_train.npy", im_s_train_dataset)
+      np.save(rootpath_save + data_folder + "im_s_array_test.npy", im_s_test_dataset)
 
 
 

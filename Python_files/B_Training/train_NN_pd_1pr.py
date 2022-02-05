@@ -2,7 +2,7 @@
 # The code to train a full network, with only 1-prong data
 # Can be applied to full (all mode) data by changing data_folder path
 # 
-rootpath = "/vols/cms/fjo18/Masters2021"
+rootpath_load = "/vols/cms/fjo18/Masters2021"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
 
 drop_variables = False
@@ -12,8 +12,8 @@ stop_patience = 25
 no_epochs = 25
 learningrate = 0.0005
 no_modes = 3
-data_folder = "/DataFrames_DM2/"
-model_folder = "/Models_DM2/"
+data_folder = "/DataFrames3_DM2/"
+model_folder = "/Models3_DM2/"
 # Model architecture parameters
 #dense_layers = [(4,128, False), (2, 54, False)]
 # dense_layers = [(6, 512, True), (4, 32, False)]
@@ -24,9 +24,9 @@ conv_layers = [(4,4), (4,3)]
 flat_preprocess = True
 # Determines if the initial (no pooling) conv layers have a constant no. filters
 # (True = constant)
-HL_shape = (27,)
-im_l_shape = (21,21,6)
-im_s_shape = (11,11,6)
+HL_shape = (29,)
+im_l_shape = (21,21,7)
+im_s_shape = (11,11,7)
 inc_dropout = True
 dropout_rate = [0.1, 0.3]
 # 1st no. is conv and 2nd is dense
@@ -48,7 +48,7 @@ model_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 view_model = False
 # DOESN'T WORK - HAVE TO INSTALL IF NECESSARY
 save_model = True
-small_dataset = False
+small_dataset = True
 small_dataset_size = 100000
 
 training_parameters = [batch_size, conv_layers, dense_layers, inc_dropout, \
@@ -89,8 +89,8 @@ import time
 
 # load data
 
-y_train = pd.read_pickle(rootpath + data_folder + "y_train_df.pkl")
-y_test = pd.read_pickle(rootpath + data_folder + "y_test_df.pkl")
+y_train = pd.read_pickle(rootpath_load + data_folder + "y_train_df.pkl")
+y_test = pd.read_pickle(rootpath_load + data_folder + "y_test_df.pkl")
 
 l_im_train = []
 l_im_test = []
@@ -100,14 +100,14 @@ X_train = pd.DataFrame()
 X_test = pd.DataFrame()
 # These need to be here so that the later operations don't break when you only use some inputs
 if use_inputs[0]:
-    l_im_train = np.load(rootpath + data_folder + "im_l_array_train.npy")
-    l_im_test = np.load(rootpath + data_folder + "im_l_array_test.npy")
+    l_im_train = np.load(rootpath_load + data_folder + "im_l_array_train.npy")
+    l_im_test = np.load(rootpath_load + data_folder + "im_l_array_test.npy")
 if use_inputs[1]:
-    s_im_train = np.load(rootpath + data_folder + "im_s_array_train.npy")
-    s_im_test = np.load(rootpath + data_folder + "im_s_array_test.npy")
+    s_im_train = np.load(rootpath_load + data_folder + "im_s_array_train.npy")
+    s_im_test = np.load(rootpath_load + data_folder + "im_s_array_test.npy")
 if use_inputs[2]:
-    X_train = pd.read_pickle(rootpath + data_folder + "X_train_df.pkl")
-    X_test = pd.read_pickle(rootpath + data_folder + "X_test_df.pkl")
+    X_train = pd.read_pickle(rootpath_load + data_folder + "X_train_df.pkl")
+    X_test = pd.read_pickle(rootpath_load + data_folder + "X_test_df.pkl")
 
 if drop_variables:
     vars_to_drop = ['pi2_E_2', 'pi3_E_2','n_gammas_2','sc1_Nclusters_2','tau_E_2',]

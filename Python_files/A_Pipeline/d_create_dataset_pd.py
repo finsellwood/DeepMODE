@@ -17,16 +17,20 @@
 # OUTPUTS: should have 6 tensorflow files, 3 train and 3 test each for HL vars, Images and y values
 # EDIT - this version of the document has the option to create pandas dataframes or tf.tensors
 # Also a file 'element_specs.txt' which contains the datatype of each tensor, for use when loading in the tensors later
-rootpath = "/vols/cms/fjo18/Masters2021"
-l_image_prefix = '/Images/m_image_l_'
-s_image_prefix = '/Images/m_image_s_'
+rootpath_load = "/vols/cms/fjo18/Masters2021"
+rootpath_save = "/vols/cms/fjo18/Masters2021"
+
+object_prefix = '/Objects3'
+dataframe_prefix = '/DataFrames3'
+l_image_prefix = '/Images3/m_image_l_'
+s_image_prefix = '/Images3/m_image_s_'
 frames = True
 sets = False
-num_arrays = 73
-split_X = False
+num_arrays = 75 #73
+split_X = True
 split_L_images = True
 split_S_images = True
-split_Y = False
+split_Y = True
 
 
 import numpy as np
@@ -45,10 +49,10 @@ print("loading y,x files...")
 ###
 
 specfile = open('element_specs.txt', 'w')
-y = pd.read_pickle(rootpath + "/Objects/yvalues.pkl")
+y = pd.read_pickle(rootpath_load + object_prefix + "/yvalues.pkl")
 
 if split_X:
-  df_ordered = pd.read_pickle(rootpath + "/Objects/ordereddf_modified.pkl")
+  df_ordered = pd.read_pickle(rootpath_load + object_prefix + "/ordereddf_modified.pkl")
 
   ###
   time_elapsed = time.time() - time_start 
@@ -83,23 +87,23 @@ if split_X:
             ], axis=1).reset_index(drop=True)
 
   del df_ordered
-  X_not_norm = X
+  # X_not_norm = X
   # Only normalise part of the dataframe (exclude discrete elements)
-  cols_not_to_normalise = ["n_gammas_2", "sc1_Nclusters_2", "tau_decay_mode_2",]
-  discrete_X = X[cols_not_to_normalise]
-  # discrete_X stays as dataframe, not normalised
-  to_norm_X = X.drop(cols_not_to_normalise, axis=1).reset_index(drop=True)
-  col_labels = list(to_norm_X.columns)
-  to_norm_X.to_numpy()
-  normX = normalize(to_norm_X)
-  # Convert to_norm_X into numpy array so that can use sklearn.normalize() on it
-  norm_df = pd.DataFrame(data = normX, columns = col_labels)
-  X = pd.concat([norm_df,discrete_X], axis = 1)
+  # cols_not_to_normalise = ["n_gammas_2", "sc1_Nclusters_2", "tau_decay_mode_2",]
+  # discrete_X = X[cols_not_to_normalise]
+  # # discrete_X stays as dataframe, not normalised
+  # to_norm_X = X.drop(cols_not_to_normalise, axis=1).reset_index(drop=True)
+  # col_labels = list(to_norm_X.columns)
+  # to_norm_X.to_numpy()
+  # normX = normalize(to_norm_X)
+  # # Convert to_norm_X into numpy array so that can use sklearn.normalize() on it
+  # norm_df = pd.DataFrame(data = normX, columns = col_labels)
+  # X = pd.concat([norm_df,discrete_X], axis = 1)
   # Convert back to dataframes and sandwich two dfs back together
   # Want as dataframes so that can see column names 
 
-  X_train, X_test, X_n_train, X_n_test = train_test_split(
-      X, X_not_norm,
+  X_train, X_test = train_test_split(
+      X,
       test_size=0.2,
       random_state=123456,
       stratify = y
@@ -122,16 +126,17 @@ if split_X:
     specfile.write(str(t_X_test.element_spec) + '\n')
 
     print('Saving tensors...')
-    tf.data.experimental.save(t_X_train, rootpath + "/Tensors/X_train_tensor")
-    tf.data.experimental.save(t_X_test, rootpath + "/Tensors/X_test_tensor")
+    tf.data.experimental.save(t_X_train, rootpath_save + "/Tensors/X_train_tensor")
+    tf.data.experimental.save(t_X_test, rootpath_save + "/Tensors/X_test_tensor")
     del t_X_train, t_X_test
 
   if frames:
     print("Saving X pd files...")
-    pd.to_pickle(X_train, rootpath + "/DataFrames/X_train_df.pkl")
-    pd.to_pickle(X_test, rootpath + "/DataFrames/X_test_df.pkl")
-    pd.to_pickle(X_n_train, rootpath + "/DataFrames/X_n_train_df.pkl")
-    pd.to_pickle(X_n_test, rootpath + "/DataFrames/X_n_test_df.pkl")
+    pd.to_pickle(X_train, rootpath_save + dataframe_prefix + "/X_train_df.pkl")
+    pd.to_pickle(X_test, rootpath_save + dataframe_prefix + "/X_test_df.pkl")
+    # NOTE X_n_t... are now defunct - data is NOT NORMALISED AT ALL as this gave no improvement
+    # pd.to_pickle(X_n_train, rootpath_save + "/DataFrames/X_n_train_df.pkl")
+    # pd.to_pickle(X_n_test, rootpath_save + "/DataFrames/X_n_test_df.pkl")
 
   del X_train, X_test
 
@@ -146,7 +151,7 @@ if split_L_images:
 
   list_of_arrays = []
   for a in range(num_arrays):
-    list_of_arrays.append(np.load(rootpath + l_image_prefix + "%02d.npy" % a))
+    list_of_arrays.append(np.load(rootpath_load + l_image_prefix + "%02d.npy" % a))
   l_image_array = np.concatenate(list_of_arrays)
   list_of_arrays = []
 
@@ -180,14 +185,14 @@ if split_L_images:
     specfile.write(str(t_l_im_test.element_spec) + '\n')
 
     print('Saving tensors...')
-    tf.data.experimental.save(t_l_im_train, rootpath + "/Tensors/l_im_train_tensor")
-    tf.data.experimental.save(t_l_im_test, rootpath + "/Tensors/l_im_test_tensor")
+    tf.data.experimental.save(t_l_im_train, rootpath_save + "/Tensors/l_im_train_tensor")
+    tf.data.experimental.save(t_l_im_test, rootpath_save + "/Tensors/l_im_test_tensor")
     del t_l_im_train, t_l_im_test
 
   if frames:
     print("Saving large image numpy files...")
-    np.save(rootpath + "/DataFrames/im_l_array_train.npy", im_l_array_train)
-    np.save(rootpath + "/DataFrames/im_l_array_test.npy", im_l_array_test)
+    np.save(rootpath_save + dataframe_prefix + "/im_l_array_train.npy", im_l_array_train)
+    np.save(rootpath_save + dataframe_prefix + "/im_l_array_test.npy", im_l_array_test)
 
   del im_l_array_train, im_l_array_test
 
@@ -200,7 +205,7 @@ if split_S_images:
   ###
 
   for a in range(num_arrays):
-    list_of_arrays.append(np.load(rootpath + s_image_prefix + "%02d.npy" % a))
+    list_of_arrays.append(np.load(rootpath_load + s_image_prefix + "%02d.npy" % a))
   s_image_array = np.concatenate(list_of_arrays)
   list_of_arrays = []
 
@@ -234,14 +239,14 @@ if split_S_images:
     specfile.write(str(t_s_im_test.element_spec) + '\n')
 
     print('Saving tensors...')
-    tf.data.experimental.save(t_s_im_train, rootpath + "/Tensors/s_im_train_tensor")
-    tf.data.experimental.save(t_s_im_test, rootpath + "/Tensors/s_im_test_tensor")
+    tf.data.experimental.save(t_s_im_train, rootpath_save + "/Tensors/s_im_train_tensor")
+    tf.data.experimental.save(t_s_im_test, rootpath_save + "/Tensors/s_im_test_tensor")
     del t_s_im_train, t_s_im_test
     
   if frames:
     print("Saving small image numpy files...")
-    np.save(rootpath + "/DataFrames/im_s_array_train.npy", im_s_array_train)
-    np.save(rootpath + "/DataFrames/im_s_array_test.npy", im_s_array_test)
+    np.save(rootpath_save + dataframe_prefix + "/im_s_array_train.npy", im_s_array_train)
+    np.save(rootpath_save + dataframe_prefix + "/im_s_array_test.npy", im_s_array_test)
 
 
   del im_s_array_train, im_s_array_test
@@ -277,14 +282,14 @@ if split_Y:
     specfile.write(str(t_y_test.element_spec) + '\n')
 
     print('Saving tensors...')
-    tf.data.experimental.save(t_y_train, rootpath + "/Tensors/y_train_tensor")
-    tf.data.experimental.save(t_y_test, rootpath + "/Tensors/y_test_tensor")
+    tf.data.experimental.save(t_y_train, rootpath_save + "/Tensors/y_train_tensor")
+    tf.data.experimental.save(t_y_test, rootpath_save + "/Tensors/y_test_tensor")
     del t_s_im_train, t_s_im_test, t_y_train, t_y_test
     
   if frames:
     print("Saving u files...")
-    pd.to_pickle(y_train, rootpath + "/DataFrames/y_train_df.pkl")
-    pd.to_pickle(y_test, rootpath + "/DataFrames/y_test_df.pkl")
+    pd.to_pickle(y_train, rootpath_save + dataframe_prefix + "/y_train_df.pkl")
+    pd.to_pickle(y_test, rootpath_save + dataframe_prefix + "/y_test_df.pkl")
 
 
   del y_train, y_test
