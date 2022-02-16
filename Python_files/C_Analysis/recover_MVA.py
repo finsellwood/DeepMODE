@@ -4,7 +4,7 @@
 rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
 # "/vols/cms/fjo18/Masters2021/RootFiles"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
-
+dataframe_prefix = "/DataFrames3"
 print("importing packages...")
 import uproot3
 from sklearn.model_selection import train_test_split
@@ -19,7 +19,7 @@ print("loading uproot files...")
 treeGG_tt = uproot3.open(rootpath_load + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
 treeVBF_tt = uproot3.open(rootpath_load + "/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")["ntuple"]
 
-y = pd.read_pickle(rootpath_save + "/Objects/yvalues.pkl")
+y = pd.read_pickle(rootpath_save + "/Objects3/yvalues.pkl")
 # Y array so that the data can be split properly/double-checked
 time_elapsed = time_start - time.time()
 print("elapsed time = " + str(time_elapsed))
@@ -113,7 +113,7 @@ time_elapsed = time.time() - time_start
 print("elapsed time = " + str(time_elapsed))
 
 print(y.sample(n = 5,  random_state= 1234))
-print(df_mva.sample(n = 5,  random_state= 1234))
+print(df_mva.sample(n = 10,  random_state= 1234))
 # double check they're the same
 
 mva_train, mva_test = train_test_split(
@@ -123,6 +123,6 @@ mva_train, mva_test = train_test_split(
     stratify = y
 )
 
-mva_train.to_pickle(rootpath_save + "/Objects/mva_train.pkl")
-mva_test.to_pickle(rootpath_save + "/Objects/mva_test.pkl")
+mva_train.to_pickle(rootpath_save + dataframe_prefix + "/mva_train.pkl")
+mva_test.to_pickle(rootpath_save + dataframe_prefix + "/mva_test.pkl")
 

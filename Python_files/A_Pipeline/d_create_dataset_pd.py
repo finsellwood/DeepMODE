@@ -256,6 +256,7 @@ if split_S_images:
   time_start = time.time()
   print("elapsed time = " + str(time_elapsed))
   ###
+
 if split_Y:
   y_train, y_test = train_test_split(
     y,

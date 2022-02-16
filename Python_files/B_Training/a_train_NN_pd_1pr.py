@@ -1,0 +1,421 @@
+#~~ TRAIN_NN_pd_1pr.PY ~~# 
+# The code to train a full network, with only 1-prong data
+# Can be applied to full (all mode) data by changing data_folder path
+# 
+
+
+rootpath_load = "/vols/cms/fjo18/Masters2021"
+rootpath_save = "/vols/cms/fjo18/Masters2021"
+from parameters import paramdict
+
+
+# drop_variables = False
+# # Training parameters
+# batch_size = 1000 #1024
+# stop_patience = 25
+# no_epochs = 25
+# learningrate = 0.001
+# no_modes = 4
+# data_folder = "/DataFrames3_DM5/"
+# model_folder = "/Models3_DM5/"
+# # Model architecture parameters
+# #dense_layers = [(4,128, False), (2, 54, False)]
+# # dense_layers = [(6, 512, True), (4, 32, False)]
+# dense_layers = [(6, 32, False), (4, 512, True)]
+
+
+# conv_layers = [(4,4), (4,3)]
+# flat_preprocess = True
+# # Determines if the initial (no pooling) conv layers have a constant no. filters
+# # (True = constant)
+# HL_shape = (29,)
+# im_l_shape = (21,21,7)
+# im_s_shape = (11,11,7)
+# inc_dropout = True
+# dropout_rate = [0.1, 0.3]
+# # 1st no. is conv and 2nd is dense
+# # Convolutional layers should have a much lower dropout rate than dense
+
+# use_inputs = [True, True, True]
+# # A mask to check which inputs to use for the model - above indicates HL only
+
+# # use_unnormalised = True
+# use_res_blocks = False
+# # Currently not particularly founded use of residual layers 
+# # Should be applied between convolutional layers, not dense
+
+import datetime
+from math import ceil
+model_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# cache_dataset = True
+view_model = False
+# DOESN'T WORK - HAVE TO INSTALL IF NECESSARY
+
+# Load packages
+import numpy as np
+import pandas as pd
+from sklearn.metrics import classification_report, roc_curve, roc_auc_score
+import tensorflow as tf
+#tf.debugging.set_log_device_placement(True)
+# Code will now print the device on which it is running
+from tensorflow import TensorSpec
+from tensorflow import keras
+from tensorflow import Tensor
+from tensorflow.keras import layers
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, BatchNormalization, Normalization, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
+from tensorflow.keras.optimizers import Adam
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score
+from tensorflow.keras.callbacks import History, ModelCheckpoint
+from tensorflow.keras.utils import normalize, plot_model
+import pickle
+
+import time
+
+# load data
+
+y_train = pd.read_pickle(rootpath_load + paramdict["data_folder"] + "y_train_df.pkl")
+y_test = pd.read_pickle(rootpath_load + paramdict["data_folder"] + "y_test_df.pkl")
+
+l_im_train = []
+l_im_test = []
+s_im_train = []
+s_im_test = []
+X_train = pd.DataFrame()
+X_test = pd.DataFrame()
+# These need to be here so that the later operations don't break when you only use some inputs
+if paramdict["use_inputs"][0]:
+    l_im_train = np.load(rootpath_load + paramdict["data_folder"] + "im_l_array_train.npy")
+    l_im_test = np.load(rootpath_load + paramdict["data_folder"] + "im_l_array_test.npy")
+if paramdict["use_inputs"][1]:
+    s_im_train = np.load(rootpath_load + paramdict["data_folder"] + "im_s_array_train.npy")
+    s_im_test = np.load(rootpath_load + paramdict["data_folder"] + "im_s_array_test.npy")
+if paramdict["use_inputs"][2]:
+    X_train = pd.read_pickle(rootpath_load + paramdict["data_folder"] + "X_train_df.pkl")
+    X_test = pd.read_pickle(rootpath_load + paramdict["data_folder"] + "X_test_df.pkl")
+
+if paramdict["drop_variables"]:
+    vars_to_drop = ['pi2_E_2', 'pi3_E_2','n_gammas_2','sc1_Nclusters_2','tau_E_2',]
+    X_train.drop(columns = vars_to_drop, inplace = True)
+    X_test.drop(columns = vars_to_drop, inplace = True)
+    HL_shape = (X_train.head(1).shape[1], )
+
+
+if paramdict["small_dataset"]:
+    test_size = int(paramdict["small_dataset_size"]*.2)
+    train_size = int(paramdict["small_dataset_size"]*.8)
+    X_train = X_train.head(train_size)
+    X_test = X_test.head(test_size)
+    y_train = y_train[:train_size]
+    y_test = y_test[:test_size]
+    l_im_train = l_im_train[:train_size]
+    l_im_test = l_im_test[:test_size]
+    s_im_train = s_im_train[:train_size]
+    s_im_test = s_im_test[:test_size]
+
+
+train_full_inputs = [l_im_train, s_im_train, X_train]
+for a in train_full_inputs:
+    print(a.shape)
+test_full_inputs = [l_im_test, s_im_test, X_test]
+for a in test_full_inputs:
+    print(a.shape)
+train_inputs = []
+test_inputs = []
+for a in range(len(paramdict["use_inputs"])):
+    if paramdict["use_inputs"][a]:
+        train_inputs.append(train_full_inputs[a])
+        test_inputs.append(test_full_inputs[a])
+# Setting up inputs based on the mask
+
+
+
+
+
+# X_train = tf.data.experimental.load(rootpath + "/Tensors/X_train_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
+# X_test = tf.data.experimental.load(rootpath + "/Tensors/X_test_tensor", element_spec = TensorSpec(shape=(20,), dtype=tf.float64, name=None)).batch(batch_size)
+# y_train = tf.data.experimental.load(rootpath + "/Tensors/y_train_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
+# y_test = tf.data.experimental.load(rootpath + "/Tensors/y_test_tensor", element_spec = TensorSpec(shape=(6,), dtype=tf.float32, name=None)).batch(batch_size)
+
+# l_im_train = tf.data.experimental.load(rootpath + "/Tensors/l_im_train_tensor", element_spec = TensorSpec(shape=(21,21), dtype=tf.uint8, name=None)).batch(batch_size)
+# l_im_test = tf.data.experimental.load(rootpath + "/Tensors/l_im_test_tensor", element_spec = TensorSpec(shape=(21,21), dtype=tf.uint8, name=None)).batch(batch_size)
+# s_im_train = tf.data.experimental.load(rootpath + "/Tensors/s_im_train_tensor", element_spec = TensorSpec(shape=(11,11), dtype=tf.uint8, name=None)).batch(batch_size)
+# s_im_test = tf.data.experimental.load(rootpath + "/Tensors/s_im_test_tensor", element_spec = TensorSpec(shape=(11,11), dtype=tf.uint8, name=None)).batch(batch_size)
+
+# train_inputs = tf.data.Dataset.zip((l_im_train, s_im_train, X_train))
+# test_inputs = tf.data.Dataset.zip((l_im_test, s_im_test, X_test))
+# # combining three input variables into an object
+
+# train_batch = tf.data.Dataset.zip((train_inputs, y_train))
+# test_batch = tf.data.Dataset.zip((test_inputs, y_test))
+# # Combining input variables with flags
+
+# train_batch = train_batch.prefetch(tf.data.AUTOTUNE)
+# test_batch = test_batch.prefetch(tf.data.AUTOTUNE)
+# # prefetching a number of batches, to make loading more efficient possibly
+
+# if cache_dataset:
+#     train_batch = train_batch.cache()
+#     test_batch = test_batch.cache()
+#     print('caching dataset')
+# # caching may well save loading time but not sure yet - for image based the cache does not fit in memory
+# # may have to partially cache instead of caching entire dataset (i.e. only cache HL variables or something)
+
+# create model
+
+def relu_bn(inputs: Tensor) -> Tensor:
+    relu = layers.ReLU()(inputs)
+    bn = layers.BatchNormalization()(relu)
+    return bn
+
+def add_res_2_block(x: Tensor, dense_width) -> Tensor:
+    # adds two dense layers with a loop linking input and output
+    # a fundamental of a residual network
+    y = layers.Dense(dense_width)(x)
+    y = relu_bn(y)
+    y = layers.Dense(dense_width)(y)
+    out = layers.Add()([x,y])
+    out = relu_bn(out)
+    return out
+def add_conv_res_block(x: Tensor, no_filters, conv_name, kernelsize) -> Tensor:
+    # adds two dense layers with a loop linking input and output
+    # a fundamental of a residual network
+    y = layers.Conv2D(no_filters, kernelsize, padding="same", name = conv_name)(x)
+    y = relu_bn(y)
+    y = layers.Conv2D(no_filters, kernelsize, padding="same", name = conv_name + '_2')(x)
+    out = layers.Add()([x,y])
+    out = relu_bn(out)
+    return out
+def add_res_1_block(x: Tensor, dense_width, layer_name) -> Tensor:
+    # adds one dense layer with a loop linking input and output
+    y = layers.Dense(dense_width, name = layer_name)(x)
+    y = relu_bn(y)
+    out = layers.Add()([x,y])
+    out = relu_bn(out)
+    return out
+
+def CNN_creator_3input(param_dictionary, model_image = view_model):
+    kernelsize = (3,3)
+    # inputshape_l, inputshape_s, inputshape_hl, convlayers, denselayers, dropout_rate, \
+    #                    kernelsize = (3,3), learningrate = 0.001, input_mask = [True,True,True], input_norm = False,\
+    #                         model_image = False, dropout = True, flat_filters = True, no_decay_modes = 6, use_res_blocks=False):
+    # Inputshape should be a 3-comp tuple, where 1st two els are height x width and 3rd is no. layers
+
+    # im_l_shape, im_s_shape, HL_shape, conv_layers, dense_layers, \
+    #                        dropout_rate, learningrate = learningrate, input_mask = use_inputs, \
+    #                            model_image=view_model, dropout=inc_dropout, flat_filters=flat_preprocess, \
+    #                                no_decay_modes=no_modes)
+
+    # conv/denselayers denote number of convolutional and dense layers in network
+    # convlayers should be a tuple
+    # dense layers is 2x2 matrix, first val for dense layers for only HL, second is for the final dense layers
+    # - second val in each tuple is the width of the dense layer
+    # dense necessarily come after convolutional
+    convlayers = param_dictionary["conv_layers"]
+    inputshape_l = param_dictionary["im_l_shape"]
+    inputshape_s = param_dictionary["im_s_shape"]
+    inputshape_hl = param_dictionary["HL_shape"]
+
+    flat_filters = param_dictionary["flat_preprocess"]
+    use_res_blocks = param_dictionary["use_res_blocks"]
+    dropout = param_dictionary["inc_dropout"]
+
+    input_mask = param_dictionary["use_inputs"]
+    no_decay_modes = param_dictionary["no_modes"]
+    learningrate = param_dictionary["learningrate"]
+
+    # PARSE INPUT VARIABLES #
+    poolingsize = (2,2)
+    no_conv_layers_l_flat = convlayers[0][0]
+    no_conv_layers_s_flat = convlayers[1][0]
+    no_conv_layers_l_pool = convlayers[0][1]
+    no_conv_layers_s_pool = convlayers[1][1]
+
+    conv_dropout_rate = param_dictionary["dropout_rate"][0]
+    dense_dropout_rate = param_dictionary["dropout_rate"][1]
+
+    no_dense_hl = param_dictionary["dense_layers"][0][0]
+    width_dense_hl = param_dictionary["dense_layers"][0][1]
+    decrease_dense_hl = param_dictionary["dense_layers"][0][2]
+    no_dense_full = param_dictionary["dense_layers"][1][0]
+    width_dense_full = param_dictionary["dense_layers"][1][1]
+    decrease_dense_full = param_dictionary["dense_layers"][1][2]
+
+    # INPUTS #
+    image_input_l = keras.Input(shape = inputshape_l, name = "l_input")
+    y_l = image_input_l
+    image_input_s = keras.Input(shape = inputshape_s, name = "s_input")
+    y_s = image_input_s
+    input_hl = keras.Input(shape = inputshape_hl, name = "hl_input")
+    # if input_norm:
+    #     y_hl = layers.Normalization(name = 'hl_norm_input')(input_hl)
+    # else:
+    y_hl = input_hl
+    # Normalise the hl inputs (feature wise) before running them
+    
+    # CONVOLUTIONAL LAYERS #
+        
+    for a in range(no_conv_layers_l_flat):
+        if flat_filters:
+            no_filters = 32
+        else:
+            no_filters = 32*(a+1)
+        if use_res_blocks:
+            y_l = add_conv_res_block(y_l, no_filters, "L_Conv_Res_" + str(a))
+        else:
+            conv_l = layers.Conv2D(no_filters, kernelsize, padding="same", name = "L_Conv_Flat_" + str(a))(y_l)
+            y_l = relu_bn(conv_l)
+        if dropout:
+            y_l = layers.Dropout(conv_dropout_rate, name = "L_Dropout_Flat_" + str(a))(y_l)
+        
+    for a in range(no_conv_layers_s_flat):
+        if flat_filters:
+            no_filters = 32
+        else:
+            no_filters = 32*(a+1)
+        if use_res_blocks:
+            y_s = add_conv_res_block(y_s, no_filters, "S_Conv_Res_" + str(a))
+        else:
+            conv_s = layers.Conv2D(no_filters, kernelsize, padding="same", name = "S_Conv_Flat_" + str(a))(y_s)
+            y_s = relu_bn(conv_s)
+        if dropout:
+            y_s = layers.Dropout(conv_dropout_rate, name = "S_Dropout_Flat_" + str(a))(y_s)
+
+    for a in range(no_conv_layers_l_pool):
+        conv_l = layers.Conv2D(32 *(a+1), kernelsize, padding="same", name = "L_Conv_Pool_" + str(a))(y_l)
+        bn_l = relu_bn(conv_l)
+        y_l = layers.MaxPooling2D(pool_size=poolingsize, name = "L_Pooling_" + str(a))(bn_l)
+        if dropout:
+            y_l = layers.Dropout(conv_dropout_rate, name = "L_Dropout_Pool_" + str(a))(y_l)
+
+    for a in range(no_conv_layers_s_pool):
+        conv_s = layers.Conv2D(32*(a+1), kernelsize, padding="same", name = "S_Conv_Pool_" + str(a))(y_s)
+        bn_s = relu_bn(conv_s)
+        y_s = layers.MaxPooling2D(pool_size=poolingsize, name = "S_Pooling_" + str(a))(bn_s)
+        if dropout:
+            y_s = layers.Dropout(conv_dropout_rate, name = "S_Dropout_Pool_" + str(a))(y_s)
+        
+    # DENSE LAYERS #
+
+    for a in range(no_dense_hl):
+        if decrease_dense_hl:
+            x_hl = layers.Dense(ceil(width_dense_hl * 0.5 **(a)), name = "HL_hidden_" + str(a))(y_hl)
+            # Layers get smaller and smaller
+        # elif use_res_blocks and a != 0:
+        #     x_hl = add_res_1_block(y_hl, width_dense_hl, "RES_" + str(a) )
+        #     # layers.Dense(width_dense_hl, name = "HL_hidden_" + str(a))(y_hl)
+        #     # Layers stay same size
+        else:
+            x_hl = layers.Dense(width_dense_hl, name = "HL_hidden_" + str(a))(y_hl)
+        y_hl = relu_bn(x_hl)
+        if dropout:
+            y_hl = layers.Dropout(dense_dropout_rate, name = "HL_Dropout_" + str(a))(y_hl)
+        # Added dropout layers into dense (09.12.21)
+
+    # COMBINE INPUTS #
+    
+    x_l = layers.Flatten(name = "L_Flatten")(y_l)
+    x_s = layers.Flatten(name = "S_Flatten")(y_s)
+    # Flatten output into 1D, so can be applied to dense layers more easily
+    
+    # Distinguish based on input_mask which inputs are used
+    x_full = [x_l, x_s, y_hl]
+    full_inputs = [image_input_l, image_input_s, input_hl]
+    model_concat = []
+    model_inputs = []
+    for a in range(len(input_mask)):
+        if input_mask[a]:
+            model_concat.append(x_full[a])
+            model_inputs.append(full_inputs[a])
+
+    if sum(input_mask) ==1:
+        x = model_concat[0]
+    else:
+        x = layers.concatenate(model_concat)
+    # Concatenate layer must have more than one input, or the model cannot be re-loaded in the future
+
+
+    # FINAL DENSE LAYERS #
+    for a in range(no_dense_full):
+        if decrease_dense_full:
+            y = layers.Dense(ceil(width_dense_full * 0.5 **a), name = "Full_hidden_" + str(a))(x)
+        else:
+            y = layers.Dense(width_dense_full, name = "Full_hidden_" + str(a))(x)
+
+        x = relu_bn(y)
+        if dropout:
+            x = layers.Dropout(dense_dropout_rate, name = "Full_Dropout_" + str(a))(x)
+    
+    # OUTPUT LAYER #
+    outputs = layers.Dense(no_decay_modes, name = "Outputs", activation = "softmax")(x)
+
+
+    model = keras.Model(inputs=model_inputs, outputs=outputs)
+    model.compile(loss="mean_squared_error", optimizer=Adam(learning_rate=learningrate), metrics=["accuracy"],)
+    model.summary()
+    if model_image:
+        plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+    return model
+
+model = CNN_creator_3input(paramdict)
+
+early_stop = EarlyStopping(monitor = 'val_loss', patience = paramdict["stop_patience"])
+history = History()
+checkpoint_filepath = rootpath_save + "/Checkpoints/checkpoint"
+model_checkpoint = ModelCheckpoint(filepath = checkpoint_filepath, monitor = "val_loss", mode = "min",\
+     verbose = 0, save_best_only = True, save_weights_only = True)
+
+# fit model
+time_start = time.time()
+print("Training model")
+# for a, b in zip(training_parameters, training_parameter_names):
+#     print(b,':', a)
+print(paramdict)
+#print(training_parameters)
+
+model.fit(train_inputs, y_train,
+          batch_size = paramdict["batch_size"],
+          epochs = paramdict["no_epochs"],
+          callbacks=[history, early_stop, model_checkpoint],
+          validation_data = (test_inputs, y_test)) 
+
+model.load_weights(checkpoint_filepath)
+
+prediction = model.predict(test_inputs)
+idx = prediction.argmax(axis=1)
+y_pred = (idx[:,None] == np.arange(prediction.shape[1])).astype(float)
+flatpred = np.argmax(y_pred, axis=-1)
+flattest = np.argmax(y_test, axis=-1)
+accuracy = accuracy_score(y_test, y_pred)
+print(accuracy)
+
+if paramdict["save_model"]:
+    input_string = ''
+    inputflags = ['L', 'S', 'H']
+    for a in range(len(paramdict["use_inputs"])):
+        if paramdict["use_inputs"][a]:
+            input_string += inputflags[a]
+
+    param_file = open(rootpath_save + paramdict["model_folder"] + "%s_model_%.3f_%s_params.txt" % (input_string, accuracy, model_datetime), 'w')
+    model.save(rootpath_save + paramdict["model_folder"] + "%s_model_%.3f_%s" % (input_string, accuracy, model_datetime))
+    for a in paramdict:
+        param_file.write(str(a) + '\n')
+    param_file.write(str(accuracy) + '\n' )
+    param_file.close()
+    # Saves model parameters in a corresponding .txt file
+    with open(rootpath_save + paramdict["model_folder"] + "%s_model_%.3f_%s_history" % (input_string, accuracy, model_datetime), 'wb') as file_pi:
+        pickle.dump(history.history, file_pi)
+
+
+time_elapsed = time.time() - time_start 
+time_start = time.time()
+print("elapsed time = " + str(time_elapsed))
+

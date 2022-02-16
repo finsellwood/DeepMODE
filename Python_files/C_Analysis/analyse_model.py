@@ -4,29 +4,32 @@
 # confusion matrices show purity and efficiency of model based on predicted and true decay mode
 # bargraphs compare the model's purity and efficiency to the MVA score and HPS classification
 rootpath = "/vols/cms/fjo18/Masters2021"
-model_folder = "/Models/"
-data_folder = "/.Archive3/DataFrames2/"
+model_folder = "/Models3/"
+data_folder = "/DataFrames3/" #"/.Archive3/DataFrames2/"
 
 all_decay_modes = True
 no_modes = 6
 if not all_decay_modes:
-    model_folder = "/Models_DM3/"
-    data_folder = "/DataFrames_DM/"
+    model_folder = "/Models3_DM2/"
+    data_folder = "/DataFrames3_DM4/"
 
-model_name = "LSH_model_0.700_20220119_112408"
+model_name = "LSH_model_0.684_20220208_233242"
 model_path = rootpath + model_folder + model_name
 
 use_inputs = [True, True, True]
-use_unnormalised = False # Flipped 3/2/22
+use_unnormalised = True # Flipped 3/2/22
 drop_variables = False
 # Initial parameters of the original model
 small_dataset = True
 small_dataset_size = 100000
-
-plot_timeline = False
-plot_confusion_matrices = False
-plot_bargraphs = False
+test_with_different_data = False
+plot_timeline = False#True
+plot_confusion_matrices = True#True
+plot_bargraphs = False#True#False
 plot_roc_curves = True
+one_roc_graph = False
+no_mva_modes = 6
+diff_no_modes = False
 import datetime
 from math import ceil
 
@@ -66,6 +69,8 @@ import pickle
 time_start = time.time()
 print("Loading test data")
 ###
+if test_with_different_data:
+    data_folder = "/DataFrames3_DM4/"
 
 y_train = pd.read_pickle(rootpath + data_folder + "y_train_df.pkl")
 y_test = pd.read_pickle(rootpath + data_folder + "y_test_df.pkl")
@@ -125,9 +130,8 @@ model = keras.models.load_model(model_path)
 if plot_timeline:   
     history = pickle.load(open(model_path + '_history',  'rb'))
     # doesnt work i dont know why
-if plot_bargraphs:
-    mva_train = pd.read_pickle(rootpath + "/Objects/mva_train.pkl")
-    mva_test = pd.read_pickle(rootpath + "/Objects/mva_test.pkl")
+if plot_bargraphs or plot_roc_curves:
+    mva_test = pd.read_pickle(rootpath + data_folder + "/mva_test.pkl")[:test_size].reset_index(drop=True)
 
 ###
 time_elapsed = time.time() - time_start 
@@ -137,11 +141,31 @@ print("Evaluating test dataset")
 ###
 
 prediction = model.predict(test_inputs)
+if diff_no_modes:
+    zero_buffer = np.zeros((test_size,1))
+    prediction = np.concatenate((prediction, zero_buffer), axis = 1)
 idx = prediction.argmax(axis=1)
 y_pred = (idx[:,None] == np.arange(prediction.shape[1])).astype(float)
 flatpred = np.argmax(y_pred, axis=-1)
 flattest = np.argmax(y_test, axis=-1)
+print(y_test.shape, y_pred.shape)
 accuracy = accuracy_score(y_test, y_pred)
+# if test_with_different_data:
+#     data_folder = "/DataFrames3_DM4/"
+#     print(data_folder)
+#     X_test = pd.read_pickle(rootpath + data_folder + "/X_test_df.pkl")[:test_size]
+#     l_im_test = np.load(rootpath + data_folder + "im_l_array_test.npy")[:test_size]
+#     s_im_test = np.load(rootpath + data_folder + "im_s_array_test.npy")[:test_size]
+#     y_test = pd.read_pickle(rootpath + data_folder + "y_test_df.pkl")[:test_size]
+#     test_inputs_diff = []
+#     for a in range(len(use_inputs)):
+#         if use_inputs[a]:
+#             test_inputs_diff.append(test_full_inputs[a])
+#     prediction_diff = model.predict(test_inputs_diff)
+#     print(prediction_diff)
+#     zero_buffer = np.zeros((test_size,1))
+#     prediction = np.concatenate((prediction_diff, zero_buffer), axis = 1)
+    #print(prediction_diff_extramode)
 #print(accuracy)
 # print(confusion_matrix(flattest, flatpred, normalize = 'true'))
 # normalize = 'true' gives EFFICIENCY
@@ -384,19 +408,82 @@ if plot_bargraphs:
 
     plt.savefig( model_path + '_NNvsHPS_' + '.png', dpi = 100)
 if plot_roc_curves:
+    mva_modes = ["t_dm0raw_2", "t_dm1raw_2", "t_dm2raw_2", \
+                  "t_dm10raw_2", "t_dm11raw_2", "t_dmotherraw_2",]
+    # print(mva_test.head)
+    # print( pd.DataFrame(mva_test[mva_modes]).to_numpy())
+    # print(pd.DataFrame(mva_test["tauFlag_2"]).to_numpy())
+    if test_with_different_data:
+        # Filter out 3pr 'other' events
+        mva_modes = ["t_dm0raw_2", "t_dm1raw_2", "t_dm2raw_2", "t_dmotherraw_2",]
+        print('Filtering out erraneous events')
+        # A number of 1pr events are misclassified as 3pr and then tested as such. 
+        # For 1pr only analysis this confuses roc curves
+        mask = mva_test[mva_test["t_dm0raw_2"] ==0.0].index
+        inv_mask = mva_test[mva_test["t_dm0raw_2"] !=0.0].index
+        # print(mva_test.shape)
+        mva_test.drop(mask, inplace=True)
+        # print(mva_test.shape)
+        no_mva_modes = len(mva_modes)
+        prediction_mva = pd.DataFrame(mva_test[mva_modes]).to_numpy()
+        y_test_mva = y_test
+        # print(mask, inv_mask)
+        y_test_mva = y_test_mva[inv_mask]
+        # print(y_test_mva.shape)
+    else:
+        prediction_mva = pd.DataFrame(mva_test[mva_modes]).to_numpy()
+        zero_buffer = np.zeros((test_size, 3))
+        # print(y_test.shape, prediction_mva.shape)
+        y_test_mva = np.concatenate((y_test, zero_buffer), axis = 1)
+        y_test_mva = y_test
+
+
+    # print(prediction_mva)
+    # print(y_test_mva)
     fpr = dict()
     tpr = dict()
     roc_auc = dict()
+    fpr_mva = dict()
+    tpr_mva = dict()
+    roc_auc_mva = dict()
+    # print(prediction)
     for i in range(no_modes):
         fpr[i], tpr[i], _ = roc_curve(y_test[:,i], prediction[:,i])
+        # fpr_mva[i], tpr_mva[i], _ = roc_curve(y_test[:,i], prediction_mva[:,i])
         roc_auc[i] = auc(fpr[i], tpr[i])
-    fig2, ax2 = plt.subplots(1, 1)
-    for i in range(no_modes):
-        ax2.plot(fpr[i], tpr[i], label="Mode %s ROC curve (area = %0.2f)" % (i, roc_auc[i]))
-    ax2.set_xlim([0,1])
-    ax2.set_ylim([0,1.05])
-    ax2.set_xlabel("False Positive Rate")
-    ax2.set_ylabel("True Positive Rate")
-    ax2.set_title("ROC_Curve for One Prong Tau Decays")
-    ax2.legend()
-    plt.savefig(model_path + '_roc_' + '.png', dpi = 100)
+
+    for i in range(no_mva_modes):
+        fpr_mva[i], tpr_mva[i], _ = roc_curve(y_test_mva[:,i], prediction_mva[:,i])
+        roc_auc_mva[i] = auc(fpr_mva[i], tpr_mva[i])
+
+    if one_roc_graph:
+        fig2, ax2 = plt.subplots(1, 1)
+
+        for i in range(no_modes):
+            ax2.plot(fpr[i], tpr[i], label="Mode %s ROC curve (area = %0.2f)" % (i, roc_auc[i]))
+        ax2.set_xlim([0,1])
+        ax2.set_ylim([0,1.05])
+        ax2.set_xlabel("False Positive Rate")
+        ax2.set_ylabel("True Positive Rate")
+        ax2.set_title("ROC_Curve for One Prong Tau Decays")
+        ax2.legend()
+        plt.savefig(model_path + '_roc_' + '.png', dpi = 100)
+    else:
+        print('plotting')
+        fig2, ax2 = plt.subplots(no_modes)
+        fig2.set_size_inches(4,12)
+
+        for i in range(no_modes):
+            ax2[i].plot(fpr[i], tpr[i], label="NN ROC Curve (area = %0.2f)" % roc_auc[i])
+            ax2[i].plot(fpr_mva[i], tpr_mva[i], label="MVA ROC Curve (area = %0.2f)" % roc_auc_mva[i])
+            ax2[i].set_xlim([0,1])
+            ax2[i].set_ylim([0,1.05])
+            ax2[i].set_xlabel("False Positive Rate")
+            ax2[i].set_ylabel("True Positive Rate")
+            ax2[i].set_title("ROC_Curve for Mode %s" % i)
+            for axes in ax2.flat:
+                axes.label_outer()
+            ax2[i].legend()
+            fig2.tight_layout()
+            ax2[i].set_aspect(1)
+        plt.savefig(model_path + '_roc_multigraph' + '.png', dpi = 500)
