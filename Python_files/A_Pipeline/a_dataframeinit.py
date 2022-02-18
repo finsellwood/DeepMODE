@@ -7,7 +7,7 @@
 # rootpath_load = "/vols/cms/fjo18/Masters2021/RootFiles"
 rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
 # For new danny ntuples with new MVA probs on 
-rootpath_save = "/vols/cms/fjo18/Masters2021/Objects3"
+rootpath_save = "/vols/cms/fjo18/Masters2021/A_Objects/Objects3"
 
 print("importing packages...")
 import ROOT

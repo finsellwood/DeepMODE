@@ -12,6 +12,6 @@ source ~/CMSSW_10_2_19/icenet/setenv.sh
 
 # eval `scramv1 runtime -sh`
 
-python3.9 Python_files/A_Pipeline/c_imgen_multi.py
+python3.9 Python_files/A_Pipeline/e_split_by_decay_mode.py
 
 conda deactivate

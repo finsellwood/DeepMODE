@@ -96,16 +96,19 @@ def inv_mass(Energ,Px,Py,Pz):
 
 df_ordered["pi0_2mass"] = inv_mass(df_ordered["pi0_E_2"],df_ordered["pi0_px_2"],df_ordered["pi0_py_2"],df_ordered["pi0_pz_2"]) #pion masses
 
-def rho_mass(dataframe, momvariablenames_1, momvariablenames_2):
+def rho_mass(dataframe, momvariablenames_1, momvariablenames_2 = None):
     momvect1 = vector.obj(px = dataframe[momvariablenames_1[1]],\
                        py = dataframe[momvariablenames_1[2]],\
                        pz = dataframe[momvariablenames_1[3]],\
                        E = dataframe[momvariablenames_1[0]])
-    momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],\
-                       py = dataframe[momvariablenames_2[2]],\
-                       pz = dataframe[momvariablenames_2[3]],\
-                       E = dataframe[momvariablenames_2[0]])
-    rho_vect = momvect1+momvect2
+    if momvariablenames_2 is not None:
+        momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],\
+                        py = dataframe[momvariablenames_2[2]],\
+                        pz = dataframe[momvariablenames_2[3]],\
+                        E = dataframe[momvariablenames_2[0]])
+        rho_vect = momvect1+momvect2
+    else:
+        rho_vect = momvect1
     dataframe["rho_mass"] = inv_mass(rho_vect.E, rho_vect.px, rho_vect.py, rho_vect.pz) #rho masses
     
 rho_mass(df_ordered, pi_2_4mom, pi0_2_4mom)

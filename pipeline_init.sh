@@ -9,6 +9,6 @@ source ~/CMSSW_10_2_19/icenet/setenv.sh
 # source /vols/grid/cms/setup.sh
 # eval `scramv1 runtime -sh`
 
-python3.9 Python_files/A_Pipeline/a_dataframeinit.py
+python3.9 Python_files/A_Pipeline/pipeline_object.py
 
 conda deactivate

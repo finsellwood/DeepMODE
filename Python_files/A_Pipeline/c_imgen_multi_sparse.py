@@ -1,8 +1,9 @@
 #~~ IMGEN.PY ~~#
 # Takes imvar_df dataframe and generates image files in batches of 100,000 events. Saves as numpy arrays.
 # IMGEN_MULTI - adds multiple layers rather than just one for energy
+# Sparse version - doesnt do anything better so i've wasted an hour :)
 rootpath_load = "/vols/cms/fjo18/Masters2021/A_Objects/Objects3"
-rootpath_save = "/vols/cms/fjo18/Masters2021/B_Images/Images3_debug2"
+rootpath_save = "/vols/cms/fjo18/Masters2021/B_Images/Images3_debug"
 # New image folder
 
 debug  = True
@@ -17,6 +18,7 @@ import vector
 import awkward as ak  
 import numba as nb
 import time
+from scipy.sparse import csr_matrix
 #from sklearnr.externals import joblib
 import pylab as pl
 
@@ -54,8 +56,8 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
     fulllen = dataframe.shape[0]
     for index, row in dataframe.iterrows():
         print(index/fulllen)
-        grid = np.zeros((dimension_l,dimension_l, no_layers), np.uint8)
-        grid2 = np.zeros((dimension_s,dimension_s, no_layers), np.uint8)
+        # grid = np.zeros((dimension_l,dimension_l, no_layers), np.uint8)
+        # grid2 = np.zeros((dimension_s,dimension_s, no_layers), np.uint8)
         # Two image grids (two vals per cell, [0] for energy and [1] for charge)
         phis = np.array(row["rot_phi"])
         etas = np.array(row["rot_eta"])
@@ -90,16 +92,26 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
         layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, sc_count*real_mask, gamma_count*real_mask,
         		cluster_count*real_mask,]
 
-        for a in range(len(energies)):
-            # if energies[a] != 0.0:
-            for b in range(no_layers):
-                grid[etacoords[a],phicoords[a], b] += layerlist[b][a]
-                # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
-                #if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
-                grid2[etacoords2[a],phicoords2[a], b] += layerlist[b][a]
-                # Iterates through no_layers, so each layer has properties based on related layerlist component
-        largegridlist.append(grid)
-        smallgridlist.append(grid2)
+        matlist_l = []
+        matlist_s = []
+        for a in range(no_layers):
+            matlist_l.append(csr_matrix((layerlist[a], (phicoords, etacoords)), shape=(dimension_l,dimension_l), dtype=np.uint8))
+            matlist_s.append(csr_matrix((layerlist[a], (phicoords2, etacoords2)), shape=(dimension_s,dimension_s), dtype=np.uint8))
+        
+        largegridlist.append(matlist_l)
+        smallgridlist.append(matlist_s)
+        
+
+        # for a in range(len(energies)):
+        #     # if energies[a] != 0.0:
+        #     for b in range(no_layers):
+        #         grid[etacoords[a],phicoords[a], b] += layerlist[b][a]
+        #         # NOTE - if sum of elements exceeds 255 for a given cell then it will loop back to zero
+        #         #if etacoords2[a] < dimension_s and etacoords2[a] >= 0 and phicoords2[a] < dimension_s and phicoords2[a] >=0:
+        #         grid2[etacoords2[a],phicoords2[a], b] += layerlist[b][a]
+        #         # Iterates through no_layers, so each layer has properties based on related layerlist component
+        # largegridlist.append(grid)
+        # smallgridlist.append(grid2)
         
         counter +=1
         if counter == 100000:
@@ -112,6 +124,7 @@ def largegrid(dataframe, dimension_l, dimension_s, no_layers):
             counter = 0
     np.save(rootpath_save + '/m_image_l_%02d.npy' % imcounter, largegridlist)
     np.save(rootpath_save + '/m_image_s_%02d.npy' % imcounter, smallgridlist)
+    # print(largegridlist[0])
 
 
 

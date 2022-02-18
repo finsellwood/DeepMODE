@@ -5,19 +5,19 @@
 # E.g. only 1pr in original ratio would use dataset_weights = [1,1,1,0,0,0], use_as_mask = True
 rootpath_load = "/vols/cms/fjo18/Masters2021"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
-dataframe_prefix = "/DataFrames3"
+dataframe_prefix = "/C_DataFrames/DataFrames3"
 
-data_folder = "/DataFrames3_DM5/"
+data_folder = "/C_DataFrames/DataFrames3_DM02/"
 split_X = True
 split_y = True
 split_MVA = True
 split_images = True#True
-no_categories = 6
+no_categories = 3
 
 debug = False
 debug_frac = 0.001
 
-dataset_weights = [1,1,1,0,0,0.333]
+dataset_weights = [1,1,1,0,0,0]#[1,1,1,0,0,0.333]
 # Weights of the different decay modes (pi, pi+pi0, pi+2pi0, 3pi, 3pi+pi0, other)
 dataset_weights = [a/sum(dataset_weights) for a in dataset_weights]
 # Normalise weights to one
