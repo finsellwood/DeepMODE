@@ -1,4 +1,4 @@
-#$-q hep.q -l h_rt=3:00:00 -l h_vmem=24G 
+#$-q gpu.q@lxcgpu* -l h_rt=3:00:00 
 #$-m ea -M fjo18@ic.ac.uk
 
 cd ~/CMSSW_10_2_19/src/UserCode/DeepLearning

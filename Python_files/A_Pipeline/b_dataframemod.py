@@ -84,6 +84,9 @@ def energyfinder(dataframe, momvariablenames_1):
     dataframe[momvariablenames_1[0]] = arr
 # This function generates the energy of the given massless object (magnitude of 3-mom) 
 # So that can be treated the same as the other four-momenta later
+# oh wow this is bad
+def energyfinder_2(dataframe, momvariablenames_1):
+    
 
 energyfinder(df_ordered, gam_2_3mom)
 energyfinder(df_ordered, cl_2_3mom)
