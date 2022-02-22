@@ -429,8 +429,13 @@ class pipeline:
             self.fd_hl[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
         self.feature_description["large_image"] = tf.io.VarLenFeature(tf.int64)
         self.feature_description["small_image"] = tf.io.VarLenFeature(tf.int64)
+        self.feature_description["flag"] =  tf.io.FixedLenFeature([],tf.int16)
         self.fd_im_l["large_image"] = tf.io.VarLenFeature(tf.int64)
         self.fd_im_s["small_image"] = tf.io.VarLenFeature(tf.int64)
+
+    def create_featuredesc_flag(self):
+        self.fd_flag = {}
+        self.fd_flag["flag"] = tf.io.FixedLenFeature([],tf.int64)
 
     def generate_grids(self, row, dim1, dim2):
         halfdim1 = dim1/2
@@ -508,7 +513,7 @@ class pipeline:
     def clear_dataframe(self):
         self.df_dm = None
     
-    def generate_datasets(self, dataframe, imvar_dataframe, tfrecordpath):        
+    def generate_datasets(self, dataframe, imvar_dataframe, tfrecordpath, modeflag):        
         # needs to create the grid for each event, populate it, add to full tensor for event and save
         # per event
         # 0) drop unwanted columns from HL
@@ -522,7 +527,7 @@ class pipeline:
             fulllen = imvar_dataframe.shape[0]
             del dataframe
             for a, row in imvar_dataframe.iterrows():
-                print(a/fulllen)
+                #print(a/fulllen)
                 event_dict = {}
                 for b in range(npa.shape[1]):
                     event_dict[self.featurenames_hl[b]] = tf.train.Feature(float_list=\
@@ -534,7 +539,10 @@ class pipeline:
                     tf.train.Int64List(value=grid1.flatten()))
                 event_dict["small_image"] = tf.train.Feature(int64_list=\
                     tf.train.Int64List(value=grid2.flatten()))
+                event_dict["flag"] = tf.train.Feature(int64_list=\
+                        tf.train.Int64List(value=[modeflag]))
                 example = tf.train.Example(features=tf.train.Features(feature=event_dict))
+                # print(example)
                 writer.write(example.SerializeToString())
         # 3) iterate through events, using index of imvar_df to enumerate df
         # 4) create graphs, add HL + graphs to tfrecord and write
@@ -585,7 +593,7 @@ index = int(sys.argv[1])
 # Takes the index from an argument
 print(index)
 jez.load_hl_imvar(jez.save_path + jez.object_folder, df_mod_names[index], imvar_names[index])
-jez.generate_datasets(jez.hl_df, jez.imvar_df, jez.save_path + "/E_TFRecords/dm%s.tfrecords" % index)
+jez.generate_datasets(jez.hl_df, jez.imvar_df, jez.save_path + "/E_TFRecords/dm%s.tfrecords" % index, index)
 # def run_modifications(filepath):
 #     for a in range(len(names)):
 #         print(a)
