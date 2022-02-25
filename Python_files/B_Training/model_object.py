@@ -19,8 +19,11 @@ from parameters import paramdict
 
 rootpath_load = "/vols/cms/fjo18/Masters2021"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
-default_filepath = "/vols/cms/fjo18/Masters2021/D_Models/Models3_DM2_no_pi0/LSH_model_0.711_20220216_133722"
+# default_filepath = "/vols/cms/fjo18/Masters2021/D_Models/Models3_DM2_no_pi0/LSH_model_0.711_20220216_133722"
+default_filepath = "/vols/cms/fjo18/Masters2021/D_Models/Models3_TF/model"
+
 mez_filepath = "/vols/cms/fjo18/Masters2021/D_Models/Models3_DM2/LSH_model_0.715_20220205_195903"
+
 
 class parameter_parser:
     def __init__(self, param_dict_filepath = None, param_dict = None):
@@ -88,12 +91,19 @@ class hep_model(parameter_parser):
         self.calculated_roc_values_mva = False
         self.model_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.model_accuracy = 0.0
+        self.created_featuredescs = False
 
         # Bool to check that data is loaded in before training
         # Parameters I'm unlikely to change
         self.poolingsize = (2,2)
         self.kernelsize = (3,3)
-    
+        self.featurenames_hl = list(['pi_E_2', 'pi2_E_2', 'pi3_E_2', 'pi0_E_2', 'n_gammas_2', 'sc1_r9_5x5_2',
+            'sc1_ietaieta_5x5_2', 'sc1_Nclusters_2', 'tau_E_2', 'tau_decay_mode_2',
+            'pt_2', 'pi0_2mass', 'rho_mass', 'E_gam/E_tau', 'E_pi/E_tau',
+            'E_pi0/E_tau', 'tau_eta', 'delR_gam', 'delPhi_gam', 'delEta_gam',
+            'delR_xE_gam', 'delPhi_xE_gam', 'delEta_xE_gam', 'delR_pi', 'delPhi_pi',
+            'delEta_pi', 'delR_xE_pi', 'delPhi_xE_pi', 'delEta_xE_pi'])
+            
     def set_model_name(self, modelname):
         self.model_name = modelname
         
@@ -167,48 +177,103 @@ class hep_model(parameter_parser):
 
     def create_featuredesc(self):
         # Creates feature descriptions for tfrecord datasets
-        self.featurenames_hl = list(self.test_inputs[2].columns)
-        # npa = X_test.to_numpy()
         self.feature_description = {}
         self.fd_hl = {}
         self.fd_im_l = {}
         self.fd_im_s = {}
-        for a in range(self.HL_shape[0]):
-            self.feature_description[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
-            self.fd_hl[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
+        self.fd_flag = {"flag" : tf.io.FixedLenFeature([],tf.int64)}
+        # for a in range(self.HL_shape[0]):
+        #     self.feature_description[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
+        #     self.fd_hl[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
+        self.feature_description["hl"] =  tf.io.VarLenFeature(tf.float32)
+        self.fd_hl["hl"] =  tf.io.VarLenFeature(tf.float32)
         self.feature_description["large_image"] = tf.io.VarLenFeature(tf.int64)
         self.feature_description["small_image"] = tf.io.VarLenFeature(tf.int64)
         self.fd_im_l["large_image"] = tf.io.VarLenFeature(tf.int64)
         self.fd_im_s["small_image"] = tf.io.VarLenFeature(tf.int64)
+        self.created_featuredescs = True
 
-    def write_datasets(self):
-        self.tf_filepath_train = self.load_path + "/E_TFRecords/TFRecords3_DM2/train_events.tfrecords"
-        self.tf_filepath_test = self.load_path + "/E_TFRecords/TFRecords3_DM2/test_events.tfrecords"
-        print("Saving training data")
-        with tf.io.TFRecordWriter(self.tf_filepath_train) as writer:
-            npa = self.train_inputs[2].to_numpy()
-            for a in range(self.train_length):
-                event_dict = {}
-                for b in range(npa.shape[1]):
-                    event_dict[self.featurenames_hl[b]] = tf.train.Feature(float_list=tf.train.FloatList(value=[npa[a][b]]))
-                event_dict["large_image"] = tf.train.Feature(int64_list=tf.train.Int64List(value=self.train_inputs[0][a].flatten()))
-                event_dict["small_image"] = tf.train.Feature(int64_list=tf.train.Int64List(value=self.train_inputs[1][a].flatten()))
-                example = tf.train.Example(features=tf.train.Features(feature=event_dict))
-                writer.write(example.SerializeToString())
+    ### Tensorflow parsing functions - to read in tfrecord files and make them readable by a network
+    def sparse_remove(self, sparse_tensor):
+        return tf.sparse.retain(sparse_tensor, tf.not_equal(sparse_tensor.values, 0))
+    def parse_function_hl(self, example_proto):
+        # Parse the input `tf.train.Example` proto using the dictionary above.
+        parsed = tf.io.parse_example(example_proto, self.fd_hl)
+        return parsed
+    def parse_function_flag(self, example_proto):
+        # Parse the input `tf.train.Example` proto using the dictionary above.
+        parsed = tf.io.parse_example(example_proto, self.fd_flag)
+        return parsed
+    def parse_function_im_l(self, example_proto):
+        # Parse the input `tf.train.Example` proto using the dictionary above.
+        parsed = tf.io.parse_example(example_proto, self.fd_im_l)
+        # parsed["large_image"] = tf.sparse.reshape(parsed["large_image"], shape=(21,21,6))
+        parsed["large_image"] = tf.sparse.reshape(self.sparse_remove(parsed["large_image"]), shape=(21,21,7))
+        return parsed
+    def parse_function_im_s(self, example_proto):
+        # Parse the input `tf.train.Example` proto using the dictionary above.
+        parsed = tf.io.parse_example(example_proto, self.fd_im_s)
+        # parsed["large_image"] = tf.sparse.reshape(parsed["large_image"], shape=(21,21,6))
+        parsed["small_image"] = tf.sparse.reshape(self.sparse_remove(parsed["small_image"]), shape=(11,11,7))
+        return parsed
 
-        print("Saving test data")
-        with tf.io.TFRecordWriter(self.tf_filepath_test) as writer:
-            npa = self.test_inputs[2].to_numpy()
-            for a in range(self.test_length):
-                event_dict = {}
-                for b in range(npa.shape[1]):
-                    event_dict[self.featurenames_hl[b]] = tf.train.Feature(float_list=tf.train.FloatList(value=[npa[a][b]]))
-                event_dict["large_image"] = tf.train.Feature(int64_list=tf.train.Int64List(value=self.test_inputs[0][a].flatten()))
-                event_dict["small_image"] = tf.train.Feature(int64_list=tf.train.Int64List(value=self.test_inputs[1][a].flatten()))
-                example = tf.train.Example(features=tf.train.Features(feature=event_dict))
-                writer.write(example.SerializeToString())
+    def load_tfrecords(self, filenames, weights, use_as_mask):
+        # Load in tfrecrod files and apply manipulations 
+        if self.created_featuredescs == False:
+            raise Exception("Feature descriptions must be created first")
+        raw_datasets = []
+        for a in range(len(filenames)):
+            raw_datasets.append(tf.data.TFRecordDataset([filenames[a]]))
+        hl_datasets = [a.map(self.parse_function_hl) for a in raw_datasets]
+        flag_datasets = [a.map(self.parse_function_flag) for a in raw_datasets]
+        im_l_datasets = [a.map(self.parse_function_im_l) for a in raw_datasets]
+        im_s_datasets = [a.map(self.parse_function_im_s) for a in raw_datasets]
+
+        no_events = np.array([1271940, 2534458, 1122514, 1265396, 635299, 576278, ])
+        # HARD CODED - CHANGE AT SOME POINT - inc in param file?
+
+        mask = np.array(weights) != 0.0
+        self.no_modes = sum(mask)
+        masked_no_events = no_events*mask
+        filtered_masked_no_events = [a for a in masked_no_events if a != 0]
+        self.dataset_size = min(filtered_masked_no_events)
+        self.train_size = int(0.8 * self.dataset_size)
+        self.test_size = int(0.2 * self.dataset_size)
+
+        if use_as_mask:
+            self.mode_weights = masked_no_events.astype(float)
+        else:
+            self.mode_weights = weights
+
+        print(self.mode_weights)
+
+        sample_dataset_hl = tf.data.Dataset.sample_from_datasets(
+            hl_datasets, weights=self.mode_weights, seed=1234, stop_on_empty_dataset=True)
+        sample_dataset_im_l = tf.data.Dataset.sample_from_datasets(
+            im_l_datasets, weights=self.mode_weights, seed=1234, stop_on_empty_dataset=True)
+        sample_dataset_im_s = tf.data.Dataset.sample_from_datasets(
+            im_s_datasets, weights=self.mode_weights, seed=1234, stop_on_empty_dataset=True)
+        sample_dataset_flag = tf.data.Dataset.sample_from_datasets(
+            flag_datasets, weights=self.mode_weights, seed=1234, stop_on_empty_dataset=True)
 
 
+        hl_train_dataset = sample_dataset_hl.take(self.train_size)
+        hl_test_dataset = sample_dataset_hl.skip(self.train_size)
+        im_l_train_dataset = sample_dataset_im_l.take(self.train_size)
+        im_l_test_dataset = sample_dataset_im_l.skip(self.train_size)
+        im_s_train_dataset = sample_dataset_im_s.take(self.train_size)
+        im_s_test_dataset = sample_dataset_im_s.skip(self.train_size)
+        flag_train_dataset = sample_dataset_flag.take(self.train_size)
+        flag_test_dataset = sample_dataset_flag.skip(self.train_size)
+
+        train_inputs = tf.data.Dataset.zip((im_l_train_dataset, im_s_train_dataset, hl_train_dataset))
+        test_inputs = tf.data.Dataset.zip((im_l_test_dataset, im_s_test_dataset, hl_test_dataset))
+        self.train_batch = tf.data.Dataset.zip((train_inputs, flag_train_dataset))
+        self.test_batch = tf.data.Dataset.zip((test_inputs, flag_test_dataset))
+
+        self.loaded_data = True
+
+        # Hopefully this doesn't actually load them into ram that would be a pain
     ### Framework functions ###
     def make_input_layer(self, shape, name) -> Tensor:
         output_l = keras.Input(shape=shape, name=name)
@@ -359,11 +424,23 @@ class hep_model(parameter_parser):
         verbose = 0, save_best_only = True, save_weights_only = True)
 
         print(self.parameter_dictionary)
-        self.model.fit(self.train_inputs, self.y_train, 
-                    batch_size = self.batch_size, 
-                    epochs = self.no_epochs, 
-                    callbacks = [self.history, self.early_stop, self.model_checkpoint], 
-                    validation_data = (self.test_inputs, self.y_test))
+        if self.use_datasets:
+            self.train_batch = self.train_batch.prefetch(tf.data.AUTOTUNE)
+            self.test_batch = self.test_batch.prefetch(tf.data.AUTOTUNE)
+            self.train_batch = self.train_batch.batch(self.batch_size)
+            self.test_batch = self.test_batch.batch(self.batch_size)
+
+            self.model.fit(self.train_batch, 
+                        epochs = self.no_epochs, 
+                        callbacks = [self.history, self.early_stop, self.model_checkpoint], 
+                        validation_data = self.test_batch)
+        else:
+            self.model.fit(self.train_inputs, self.y_train, 
+                        batch_size = self.batch_size, 
+                        epochs = self.no_epochs, 
+                        callbacks = [self.history, self.early_stop, self.model_checkpoint], 
+                        validation_data = (self.test_inputs, self.y_test))
+
         self.model.load_weights(self.checkpoint_filepath)
         print("Completed training")
 
@@ -540,7 +617,6 @@ class hep_model(parameter_parser):
                 self.roc_auc_mva[i] = auc(self.fpr_mva[i], self.tpr_mva[i])
             self.calculated_roc_values_mva = True
 
-
     def plot_two_roc_curves(self, fpr1, tpr1, roc_auc1, fpr2, tpr2, roc_auc2, one_roc_graph = False, plot_effpur = False):
         if one_roc_graph:
             fig2, ax2 = plt.subplots(1, 1)
@@ -595,9 +671,12 @@ class hep_model(parameter_parser):
         if other.calculated_roc_values == False:
             other.calc_roc_values(False)
         self.plot_two_roc_curves(self.fpr, self.tpr, self.roc_auc, other.fpr, other.tpr, other.roc_auc, False)
+
+
     ### META COMMANDS ###
 
     def do_your_thing(self):
+        self.use_datasets = False
         self.load_data()
         self.build_model()
         self.train_model()
@@ -614,8 +693,18 @@ class hep_model(parameter_parser):
         self.load_mva_data()
         self.load_model()
         self.analyse_model()
+    
+    def do_your_thing_tf(self, filenames, weights, use_as_mask):
+        self.use_datasets = True
+        self.create_featuredesc()
+        self.load_tfrecords(filenames, weights, use_as_mask)
+        self.build_model()
+        self.train_model()
+        self.analyse_model()
+        self.model_save(update_name = True)
 # jez = hep_model(paramdict, rootpath_load, rootpath_save)
 # jez.do_your_thing()
+
 
 # jez = hep_model(rootpath_load, rootpath_save, model_filepath = rootpath_load + "/D_Models/Models3_DM2_no_pi0/LSH_model_0.000_20220216_131708")
 # jez.no_epochs = 14
@@ -623,3 +712,11 @@ class hep_model(parameter_parser):
 # jez.load_data()
 # jez.unreaper()
 
+Filenames = [ rootpath_save + '/E_TFRecords/dm%s.tfrecords' % a for a in range(6)]
+Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
+
+# jez = hep_model(rootpath_load, rootpath_save, default_filepath)
+# jez.do_your_thing_tf(Filenames, Weights, True)
+
+for event in jez.train_batch.take(1):
+    print(len(event[0][2][event[0][2].keys()]))

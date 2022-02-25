@@ -12,163 +12,172 @@ import sys
 rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
 
-variables_tt_1 = ["tauFlag_1",
-    # Generator-level properties, actual decay mode of taus for training
-    "pi_px_1", "pi_py_1", "pi_pz_1", "pi_E_1",
-    "pi2_px_1", "pi2_py_1", "pi2_pz_1", "pi2_E_1",
-    "pi3_px_1", "pi3_py_1", "pi3_pz_1", "pi3_E_1",
-    # 4-momenta of the charged pions
-    "pi0_px_1", "pi0_py_1", "pi0_pz_1", "pi0_E_1", 
-    # 4-momenta of neutral pions
-    "gam1_px_1", "gam1_py_1", "gam1_pz_1", "gam1_E_1",
-    "gam2_px_1", "gam2_py_1", "gam2_pz_1", "gam2_E_1",
-    # 4-momenta of two leading photons
-    "gam_px_1", "gam_py_1", "gam_pz_1", "n_gammas_1",
-    # 3-momenta vectors of all photons
-    "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
-    # Shower-shape variables
-    "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", #  "sc1_r9_1", "sc1_ietaieta_1",
-    # 4-momentum of the supercluster
-    "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
-    # 3-momenta of clusters in supercluster
-    "tau_px_1", "tau_py_1", "tau_pz_1", "tau_E_1",
-    # 4-momenta of 'visible' tau
-    "tau_decay_mode_1",
-    #HPS algorithm decay mode
-    "pt_1",
-    ]
-variables_tt_2 = ["tauFlag_2", 
-    # Generator-level properties, actual decay mode of taus for training
-    "pi_px_2", "pi_py_2", "pi_pz_2", "pi_E_2", 
-    "pi2_px_2", "pi2_py_2", "pi2_pz_2", "pi2_E_2",
-    "pi3_px_2", "pi3_py_2", "pi3_pz_2", "pi3_E_2",
-    # 4-momenta of the charged pions
-    # Note: pi2/pi3 only apply for 3pr modes
-    "pi0_px_2", "pi0_py_2", "pi0_pz_2", "pi0_E_2", 
-    # 4-momenta of neutral pions
-    "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
-    "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
-    # 4-momenta of two leading photons
-    "gam_px_2", "gam_py_2", "gam_pz_2", "n_gammas_2",
-    # 3-momenta vectors of all photons
-    "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
-    # Shower-shape variables
-    "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", # "sc1_r9_2", "sc1_ietaieta_2",
-    # 4-momentum of the supercluster
-    "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
-    # 3-momenta of clusters in supercluster
-    "tau_px_2", "tau_py_2", "tau_pz_2", "tau_E_2",
-    # 4-momenta of 'visible' tau
-    "tau_decay_mode_2", 
-    # HPS algorithm decay mode
-    "pt_2",
-    ]
+# variables_tt_1 = ["tauFlag_1",
+#     # Generator-level properties, actual decay mode of taus for training
+#     "pi_px_1", "pi_py_1", "pi_pz_1", "pi_E_1",
+#     "pi2_px_1", "pi2_py_1", "pi2_pz_1", "pi2_E_1",
+#     "pi3_px_1", "pi3_py_1", "pi3_pz_1", "pi3_E_1",
+#     # 4-momenta of the charged pions
+#     "pi0_px_1", "pi0_py_1", "pi0_pz_1", "pi0_E_1", 
+#     # 4-momenta of neutral pions
+#     "gam1_px_1", "gam1_py_1", "gam1_pz_1", "gam1_E_1",
+#     "gam2_px_1", "gam2_py_1", "gam2_pz_1", "gam2_E_1",
+#     # 4-momenta of two leading photons
+#     "gam_px_1", "gam_py_1", "gam_pz_1", "n_gammas_1",
+#     # 3-momenta vectors of all photons
+#     "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
+#     # Shower-shape variables
+#     "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", #  "sc1_r9_1", "sc1_ietaieta_1",
+#     # 4-momentum of the supercluster
+#     "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
+#     # 3-momenta of clusters in supercluster
+#     "tau_px_1", "tau_py_1", "tau_pz_1", "tau_E_1",
+#     # 4-momenta of 'visible' tau
+#     "tau_decay_mode_1",
+#     #HPS algorithm decay mode
+#     "pt_1",
+#     ]
+# variables_tt_2 = ["tauFlag_2", 
+#     # Generator-level properties, actual decay mode of taus for training
+#     "pi_px_2", "pi_py_2", "pi_pz_2", "pi_E_2", 
+#     "pi2_px_2", "pi2_py_2", "pi2_pz_2", "pi2_E_2",
+#     "pi3_px_2", "pi3_py_2", "pi3_pz_2", "pi3_E_2",
+#     # 4-momenta of the charged pions
+#     # Note: pi2/pi3 only apply for 3pr modes
+#     "pi0_px_2", "pi0_py_2", "pi0_pz_2", "pi0_E_2", 
+#     # 4-momenta of neutral pions
+#     "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
+#     "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
+#     # 4-momenta of two leading photons
+#     "gam_px_2", "gam_py_2", "gam_pz_2", "n_gammas_2",
+#     # 3-momenta vectors of all photons
+#     "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
+#     # Shower-shape variables
+#     "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", # "sc1_r9_2", "sc1_ietaieta_2",
+#     # 4-momentum of the supercluster
+#     "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
+#     # 3-momenta of clusters in supercluster
+#     "tau_px_2", "tau_py_2", "tau_pz_2", "tau_E_2",
+#     # 4-momenta of 'visible' tau
+#     "tau_decay_mode_2", 
+#     # HPS algorithm decay mode
+#     "pt_2",
+#     ]
 
-gam1_2_4mom = ["gam1_E_2", "gam1_px_2", "gam1_py_2", "gam1_pz_2", ]
-gam2_2_4mom = ["gam2_E_2", "gam2_px_2", "gam2_py_2", "gam2_pz_2", ]
-pi0_2_4mom = ["pi0_E_2", "pi0_px_2", "pi0_py_2", "pi0_pz_2", ]
-pi_2_4mom = ["pi_E_2", "pi_px_2", "pi_py_2", "pi_pz_2", ]
-pi2_2_4mom = ["pi2_E_2", "pi2_px_2", "pi2_py_2", "pi2_pz_2", ]
-pi3_2_4mom = ["pi3_E_2", "pi3_px_2", "pi3_py_2", "pi3_pz_2", ]
-gam_2_3mom = ["gam_E_2", "gam_px_2", "gam_py_2", "gam_pz_2", ]
-cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
-sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
-tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
+# gam1_2_4mom = ["gam1_E_2", "gam1_px_2", "gam1_py_2", "gam1_pz_2", ]
+# gam2_2_4mom = ["gam2_E_2", "gam2_px_2", "gam2_py_2", "gam2_pz_2", ]
+# pi0_2_4mom = ["pi0_E_2", "pi0_px_2", "pi0_py_2", "pi0_pz_2", ]
+# pi_2_4mom = ["pi_E_2", "pi_px_2", "pi_py_2", "pi_pz_2", ]
+# pi2_2_4mom = ["pi2_E_2", "pi2_px_2", "pi2_py_2", "pi2_pz_2", ]
+# pi3_2_4mom = ["pi3_E_2", "pi3_px_2", "pi3_py_2", "pi3_pz_2", ]
+# gam_2_3mom = ["gam_E_2", "gam_px_2", "gam_py_2", "gam_pz_2", ]
+# cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
+# sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
+# tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
 
-measured4mom = [pi0_2_4mom, pi_2_4mom, pi2_2_4mom, \
-pi3_2_4mom, sc1_2_4mom, gam_2_3mom, cl_2_3mom, ]
-# Updated to include pi0 (previously excluded for some reason (13.12.21))
-E_list = [a[0] for a in measured4mom]
-px_list = [a[1] for a in measured4mom]
-py_list = [a[2] for a in measured4mom]
-pz_list = [a[3] for a in measured4mom]
-fourmom_list = [E_list, px_list, py_list, pz_list]
-# a list of actual columns with the lists of fourmomenta in
-fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full_list"]
+# measured4mom = [pi0_2_4mom, pi_2_4mom, pi2_2_4mom, \
+# pi3_2_4mom, sc1_2_4mom, gam_2_3mom, cl_2_3mom, ]
+# # Updated to include pi0 (previously excluded for some reason (13.12.21))
+# E_list = [a[0] for a in measured4mom]
+# px_list = [a[1] for a in measured4mom]
+# py_list = [a[2] for a in measured4mom]
+# pz_list = [a[3] for a in measured4mom]
+# fourmom_list = [E_list, px_list, py_list, pz_list]
+# # a list of actual columns with the lists of fourmomenta in
+# fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full_list"]
 
-pi_indices = np.array([0,1,1,1,0])
-pi0_indices = np.array([1,0,0,0,0])
-gamma_indices = np.array([0,0,0,0,0])
-sc_indices = np.array([0,0,0,0,1])
+# pi_indices = np.array([0,1,1,1,0])
+# pi0_indices = np.array([1,0,0,0,0])
+# gamma_indices = np.array([0,0,0,0,0])
+# sc_indices = np.array([0,0,0,0,1])
 
-class pipeline:
+class feature_name_object:
+    def __init__(self) -> None:
+        self.variables_tt_1 = ["tauFlag_1",
+                # Generator-level properties, actual decay mode of taus for training
+                "pi_px_1", "pi_py_1", "pi_pz_1", "pi_E_1",
+                "pi2_px_1", "pi2_py_1", "pi2_pz_1", "pi2_E_1",
+                "pi3_px_1", "pi3_py_1", "pi3_pz_1", "pi3_E_1",
+                # 4-momenta of the charged pions
+                "pi0_px_1", "pi0_py_1", "pi0_pz_1", "pi0_E_1", 
+                # 4-momenta of neutral pions
+                "gam1_px_1", "gam1_py_1", "gam1_pz_1", "gam1_E_1",
+                "gam2_px_1", "gam2_py_1", "gam2_pz_1", "gam2_E_1",
+                # 4-momenta of two leading photons
+                "gam_px_1", "gam_py_1", "gam_pz_1", "n_gammas_1",
+                # 3-momenta vectors of all photons
+                "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
+                # Shower-shape variables
+                "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", #  "sc1_r9_1", "sc1_ietaieta_1",
+                # 4-momentum of the supercluster
+                "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
+                # 3-momenta of clusters in supercluster
+                "tau_px_1", "tau_py_1", "tau_pz_1", "tau_E_1",
+                # 4-momenta of 'visible' tau
+                "tau_decay_mode_1",
+                #HPS algorithm decay mode
+                "pt_1",
+               ]
+        self.variables_tt_2 = ["tauFlag_2", 
+                # Generator-level properties, actual decay mode of taus for training
+                "pi_px_2", "pi_py_2", "pi_pz_2", "pi_E_2", 
+                "pi2_px_2", "pi2_py_2", "pi2_pz_2", "pi2_E_2",
+                "pi3_px_2", "pi3_py_2", "pi3_pz_2", "pi3_E_2",
+                # 4-momenta of the charged pions
+                # Note: pi2/pi3 only apply for 3pr modes
+                "pi0_px_2", "pi0_py_2", "pi0_pz_2", "pi0_E_2", 
+                # 4-momenta of neutral pions
+                "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
+                "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
+                # 4-momenta of two leading photons
+                "gam_px_2", "gam_py_2", "gam_pz_2", "n_gammas_2",
+                # 3-momenta vectors of all photons
+                "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
+                # Shower-shape variables
+                "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", # "sc1_r9_2", "sc1_ietaieta_2",
+                # 4-momentum of the supercluster
+                "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
+                # 3-momenta of clusters in supercluster
+                "tau_px_2", "tau_py_2", "tau_pz_2", "tau_E_2",
+                # 4-momenta of 'visible' tau
+                "tau_decay_mode_2", 
+                # HPS algorithm decay mode
+                "pt_2",
+               ]
+
+        self.gam1_2_4mom = ["gam1_E_2", "gam1_px_2", "gam1_py_2", "gam1_pz_2", ]
+        self.gam2_2_4mom = ["gam2_E_2", "gam2_px_2", "gam2_py_2", "gam2_pz_2", ]
+        self.pi0_2_4mom = ["pi0_E_2", "pi0_px_2", "pi0_py_2", "pi0_pz_2", ]
+        self.pi_2_4mom = ["pi_E_2", "pi_px_2", "pi_py_2", "pi_pz_2", ]
+        self.pi2_2_4mom = ["pi2_E_2", "pi2_px_2", "pi2_py_2", "pi2_pz_2", ]
+        self.pi3_2_4mom = ["pi3_E_2", "pi3_px_2", "pi3_py_2", "pi3_pz_2", ]
+        self.gam_2_3mom = ["gam_E_2", "gam_px_2", "gam_py_2", "gam_pz_2", ]
+        self.cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
+        self.sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
+        self.tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
+
+        self.measured4mom = [self.pi0_2_4mom, self.pi_2_4mom, self.pi2_2_4mom, \
+            self.pi3_2_4mom, self.sc1_2_4mom, self.gam_2_3mom, self.cl_2_3mom, ]
+        # Updated to include pi0 (previously excluded for some reason (13.12.21))
+        self.E_list = [a[0] for a in self.measured4mom]
+        self.px_list = [a[1] for a in self.measured4mom]
+        self.py_list = [a[2] for a in self.measured4mom]
+        self.pz_list = [a[3] for a in self.measured4mom]
+        self.fourmom_list = [self.E_list, self.px_list, self.py_list, self.pz_list]
+        # a list of actual columns with the lists of fourmomenta in
+        self.fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full_list"]
+        
+        self.pi_indices = np.array([0,1,1,1,0])
+        self.pi0_indices = np.array([1,0,0,0,0])
+        self.gamma_indices = np.array([0,0,0,0,0])
+        self.sc_indices = np.array([0,0,0,0,1])
+
+class pipeline(feature_name_object):
     def __init__(self, load_path, save_path):
         self.load_path = load_path
         self.save_path = save_path
         self.object_folder = "/A_Objects/Objects3_DM"
-        # self.variables_tt_1 = ["tauFlag_1",
-        #         # Generator-level properties, actual decay mode of taus for training
-        #         "pi_px_1", "pi_py_1", "pi_pz_1", "pi_E_1",
-        #         "pi2_px_1", "pi2_py_1", "pi2_pz_1", "pi2_E_1",
-        #         "pi3_px_1", "pi3_py_1", "pi3_pz_1", "pi3_E_1",
-        #         # 4-momenta of the charged pions
-        #         "pi0_px_1", "pi0_py_1", "pi0_pz_1", "pi0_E_1", 
-        #         # 4-momenta of neutral pions
-        #         "gam1_px_1", "gam1_py_1", "gam1_pz_1", "gam1_E_1",
-        #         "gam2_px_1", "gam2_py_1", "gam2_pz_1", "gam2_E_1",
-        #         # 4-momenta of two leading photons
-        #         "gam_px_1", "gam_py_1", "gam_pz_1", "n_gammas_1",
-        #         # 3-momenta vectors of all photons
-        #         "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
-        #         # Shower-shape variables
-        #         "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", #  "sc1_r9_1", "sc1_ietaieta_1",
-        #         # 4-momentum of the supercluster
-        #         "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
-        #         # 3-momenta of clusters in supercluster
-        #         "tau_px_1", "tau_py_1", "tau_pz_1", "tau_E_1",
-        #         # 4-momenta of 'visible' tau
-        #         "tau_decay_mode_1",
-        #         #HPS algorithm decay mode
-        #         "pt_1",
-        #        ]
-        # self.variables_tt_2 = ["tauFlag_2", 
-        #         # Generator-level properties, actual decay mode of taus for training
-        #         "pi_px_2", "pi_py_2", "pi_pz_2", "pi_E_2", 
-        #         "pi2_px_2", "pi2_py_2", "pi2_pz_2", "pi2_E_2",
-        #         "pi3_px_2", "pi3_py_2", "pi3_pz_2", "pi3_E_2",
-        #         # 4-momenta of the charged pions
-        #         # Note: pi2/pi3 only apply for 3pr modes
-        #         "pi0_px_2", "pi0_py_2", "pi0_pz_2", "pi0_E_2", 
-        #         # 4-momenta of neutral pions
-        #         "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
-        #         "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
-        #         # 4-momenta of two leading photons
-        #         "gam_px_2", "gam_py_2", "gam_pz_2", "n_gammas_2",
-        #         # 3-momenta vectors of all photons
-        #         "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
-        #         # Shower-shape variables
-        #         "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", # "sc1_r9_2", "sc1_ietaieta_2",
-        #         # 4-momentum of the supercluster
-        #         "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
-        #         # 3-momenta of clusters in supercluster
-        #         "tau_px_2", "tau_py_2", "tau_pz_2", "tau_E_2",
-        #         # 4-momenta of 'visible' tau
-        #         "tau_decay_mode_2", 
-        #         # HPS algorithm decay mode
-        #         "pt_2",
-        #        ]
-
-        # self.gam1_2_4mom = ["gam1_E_2", "gam1_px_2", "gam1_py_2", "gam1_pz_2", ]
-        # self.gam2_2_4mom = ["gam2_E_2", "gam2_px_2", "gam2_py_2", "gam2_pz_2", ]
-        # self.pi0_2_4mom = ["pi0_E_2", "pi0_px_2", "pi0_py_2", "pi0_pz_2", ]
-        # self.pi_2_4mom = ["pi_E_2", "pi_px_2", "pi_py_2", "pi_pz_2", ]
-        # self.pi2_2_4mom = ["pi2_E_2", "pi2_px_2", "pi2_py_2", "pi2_pz_2", ]
-        # self.pi3_2_4mom = ["pi3_E_2", "pi3_px_2", "pi3_py_2", "pi3_pz_2", ]
-        # self.gam_2_3mom = ["gam_E_2", "gam_px_2", "gam_py_2", "gam_pz_2", ]
-        # self.cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
-        # self.sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
-        # self.tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
-
-        # self.measured4mom = [self.pi0_2_4mom, self.pi_2_4mom, self.pi2_2_4mom, \
-        #     self.pi3_2_4mom, self.sc1_2_4mom, self.gam_2_3mom, self.cl_2_3mom, ]
-        # # Updated to include pi0 (previously excluded for some reason (13.12.21))
-        # self.E_list = [a[0] for a in self.measured4mom]
-        # self.px_list = [a[1] for a in self.measured4mom]
-        # self.py_list = [a[2] for a in self.measured4mom]
-        # self.pz_list = [a[3] for a in self.measured4mom]
-        # self.fourmom_list = [self.E_list, self.px_list, self.py_list, self.pz_list]
-        # # a list of actual columns with the lists of fourmomenta in
-        # self.fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full_list"]
+        feature_name_object.__init__(self)
 
     ### I/O COMMANDS ###
     def save_dataframe(self, dataframe, name):
@@ -183,10 +192,10 @@ class pipeline:
         intreeGG_tt = rootGG_tt.Get("ntuple")
         rootVBF_tt = ROOT.TFile(self.load_path + "/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
         intreeVBF_tt = rootVBF_tt.Get("ntuple")
-        arrVBF_tt_1 = rnp.tree2array(intreeVBF_tt,branches=variables_tt_1)
-        arrGG_tt_1 = rnp.tree2array(intreeGG_tt,branches=variables_tt_1)
-        arrVBF_tt_2 = rnp.tree2array(intreeVBF_tt,branches=variables_tt_2)
-        arrGG_tt_2 = rnp.tree2array(intreeGG_tt,branches=variables_tt_2)
+        arrVBF_tt_1 = rnp.tree2array(intreeVBF_tt,branches=self.variables_tt_1)
+        arrGG_tt_1 = rnp.tree2array(intreeGG_tt,branches=self.variables_tt_1)
+        arrVBF_tt_2 = rnp.tree2array(intreeVBF_tt,branches=self.variables_tt_2)
+        arrGG_tt_2 = rnp.tree2array(intreeGG_tt,branches=self.variables_tt_2)
         print("converting to dfs")
         del rootGG_tt, rootVBF_tt
         del intreeVBF_tt, intreeGG_tt
@@ -203,7 +212,7 @@ class pipeline:
 
         #~~ Separating the tt data into two separate datapoints ~~#
 
-        df_1.set_axis(variables_tt_2, axis=1, inplace=True) 
+        df_1.set_axis(self.variables_tt_2, axis=1, inplace=True) 
         # rename axes to the same as variables 2
         self.df_full = pd.concat([df_1, df_2], ignore_index = True)
         del df_1, df_2
@@ -326,10 +335,10 @@ class pipeline:
 
     def get_fourmomenta_lists(self, dataframe):
         for a in range(4):
-            dataframe[fourmom_list_colnames[a]] = dataframe[fourmom_list[a][0]].apply(lambda x:\
+            dataframe[self.fourmom_list_colnames[a]] = dataframe[self.fourmom_list[a][0]].apply(lambda x:\
                  np.array([x]).flatten().tolist())
-            for b in range(1, len(fourmom_list[1])):   
-                dataframe[fourmom_list_colnames[a]] += dataframe[fourmom_list[a][b]].apply(lambda x: \
+            for b in range(1, len(self.fourmom_list[1])):   
+                dataframe[self.fourmom_list_colnames[a]] += dataframe[self.fourmom_list[a][b]].apply(lambda x: \
                     np.array([x]).flatten().tolist())
       # This method means that the final lists are flat (i.e. clusters/photons dont have a nested structure)
 
@@ -339,26 +348,26 @@ class pipeline:
         # Call the function for retrieving lists of 4-mom first
         output_dataframe = pd.DataFrame
         
-        pi0vect = vector.obj(px = dataframe[pi0_2_4mom[1]],\
-                            py = dataframe[pi0_2_4mom[2]],\
-                            pz = dataframe[pi0_2_4mom[3]],\
-                            E = dataframe[pi0_2_4mom[0]])
+        pi0vect = vector.obj(px = dataframe[self.pi0_2_4mom[1]],\
+                            py = dataframe[self.pi0_2_4mom[2]],\
+                            pz = dataframe[self.pi0_2_4mom[3]],\
+                            E = dataframe[self.pi0_2_4mom[0]])
 
-        pivect = vector.obj(px = dataframe[pi_2_4mom[1]],\
-                            py = dataframe[pi_2_4mom[2]],\
-                            pz = dataframe[pi_2_4mom[3]],\
-                            E = dataframe[pi_2_4mom[0]])
+        pivect = vector.obj(px = dataframe[self.pi_2_4mom[1]],\
+                            py = dataframe[self.pi_2_4mom[2]],\
+                            pz = dataframe[self.pi_2_4mom[3]],\
+                            E = dataframe[self.pi_2_4mom[0]])
 
-        fourvect = vector.arr({"px": dataframe[fourmom_list_colnames[1]],\
-                        "py": dataframe[fourmom_list_colnames[2]],\
-                        "pz": dataframe[fourmom_list_colnames[3]],\
-                            "E": dataframe[fourmom_list_colnames[0]]})
+        fourvect = vector.arr({"px": dataframe[self.fourmom_list_colnames[1]],\
+                        "py": dataframe[self.fourmom_list_colnames[2]],\
+                        "pz": dataframe[self.fourmom_list_colnames[3]],\
+                            "E": dataframe[self.fourmom_list_colnames[0]]})
     
     
-        tauvisfourvect = vector.obj(px = dataframe[tau_2_4mom[1]],\
-                                py = dataframe[tau_2_4mom[2]],\
-                                pz = dataframe[tau_2_4mom[3]],\
-                                E = dataframe[tau_2_4mom[0]])
+        tauvisfourvect = vector.obj(px = dataframe[self.tau_2_4mom[1]],\
+                                py = dataframe[self.tau_2_4mom[2]],\
+                                pz = dataframe[self.tau_2_4mom[3]],\
+                                E = dataframe[self.tau_2_4mom[0]])
 
         pi0_phi = pi0vect.deltaphi(tauvisfourvect)
         pi0_eta = pi0vect.deltaeta(tauvisfourvect)
@@ -397,12 +406,12 @@ class pipeline:
         dataframe.drop(columns = cols_to_drop, inplace = True)
 
     def drop_variables(self, dataframe):
-        for a in measured4mom[4:]:
+        for a in self.measured4mom[4:]:
             dataframe.drop(columns = a, inplace = True)
-        for a in measured4mom[:4]:
+        for a in self.measured4mom[:4]:
             dataframe.drop(columns = a[1:], inplace = True)
             # Keeps the energies for pi0, pi, pi2, pi3 as HL variables
-        for a in fourmom_list_colnames:
+        for a in self.fourmom_list_colnames:
             dataframe.drop(columns = a, inplace = True)
 
     def drop_variables_2(self, dataframe):
@@ -424,6 +433,7 @@ class pipeline:
         self.fd_hl = {}
         self.fd_im_l = {}
         self.fd_im_s = {}
+        self.fd_flag = {}
         for a in range(dataframe.shape[1]):
             self.feature_description[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
             self.fd_hl[self.featurenames_hl[a]] = tf.io.FixedLenFeature([],tf.float32,default_value=0.0)
@@ -432,10 +442,31 @@ class pipeline:
         self.feature_description["flag"] =  tf.io.FixedLenFeature([],tf.int16)
         self.fd_im_l["large_image"] = tf.io.VarLenFeature(tf.int64)
         self.fd_im_s["small_image"] = tf.io.VarLenFeature(tf.int64)
+        self.fd_flag["flag"] = tf.io.FixedLenFeature([6],tf.int64)
 
-    def create_featuredesc_flag(self):
+    def create_featuredesc2(self, dataframe):
+        # Creates feature descriptions for tfrecord datasets
+        # npa = X_test.to_numpy()
+        # This version is for the three-feature tfrecords which might work where the 28 feature ones didnt
+        self.feature_description = {}
+        self.fd_hl = {}
+        self.fd_im_l = {}
+        self.fd_im_s = {}
         self.fd_flag = {}
-        self.fd_flag["flag"] = tf.io.FixedLenFeature([],tf.int64)
+        self.hl_no_features = dataframe.shape[-1]
+
+        self.feature_description["hl"] = tf.io.FixedLenFeature([self.hl_no_features],tf.float32)
+        self.feature_description["large_image"] = tf.io.VarLenFeature(tf.int64)
+        self.feature_description["small_image"] = tf.io.VarLenFeature(tf.int64)
+        # self.feature_description["flag"] =  tf.io.FixedLenFeature([6],tf.int64)
+        self.fd_im_l["large_image"] = tf.io.VarLenFeature(tf.int64)
+        self.fd_im_s["small_image"] = tf.io.VarLenFeature(tf.int64)
+        self.fd_hl["hl"] = tf.io.FixedLenFeature([self.hl_no_features],tf.float32)
+        self.fd_flag["flag"] = tf.io.FixedLenFeature([6],tf.int64)
+
+
+    def calc_no_events(self, dataframe):
+        return dataframe.shape[0]
 
     def generate_grids(self, row, dim1, dim2):
         halfdim1 = dim1/2
@@ -462,11 +493,11 @@ class pipeline:
         zerobuffer = np.zeros(masklen-5)
         gamma_buffer = np.append(np.ones(photon_num), np.zeros(masklen-5-photon_num))
         cluster_buffer = np.append(np.zeros(photon_num), np.ones(masklen-5-photon_num))
-        pi_count = np.append(pi_indices, zerobuffer)
-        pi0_count = np.append(pi0_indices, zerobuffer)
-        sc_count = np.append(sc_indices, zerobuffer)
-        gamma_count = np.append(gamma_indices, gamma_buffer)
-        cluster_count = np.append(gamma_indices, cluster_buffer)
+        pi_count = np.append(self.pi_indices, zerobuffer)
+        pi0_count = np.append(self.pi0_indices, zerobuffer)
+        sc_count = np.append(self.sc_indices, zerobuffer)
+        gamma_count = np.append(self.gamma_indices, gamma_buffer)
+        cluster_count = np.append(self.gamma_indices, cluster_buffer)
         layerlist = [int_energies, int_momenta, pi_count*real_mask, pi0_count*real_mask, sc_count*real_mask, gamma_count*real_mask,
         		cluster_count*real_mask,]
         no_layers = len(layerlist)
@@ -487,19 +518,19 @@ class pipeline:
 
     def modify_dataframe(self, dataframe):
         print("energyfinder")
-        self.energyfinder_2(dataframe, gam_2_3mom)
-        self.energyfinder_2(dataframe, cl_2_3mom)
+        self.energyfinder_2(dataframe, self.gam_2_3mom)
+        self.energyfinder_2(dataframe, self.cl_2_3mom)
         print("calc mass")
-        self.calc_mass(dataframe, pi0_2_4mom) # calc pi0 mass
-        self.calc_mass(dataframe, pi_2_4mom, pi0_2_4mom) # calc rho mass
+        self.calc_mass(dataframe, self.pi0_2_4mom) # calc pi0 mass
+        self.calc_mass(dataframe, self.pi_2_4mom, self.pi0_2_4mom) # calc rho mass
         print("frac features")
         dataframe["E_gam/E_tau"] = dataframe["gam1_E_2"].divide(dataframe["tau_E_2"]) #Egamma/Etau
         dataframe["E_pi/E_tau"] = dataframe["pi_E_2"].divide(dataframe["tau_E_2"]) #Epi/Etau
         dataframe["E_pi0/E_tau"] = dataframe["pi0_E_2"].divide(dataframe["tau_E_2"]) #Epi0/Etau
         print("ang features")
-        self.tau_eta(dataframe, tau_2_4mom) # calc tau eta value
-        self.ang_var(dataframe, gam1_2_4mom, gam2_2_4mom, "gam")
-        self.ang_var(dataframe, pi0_2_4mom, pi_2_4mom, "pi")
+        self.tau_eta(dataframe, self.tau_2_4mom) # calc tau eta value
+        self.ang_var(dataframe, self.gam1_2_4mom, self.gam2_2_4mom, "gam")
+        self.ang_var(dataframe, self.pi0_2_4mom, self.pi_2_4mom, "pi")
         # NOTE THIS IS BETWEEN PI0 AND PI - IS THIS CORRECT?
 
     def create_imvar_dataframe(self, dataframe):
@@ -520,14 +551,16 @@ class pipeline:
         self.drop_variables_2(dataframe)
         # 1) create dictionaries for tfrecords
         self.create_featuredesc(dataframe)
+        path = tfrecordpath + "/dm%s.tfrecords" % index
+        length = self.calc_no_events(dataframe)
         # 2) convert df to numpy, reset indices on imvar_df
-        with tf.io.TFRecordWriter(tfrecordpath) as writer:
+        with tf.io.TFRecordWriter(path) as writer:
             npa = dataframe.to_numpy()
             imvar_dataframe.reset_index(drop=True, inplace=True)
             fulllen = imvar_dataframe.shape[0]
             del dataframe
             for a, row in imvar_dataframe.iterrows():
-                #print(a/fulllen)
+                print(a/fulllen)
                 event_dict = {}
                 for b in range(npa.shape[1]):
                     event_dict[self.featurenames_hl[b]] = tf.train.Feature(float_list=\
@@ -544,9 +577,51 @@ class pipeline:
                 example = tf.train.Example(features=tf.train.Features(feature=event_dict))
                 # print(example)
                 writer.write(example.SerializeToString())
-        # 3) iterate through events, using index of imvar_df to enumerate df
-        # 4) create graphs, add HL + graphs to tfrecord and write
+
+        with open(tfrecordpath + '/dm%s_%s.txt' % (index, length), 'w') as f:
+            f.write(str(length))
         print("done")
+
+    def generate_datasets2(self, dataframe, imvar_dataframe, tfrecordpath, modeflag):        
+        # needs to create the grid for each event, populate it, add to full tensor for event and save
+        # per event
+        onehot_flag = [0,0,0,0,0,0]
+        onehot_flag[modeflag] = 1
+        # 0) drop unwanted columns from HL
+        self.drop_variables_2(dataframe)
+        # 1) create dictionaries for tfrecords
+        self.create_featuredesc2(dataframe)
+        path = tfrecordpath + "/dm%s_3in.tfrecords" % index
+        length = self.calc_no_events(dataframe)
+        # 2) convert df to numpy, reset indices on imvar_df
+        with tf.io.TFRecordWriter(path) as writer:
+            print('Writing')
+            npa = dataframe.to_numpy()
+            imvar_dataframe.reset_index(drop=True, inplace=True)
+            fulllen = imvar_dataframe.shape[0]
+            del dataframe
+            for a, row in imvar_dataframe.iterrows():
+                print(a/fulllen)
+                event_dict = {}
+                event_dict["hl"] = tf.train.Feature(float_list=\
+                    tf.train.FloatList(value=npa[a].flatten()))
+                # function for creating grids with a dataframe row
+                (grid1, grid2) = self.generate_grids(row, 21, 11)
+
+                event_dict["large_image"] = tf.train.Feature(int64_list=\
+                    tf.train.Int64List(value=grid1.flatten()))
+                event_dict["small_image"] = tf.train.Feature(int64_list=\
+                    tf.train.Int64List(value=grid2.flatten()))
+                event_dict["flag"] = tf.train.Feature(int64_list=\
+                        tf.train.Int64List(value=onehot_flag))
+                example = tf.train.Example(features=tf.train.Features(feature=event_dict))
+                # print(example)
+                writer.write(example.SerializeToString())
+        print("done writing, saving length")
+        with open(tfrecordpath + '/dm%s_%s.txt' % (index, length), 'w') as f:
+            f.write(str(length))
+        print("done")
+
 
     def modify_by_decay_mode(self):
         for a in range(len(self.df_dm)):
@@ -591,9 +666,10 @@ df_mod_names = ["/df_m_dm0.pkl", "/df_m_dm1.pkl", "/df_m_dm2.pkl", \
 jez = pipeline(rootpath_load, rootpath_save)
 index = int(sys.argv[1])
 # Takes the index from an argument
+# index = 0
 print(index)
 jez.load_hl_imvar(jez.save_path + jez.object_folder, df_mod_names[index], imvar_names[index])
-jez.generate_datasets(jez.hl_df, jez.imvar_df, jez.save_path + "/E_TFRecords/dm%s.tfrecords" % index, index)
+jez.generate_datasets2(jez.hl_df, jez.imvar_df, jez.save_path + "/E_TFRecords", index)
 # def run_modifications(filepath):
 #     for a in range(len(names)):
 #         print(a)

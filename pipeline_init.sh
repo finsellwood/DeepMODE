@@ -10,5 +10,4 @@ source ~/CMSSW_10_2_19/icenet/setenv.sh
 # eval `scramv1 runtime -sh`
 
 python3.9 Python_files/A_Pipeline/pipeline_object.py 5
-
 conda deactivate
