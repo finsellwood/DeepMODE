@@ -12,86 +12,10 @@ import sys
 rootpath_load = "/vols/cms/dw515/outputs/SM/MPhysNtuples"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
 
-# variables_tt_1 = ["tauFlag_1",
-#     # Generator-level properties, actual decay mode of taus for training
-#     "pi_px_1", "pi_py_1", "pi_pz_1", "pi_E_1",
-#     "pi2_px_1", "pi2_py_1", "pi2_pz_1", "pi2_E_1",
-#     "pi3_px_1", "pi3_py_1", "pi3_pz_1", "pi3_E_1",
-#     # 4-momenta of the charged pions
-#     "pi0_px_1", "pi0_py_1", "pi0_pz_1", "pi0_E_1", 
-#     # 4-momenta of neutral pions
-#     "gam1_px_1", "gam1_py_1", "gam1_pz_1", "gam1_E_1",
-#     "gam2_px_1", "gam2_py_1", "gam2_pz_1", "gam2_E_1",
-#     # 4-momenta of two leading photons
-#     "gam_px_1", "gam_py_1", "gam_pz_1", "n_gammas_1",
-#     # 3-momenta vectors of all photons
-#     "sc1_px_1", "sc1_py_1", "sc1_pz_1", "sc1_E_1",
-#     # Shower-shape variables
-#     "sc1_r9_5x5_1", "sc1_ietaieta_5x5_1", #  "sc1_r9_1", "sc1_ietaieta_1",
-#     # 4-momentum of the supercluster
-#     "cl_px_1", "cl_py_1", "cl_pz_1", "sc1_Nclusters_1",
-#     # 3-momenta of clusters in supercluster
-#     "tau_px_1", "tau_py_1", "tau_pz_1", "tau_E_1",
-#     # 4-momenta of 'visible' tau
-#     "tau_decay_mode_1",
-#     #HPS algorithm decay mode
-#     "pt_1",
-#     ]
-# variables_tt_2 = ["tauFlag_2", 
-#     # Generator-level properties, actual decay mode of taus for training
-#     "pi_px_2", "pi_py_2", "pi_pz_2", "pi_E_2", 
-#     "pi2_px_2", "pi2_py_2", "pi2_pz_2", "pi2_E_2",
-#     "pi3_px_2", "pi3_py_2", "pi3_pz_2", "pi3_E_2",
-#     # 4-momenta of the charged pions
-#     # Note: pi2/pi3 only apply for 3pr modes
-#     "pi0_px_2", "pi0_py_2", "pi0_pz_2", "pi0_E_2", 
-#     # 4-momenta of neutral pions
-#     "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
-#     "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
-#     # 4-momenta of two leading photons
-#     "gam_px_2", "gam_py_2", "gam_pz_2", "n_gammas_2",
-#     # 3-momenta vectors of all photons
-#     "sc1_px_2", "sc1_py_2", "sc1_pz_2", "sc1_E_2",
-#     # Shower-shape variables
-#     "sc1_r9_5x5_2", "sc1_ietaieta_5x5_2", # "sc1_r9_2", "sc1_ietaieta_2",
-#     # 4-momentum of the supercluster
-#     "cl_px_2", "cl_py_2", "cl_pz_2", "sc1_Nclusters_2",
-#     # 3-momenta of clusters in supercluster
-#     "tau_px_2", "tau_py_2", "tau_pz_2", "tau_E_2",
-#     # 4-momenta of 'visible' tau
-#     "tau_decay_mode_2", 
-#     # HPS algorithm decay mode
-#     "pt_2",
-#     ]
-
-# gam1_2_4mom = ["gam1_E_2", "gam1_px_2", "gam1_py_2", "gam1_pz_2", ]
-# gam2_2_4mom = ["gam2_E_2", "gam2_px_2", "gam2_py_2", "gam2_pz_2", ]
-# pi0_2_4mom = ["pi0_E_2", "pi0_px_2", "pi0_py_2", "pi0_pz_2", ]
-# pi_2_4mom = ["pi_E_2", "pi_px_2", "pi_py_2", "pi_pz_2", ]
-# pi2_2_4mom = ["pi2_E_2", "pi2_px_2", "pi2_py_2", "pi2_pz_2", ]
-# pi3_2_4mom = ["pi3_E_2", "pi3_px_2", "pi3_py_2", "pi3_pz_2", ]
-# gam_2_3mom = ["gam_E_2", "gam_px_2", "gam_py_2", "gam_pz_2", ]
-# cl_2_3mom = ["cl_E_2", "cl_px_2", "cl_py_2", "cl_pz_2", ]
-# sc1_2_4mom = ["sc1_E_2", "sc1_px_2", "sc1_py_2", "sc1_pz_2", ]
-# tau_2_4mom = ["tau_E_2", "tau_px_2", "tau_py_2", "tau_pz_2", ]
-
-# measured4mom = [pi0_2_4mom, pi_2_4mom, pi2_2_4mom, \
-# pi3_2_4mom, sc1_2_4mom, gam_2_3mom, cl_2_3mom, ]
-# # Updated to include pi0 (previously excluded for some reason (13.12.21))
-# E_list = [a[0] for a in measured4mom]
-# px_list = [a[1] for a in measured4mom]
-# py_list = [a[2] for a in measured4mom]
-# pz_list = [a[3] for a in measured4mom]
-# fourmom_list = [E_list, px_list, py_list, pz_list]
-# # a list of actual columns with the lists of fourmomenta in
-# fourmom_list_colnames = ["E_full_list", "px_full_list", "py_full_list", "pz_full_list"]
-
-# pi_indices = np.array([0,1,1,1,0])
-# pi0_indices = np.array([1,0,0,0,0])
-# gamma_indices = np.array([0,0,0,0,0])
-# sc_indices = np.array([0,0,0,0,1])
+# list of var names w.o. 'self.' is stored in 'notes.txt'
 
 class feature_name_object:
+    # A separate class with all the strings with feature names in
     def __init__(self) -> None:
         self.variables_tt_1 = ["tauFlag_1",
                 # Generator-level properties, actual decay mode of taus for training
@@ -425,10 +349,11 @@ class pipeline(feature_name_object):
   
     def create_featuredesc(self, dataframe):
         # Creates feature descriptions for tfrecord datasets
-        # dataframe is the HL data
+        # Feature descriptions are dictionaries describing the structure of the data within a given feature
+        # Necessary for loading and saving tensorflow datasets in the tfrecord format
+        # 'dataframe' is the HL data
         self.featurenames_hl = list(dataframe.columns)
         print(self.featurenames_hl)
-        # npa = X_test.to_numpy()
         self.feature_description = {}
         self.fd_hl = {}
         self.fd_im_l = {}
@@ -446,7 +371,6 @@ class pipeline(feature_name_object):
 
     def create_featuredesc2(self, dataframe):
         # Creates feature descriptions for tfrecord datasets
-        # npa = X_test.to_numpy()
         # This version is for the three-feature tfrecords which might work where the 28 feature ones didnt
         self.feature_description = {}
         self.fd_hl = {}
@@ -456,11 +380,10 @@ class pipeline(feature_name_object):
         self.hl_no_features = dataframe.shape[-1]
 
         self.feature_description["hl"] = tf.io.FixedLenFeature([self.hl_no_features],tf.float32)
-        self.feature_description["large_image"] = tf.io.VarLenFeature(tf.int64)
-        self.feature_description["small_image"] = tf.io.VarLenFeature(tf.int64)
-        # self.feature_description["flag"] =  tf.io.FixedLenFeature([6],tf.int64)
-        self.fd_im_l["large_image"] = tf.io.VarLenFeature(tf.int64)
-        self.fd_im_s["small_image"] = tf.io.VarLenFeature(tf.int64)
+        self.feature_description["large_image"] = tf.io.FixedLenFeature([21,21,7],tf.int64)
+        self.feature_description["small_image"] = tf.io.FixedLenFeature([11,11,7],tf.int64)
+        self.fd_im_l["large_image"] = tf.io.FixedLenFeature([21,21,7],tf.int64)
+        self.fd_im_s["small_image"] = tf.io.FixedLenFeature([11,11,7],tf.int64)
         self.fd_hl["hl"] = tf.io.FixedLenFeature([self.hl_no_features],tf.float32)
         self.fd_flag["flag"] = tf.io.FixedLenFeature([6],tf.int64)
 
@@ -612,7 +535,7 @@ class pipeline(feature_name_object):
                     tf.train.Int64List(value=grid1.flatten()))
                 event_dict["small_image"] = tf.train.Feature(int64_list=\
                     tf.train.Int64List(value=grid2.flatten()))
-                event_dict["flag"] = tf.train.Feature(int64_list=\
+                event_dict["Outputs"] = tf.train.Feature(int64_list=\
                         tf.train.Int64List(value=onehot_flag))
                 example = tf.train.Example(features=tf.train.Features(feature=event_dict))
                 # print(example)
