@@ -564,6 +564,39 @@ class pipeline(feature_name_object):
             f.write(str(length))
         print("done")
 
+    def generate_datasets_anal(self, dataframe, imvar_dataframe, tfrecordpath, modeflag):        
+        # needs to create the grid for each event, populate it, add to full tensor for event and save
+        # per event
+        onehot_flag = [0,0,0,0,0,0]
+        onehot_flag[modeflag] = 1
+        # 0) drop unwanted columns from HL
+        self.drop_variables_2(dataframe)
+        # 1) create dictionaries for tfrecords
+        self.create_featuredesc2(dataframe)
+        path = tfrecordpath + "/dm%s_3in.tfrecords" % index
+        length = self.calc_no_events(dataframe)
+        # 2) convert df to numpy, reset indices on imvar_df
+        npa = dataframe.to_numpy()
+        imvar_dataframe.reset_index(drop=True, inplace=True)
+        fulllen = imvar_dataframe.shape[0]
+        del dataframe
+        for a, row in imvar_dataframe.iterrows():
+            print(a/fulllen)
+            event_dict = {}
+            event_dict["hl"] = tf.train.Feature(float_list=\
+                tf.train.FloatList(value=npa[a].flatten()))
+            # function for creating grids with a dataframe row
+            (grid1, grid2) = self.generate_grids(row, 21, 11)
+
+            event_dict["large_image"] = tf.train.Feature(int64_list=\
+                tf.train.Int64List(value=grid1.flatten()))
+            event_dict["small_image"] = tf.train.Feature(int64_list=\
+                tf.train.Int64List(value=grid2.flatten()))
+            event_dict["Outputs"] = tf.train.Feature(int64_list=\
+                    tf.train.Int64List(value=onehot_flag))
+            example = tf.train.Example(features=tf.train.Features(feature=event_dict))
+            # print(example)
+        return example
 
     def modify_by_decay_mode(self):
         for a in range(len(self.df_dm)):
