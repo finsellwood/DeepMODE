@@ -141,7 +141,26 @@ class pipeline(feature_name_object):
         self.df_full = pd.concat([df_1, df_2], ignore_index = True)
         del df_1, df_2
         #self.save_dataframe(self.df_full, "df_full.pkl")
-    
+        
+    def load_single_event(self, event, which):
+        #file should not be hardcoded - pass from yaml
+        file_ = ROOT.TFile(self.load_path + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+        tree = file_.Get("ntuple") #do GluGlu and VBF separately
+        decay = tree.GetEntry(event)
+        if which == 1:
+            arr = rnp.tree2array(decay,branches=self.variables_tt_1)
+        elif which == 2:
+            arr = rnp.tree2array(decay,branches=self.variables_tt_2)
+        else: raise Exception("Incorrect tau label: can be either 1 or 2") 
+        print("converting to dfs")
+        df = pd.DataFrame(arr)
+        # rename axes to the same as variables 2
+        if which == 1: 
+            df.set_axis(self.variables_tt_2, axis=1, inplace=True)
+        else: 
+            pass
+        self.df_full = df 
+        
     def load_hl_imvar(self, loadpath, hl_name, imvar_name):
         print("loading dataframes...")
         self.hl_df = self.load_dataframe(loadpath, hl_name)
