@@ -10,9 +10,22 @@ Have a config file that sets configs
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True  # disable ROOT internal argument parser
 
+import logging
+logger = logging.getLogger("annotate_file_inc.py")
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler) 
+
 from pipeline_object import pipeline 
+import numpy as np
 import yaml
-    
+import os
+import pickle
+from array import array
+import argparse
+
 def parse_arguments():
     """Tool for easy argument calling in functions"""
     parser = argparse.ArgumentParser(
@@ -77,14 +90,14 @@ def main(args, config):
     # Run the event loop
     for i_event in range(tree.GetEntries()):
         tree.GetEntry(i_event)
-
+        
         # Get event number and compute response
         event = int(getattr(tree, "event"))
         
         #create a jesmond
     	jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
     	jesmond2 = pipeline(args.loadpath, args.savepath)
-    
+    	    
         #load root files for preprocessing
         jesmond.load_single_event(i_event,1) #change this in the pipeline so its flexible and takes from loadpath
         # jesmond.load_single_event(i) #have to run once for VBF and once for GluGlu
