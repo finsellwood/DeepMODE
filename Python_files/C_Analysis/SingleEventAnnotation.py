@@ -17,7 +17,7 @@ formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler) 
-
+import sys
 sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/A_Pipeline/")
 
 from pipeline_object import pipeline 
