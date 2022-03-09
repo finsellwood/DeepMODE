@@ -75,9 +75,6 @@ def main(args, config):
 
     #open original file
     file_ = ROOT.TFile("{}".format(args.loadpath)+"/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root", "UPDATE")
-    if file_ == None:
-        logger.fatal("File %s is not existent.", sample)
-        raise Exception
     tree = file_.Get(args.tree)
     
     #Book branches for annotation
@@ -106,15 +103,15 @@ def main(args, config):
         jesmond2.load_single_event(i_event,2)
     
         #do preprocessing
-        split_full_by_dm(jesmond)
-        split_full_by_dm(jesmond2)
-        modify_dataframe(jesmond)
-        modify_dataframe(jesmond2)
-        imvar_jesmond = create_imvar_dataframe(jesmond)
-        imvar_jesmond2 = create_imvar_dataframe(jesmond2)
+        jesmond.split_full_by_dm(jesmond.df_full)
+        jesmond.split_full_by_dm(jesmond2.df_full)
+        jesmond.modify_dataframe(jesmond.df_full)
+        jesmond.modify_dataframe(jesmond2.df_full)
+        imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full)
+        imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full)
         #jesmond.clear_dataframe()          
-        test1 = generate_datasets_anal(jesmond, imvar_jesmond, args.savepath)  #modify this not to save but create 
-        test2 = generate_datasets_anal(jesmond2, imvar_jesmond2, args.savepath)  #modify this not to save but create 
+        test1 = generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
+        test2 = generate_datasets_anal(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
     
         #load our model
         model = keras.models.load_model(args.model_folder)
