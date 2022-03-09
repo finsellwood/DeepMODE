@@ -18,6 +18,8 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler) 
 
+sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/A_Pipeline/")
+
 from pipeline_object import pipeline 
 import numpy as np
 import yaml
@@ -95,8 +97,8 @@ def main(args, config):
         event = int(getattr(tree, "event"))
         
         #create a jesmond
-    	jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
-    	jesmond2 = pipeline(args.loadpath, args.savepath)
+        jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
+        jesmond2 = pipeline(args.loadpath, args.savepath)
     	    
         #load root files for preprocessing
         jesmond.load_single_event(i_event,1) #change this in the pipeline so its flexible and takes from loadpath
