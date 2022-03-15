@@ -18,7 +18,7 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler) 
 import sys
-sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/A_Pipeline/")
+sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/A_Pipeline/")
 
 from pipeline_object import pipeline 
 import numpy as np
@@ -27,6 +27,7 @@ import os
 import pickle
 from array import array
 import argparse
+from tensorflow import keras
 
 def parse_arguments():
     """Tool for easy argument calling in functions"""
@@ -34,17 +35,17 @@ def parse_arguments():
         description="Apply NN model on ROOT file")
     parser.add_argument(
         "--config-training",
-        default="nn_training_config.yaml",	#CREATE THIS
+        default="/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/config.yaml",	#CREATE THIS
         help="Path to training config file")
     parser.add_argument(
         "--dir-prefix",
         type=str,
         default="ntuple",
         help="Prefix of directories in ROOT file to be annotated.")
+#    parser.add_argument(
+#        "input", help="Path to input file, where response will be added.")
     parser.add_argument(
-        "input", help="Path to input file, where response will be added.")
-    parser.add_argument(
-        "tag", help="Tag to be used as prefix of the annotation.")
+        "--tag", default="1", help="Tag to be used as prefix of the annotation.")
     parser.add_argument(
         "--tree", default="ntuple", help="Name of trees in the directories.")
     parser.add_argument(
@@ -54,9 +55,9 @@ def parse_arguments():
     parser.add_argument(
         "--era", default="", help="Year to use.")
     parser.add_argument(
-        "loadpath", default="/vols/cms/dw515/outputs/SM/MPhysNtuples", help="Path to files to use.")
+        "--loadpath", default="/vols/cms/fjo18/Masters2021/RootFiles", help="Path to files to use.")
     parser.add_argument(
-        "savepath", default="/vols/cms/ab7018/Masters2021/Annotation", help="Path to save output files.")
+        "--savepath", default="/vols/cms/fjo18/Masters2021/Annotation", help="Path to save output files.")
     return parser.parse_args()
 
 def parse_config(filename):
@@ -71,7 +72,7 @@ def parse_config(filename):
 #    return file_names
     
     
-def main(args, config):
+def main(args):#, config):
 
     #open original file
     file_ = ROOT.TFile("{}".format(args.loadpath)+"/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root", "UPDATE")
@@ -92,7 +93,7 @@ def main(args, config):
         
         # Get event number and compute response
         event = int(getattr(tree, "event"))
-        
+        #print(event)
         #create a jesmond
         jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
         jesmond2 = pipeline(args.loadpath, args.savepath)
@@ -110,8 +111,8 @@ def main(args, config):
         imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full)
         imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full)
         #jesmond.clear_dataframe()          
-        test1 = generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
-        test2 = generate_datasets_anal(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
+        test1 = jesmond.generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
+        test2 = jesmond.generate_datasets_anal(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
     
         #load our model
         model = keras.models.load_model(args.model_folder)
@@ -136,8 +137,8 @@ def main(args, config):
                       
 if __name__ == "__main__":
     args = parse_arguments()
-    config = parse_config(args.config_training)
+    #config = parse_config(args.config_training)
     #file_names = load_files(args.input)
-    main(args, config)
+    main(args)#, config)
 
 

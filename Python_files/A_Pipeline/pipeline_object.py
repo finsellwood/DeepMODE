@@ -139,14 +139,14 @@ class pipeline(feature_name_object):
         df_1.set_axis(self.variables_tt_2, axis=1, inplace=True) 
         # rename axes to the same as variables 2
         self.df_full = pd.concat([df_1, df_2], ignore_index = True)
-        del df_1, df_2
         #self.save_dataframe(self.df_full, "df_full.pkl")
         
     def load_single_event(self, event, which):
         #file should not be hardcoded - pass from yaml
         file_ = ROOT.TFile(self.load_path + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
         tree = file_.Get("ntuple") #do GluGlu and VBF separately
-        decay = tree.GetEntry(event)
+        decay = tree.GetVal(event)
+        print(decay)
         if which == 1:
             arr = rnp.tree2array(decay,branches=self.variables_tt_1)
         elif which == 2:
@@ -638,13 +638,13 @@ imvar_names = ["/imvar_df_dm0.pkl",  "/imvar_df_dm1.pkl", "/imvar_df_dm2.pkl", \
     "/imvar_df_dm3.pkl", "/imvar_df_dm4.pkl", "/imvar_df_dm5.pkl"]
 df_mod_names = ["/df_m_dm0.pkl", "/df_m_dm1.pkl", "/df_m_dm2.pkl", \
     "/df_m_dm3.pkl", "/df_m_dm4.pkl", "/df_m_dm5.pkl"]
-jez = pipeline(rootpath_load, rootpath_save)
-index = int(sys.argv[1])
-# Takes the index from an argument
-# index = 0
-print(index)
-jez.load_hl_imvar(jez.save_path + jez.object_folder, df_mod_names[index], imvar_names[index])
-jez.generate_datasets2(jez.hl_df, jez.imvar_df, jez.save_path + "/E_TFRecords", index)
+# jez = pipeline(rootpath_load, rootpath_save)
+# index = int(sys.argv[1])
+# # Takes the index from an argument
+# # index = 0
+# print(index)
+# jez.load_hl_imvar(jez.save_path + jez.object_folder, df_mod_names[index], imvar_names[index])
+# jez.generate_datasets2(jez.hl_df, jez.imvar_df, jez.save_path + "/E_TFRecords", index)
 # def run_modifications(filepath):
 #     for a in range(len(names)):
 #         print(a)

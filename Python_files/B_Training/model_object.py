@@ -26,7 +26,7 @@ default_filepath = "/D_Models/Models3_TF"
 model_name = "/model"
 model_name_loadmodel = "/LSH_model_0.711_20220216_133722"
 mez_filepath = "/vols/cms/fjo18/Masters2021/D_Models/Models3_DM2/LSH_model_0.715_20220205_195903"
-
+an_name = "/LSH_model_0.759_20220307_155115"
 
 class parameter_parser:
     def __init__(self, param_dict_filepath = None, param_dict = None):
@@ -732,6 +732,44 @@ class hep_model(parameter_parser):
                 self.roc_auc_mva[i] = auc(self.fpr_mva[i], self.tpr_mva[i])
             self.calculated_roc_values_mva = True
 
+    def plot_one_roc_curve(self, fpr1, tpr1, roc_auc1, one_roc_graph = False, plot_effpur = False):
+        if one_roc_graph:
+            fig2, ax2 = plt.subplots(1, 1)
+
+            for i in range(self.no_modes):
+                ax2.plot(fpr1[i], tpr1[i], label="Model 1 mode %s ROC curve (area = %0.2f)" % (i, roc_auc1[i]))
+                ax2.set_xlim([0,1])
+                ax2.set_ylim([0,1.05])
+                ax2.set_xlabel("False Positive Rate")
+                ax2.set_ylabel("True Positive Rate")
+                ax2.set_title("ROC_Curve for One Prong Tau Decays")
+                ax2.legend()
+                plt.savefig(self.model_path + '_roc_' + '.png', dpi = 100)
+        else:
+            print('plotting')
+            no_modes_hold = self.no_modes
+            self.no_modes = 3
+            fig2, ax2 = plt.subplots(1,self.no_modes)
+            fig2.set_size_inches(12,4)
+            labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$', r'$3\pi^{\pm}$', r'$3\pi^{\pm} \pi^0$', 'other']
+            for i in range(self.no_modes):
+                ax2[i].plot(fpr1[i], tpr1[i], label="NN ROC Curve (area = %0.2f)" % roc_auc1[i])
+                if plot_effpur == True:
+                    ax2[i].plot(self.pur[i], self.eff[i], 'x')
+                ax2[i].set_xlim([0,1])
+                ax2[i].set_ylim([0,1.05])
+                ax2[i].set_xlabel("False Positive Rate")
+                ax2[i].set_ylabel("True Positive Rate")
+                ax2[i].set_title("ROC_Curve for %s Mode" % labellist[i])
+                for axes in ax2.flat:
+                    axes.label_outer()
+                ax2[i].legend()
+                fig2.tight_layout()
+                ax2[i].set_aspect(1)
+            plt.savefig(self.model_path + '_roc_multigraph' + '.png', dpi = 500)
+            self.no_modes = no_modes_hold
+            # Update number of modes to avoid indexing error, return to original
+
     def plot_two_roc_curves(self, fpr1, tpr1, roc_auc1, fpr2, tpr2, roc_auc2, one_roc_graph = False, plot_effpur = False):
         if one_roc_graph:
             fig2, ax2 = plt.subplots(1, 1)
@@ -750,7 +788,7 @@ class hep_model(parameter_parser):
             print('plotting')
             fig2, ax2 = plt.subplots(1,self.no_modes)
             fig2.set_size_inches(12,4)
-            labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$']
+            labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$', r'$3\pi^{\pm}$', r'$3\pi^{\pm} \pi^0$', 'other']
 
             for i in range(self.no_modes):
                 ax2[i].plot(fpr1[i], tpr1[i], label="NN ROC Curve (area = %0.2f)" % roc_auc1[i])
@@ -787,6 +825,12 @@ class hep_model(parameter_parser):
         if other.calculated_roc_values == False:
             other.calc_roc_values(False)
         self.plot_two_roc_curves(self.fpr, self.tpr, self.roc_auc, other.fpr, other.tpr, other.roc_auc, False)
+
+    def plot_roc_curves(self, one_roc_graph = False):
+        if self.model_accuracy == 0.0:
+            raise Exception("Model has not made any predictions yet")
+        self.calc_roc_values(roc_mva=False)
+        self.plot_one_roc_curve(self.fpr, self.tpr, self.roc_auc, one_roc_graph, False)
 
 
     ### META COMMANDS ###
@@ -827,6 +871,7 @@ class hep_model(parameter_parser):
         self.use_datasets = True
         self.create_featuredesc()
         self.load_tfrecords(filenames, weights, use_as_mask)
+        self.parameter_dictionary["Weights"] = weights
         self.build_model()
         self.train_model()
         self.analyse_model_tf(10)
@@ -834,10 +879,17 @@ class hep_model(parameter_parser):
         print("Model saved in" + self.model_path)
         
     def doublecheck_tf(self, filenames, weights, use_as_mask):
+        # Checks the lengths of the datasets for mismatches
         self.use_datasets = True
         self.create_featuredesc()
         self.load_tfrecords(filenames, weights, use_as_mask)
         self.check_dataset_length()
+    
+    def produce_graphs(self):
+        self.plot_timeline()
+        self.plot_confusion_matrices()
+        self.plot_roc_curves()
+
 
 
 # jez = hep_model(pfaramdict, rootpath_load, rootpath_save)
