@@ -19,8 +19,11 @@ handler.setFormatter(formatter)
 logger.addHandler(handler) 
 import sys
 sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/A_Pipeline/")
+sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/B_Training/")
+
 
 from pipeline_object import pipeline 
+from model_object import hep_model
 import numpy as np
 import yaml
 import os
@@ -28,7 +31,7 @@ import pickle
 from array import array
 import argparse
 from tensorflow import keras
-
+print("loaded packages")
 def parse_arguments():
     """Tool for easy argument calling in functions"""
     parser = argparse.ArgumentParser(
@@ -51,7 +54,9 @@ def parse_arguments():
     parser.add_argument(
         "--channel", default="tt", help="Name of channel to annotate.")
     parser.add_argument(
-        "--model_folder", default="/vols/cms/fjo18/Masters2021/D_Models/Models3_TF/LSH_model_0.759_20220307_155115", help="Folder name where trained model is.") #change this
+        "--model_folder", default="/D_Models/Models3_TF/", help="Folder name where trained model is.") #change this
+    parser.add_argument(
+        "--model_name", default="LSH_model_0.759_20220307_155115", help="Name of trained model is.") #change this
     parser.add_argument(
         "--era", default="", help="Year to use.")
     parser.add_argument(
@@ -86,9 +91,15 @@ def main(args):#, config):
     response_scores_2 = array("f", [0,0,0])
     branch_scores_2 = tree.Branch("{}_scores_2".format(
         args.tag), response_scores_2, "{}_scores_2/F".format(args.tag))
-        
+    
+    model_object = hep_model("/vols/cms/fjo18/Masters2021/", "/vols/cms/fjo18/Masters2021/", args.model_folder, args.model_name)
+    model_object.create_featuredesc()
+    model_object.load_model()
+
+
     # Run the event loop
     for i_event in range(tree.GetEntries()):
+        print(i_event)
         tree.GetEntry(i_event)
         
         # Get event number and compute response
@@ -111,22 +122,36 @@ def main(args):#, config):
         # jesmond.modify_dataframe_se(newdf)
         jesmond.modify_dataframe_se(jesmond.df_full)
         jesmond.modify_dataframe_se(jesmond2.df_full)
-        # print("got this far")
+        # print("got this far") PENISPENIS
         imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=True)
         imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full, one_event=True)
         # print(jesmond.df_full)
         #jesmond.clear_dataframe()          
-        test1 = jesmond.generate_datasets_anal_2(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
-        test2 = jesmond.generate_datasets_anal_2(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
-    
-        print(test1)
+        #test1 = jesmond.generate_datasets_anal_2(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
+        #test2 = jesmond.generate_datasets_anal_2(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
+        #print(test1)
         # print(test1.take(1)["hl"])
         #load our model
-        model = keras.models.load_model(args.model_folder)
-            
-        response_scores_1 = model.predict(test1) #have to properly feed the whole event with the images #.predict_prova?
-        response_scores_2 = model.predict(test2)
-            
+
+        # model = keras.models.load_model(args.model_folder)
+        
+        # jesmond.generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
+        # response_scores_1 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
+
+        raw_ds = jesmond.generate_datasets_anal_4(jesmond.df_full, imvar_jesmond, args.savepath)
+        # print(raw_ds)
+        response_scores_1 = model_object.analyse_event_from_raw(raw_ds)
+        raw_ds = jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
+        response_scores_2 = model_object.analyse_event_from_raw(raw_ds)
+
+        # response_scores_1 = model.predict(args.savepath+"/dm.tfrecords") #have to properly feed the whole event with the images #.predict_prova?
+        # jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
+        # response_scores_2 = model.predict(args.savepath+"/dm.tfrecords")
+        # response_scores_2 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
+
+        print(response_scores_1)
+        #response_scores_1 = model.predict(test1)
+        #response_scores_2 = model.predict(test2)
         # Fill branches
         branch_scores_1.Fill()
         branch_scores_2.Fill()

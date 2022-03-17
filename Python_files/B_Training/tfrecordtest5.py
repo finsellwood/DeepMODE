@@ -52,13 +52,15 @@ modeflag = 1
 onehot_flag = [0,0,0,0,0,0]
 onehot_flag[modeflag] = 1
 with tf.io.TFRecordWriter(filename_hl) as writer:
-  for a in range(10000):
+  for a in range(1):
     event_dict = {}
     event_dict["hl"] = tf.train.Feature(float_list=tf.train.FloatList(value=npa[a].flatten()))
     event_dict["large_image"] = tf.train.Feature(int64_list=tf.train.Int64List(value=l_im_test[a].flatten()))
     event_dict["small_image"] = tf.train.Feature(int64_list=tf.train.Int64List(value=s_im_test[a].flatten()))
     event_dict["flag"] = tf.train.Feature(int64_list=tf.train.Int64List(value=onehot_flag))
     example = tf.train.Example(features=tf.train.Features(feature=event_dict))
+    # print(example)
+    print(event_dict["hl"])
     writer.write(example.SerializeToString())
 
 

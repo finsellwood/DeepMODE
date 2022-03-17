@@ -1,3 +1,4 @@
+from curses import raw
 from pyexpat import model
 import pandas as pd
 import numpy as np
@@ -366,6 +367,12 @@ class hep_model(parameter_parser):
 
         self.loaded_data = True
 
+    def load_single_tf_event(self, filename):
+        raw_dataset = tf.data.TFRecordDataset([filename])
+        full_dataset = raw_dataset.map(self.parse_function_full).batch(1)
+        return full_dataset
+        
+
     def check_dataset_length(self):
         print("Train dataset is " + str(len(list(self.train_batch))))
         print("Test dataset is " + str(len(list(self.test_batch))))
@@ -555,7 +562,11 @@ class hep_model(parameter_parser):
         semi_compressed =  list(self.test_batch.map(lambda a,b: b).take(no_batches))
         self.y_test = np.concatenate([a["Outputs"].numpy() for a in semi_compressed])
 
-        ##make more genereal preduct for a given datawset
+    def predict_results_one_tf(self, dataset):
+        # for putting in pipeline, accepts a single-event dataset and returns the prediction as an array (?)s
+        return self.model.predict(dataset)
+      
+#         ##make more genereal preduct for a given datawset
 
     def predict_results_mva(self):
         # Rearranges the MVA dataframe based on the predicted mode
@@ -751,7 +762,7 @@ class hep_model(parameter_parser):
         else:
             print('plotting')
             no_modes_hold = self.no_modes
-            self.no_modes = 3
+            # self.no_modes = 3
             fig2, ax2 = plt.subplots(1,self.no_modes)
             fig2.set_size_inches(12,4)
             labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$', r'$3\pi^{\pm}$', r'$3\pi^{\pm} \pi^0$', 'other']
@@ -835,7 +846,46 @@ class hep_model(parameter_parser):
         self.calc_roc_values(roc_mva=False)
         self.plot_one_roc_curve(self.fpr, self.tpr, self.roc_auc, one_roc_graph, False)
 
+    def plot_prob_hist(self):
+        prediction = self.prediction
+        flag = self.y_test.argmax(axis=1)
+        mode_probs_all = [prediction[:,a] for a in range(self.no_modes)]
+        mode_probs = [[],[],[],[],[],[]]
+        for a in range(len(prediction)):
+            index = flag[a]
+            mode_probs[index].append(prediction[a][index])
+        fig, ax = plt.subplots(1,self.no_modes)
+        for a in range(self.no_modes):
+            ax[a].hist(mode_probs_all[a], bins = 30)
+            ax[a].hist(mode_probs[a], bins = 30)
+            
+            # print(mode_probs[a])
+        plt.savefig(self.model_path + '_hist' + '.png', dpi = 500)
 
+    def plot_prob_hist_multi(self):
+        prediction = self.prediction
+        flag = self.y_test.argmax(axis=1)
+        mode_probs_all = [prediction[:,a] for a in range(self.no_modes)]
+        mode_probs = [[],[],[],[],[],[]]
+        for a in range(len(prediction)):
+            index = flag[a]
+            mode_probs[index].append(prediction[a][index])
+        fig, ax = plt.subplots(2,self.no_modes)
+        histograms_all = []
+        histograms = []
+        inv_hists = []
+        for a in range(self.no_modes):
+            hist1, _ = np.histogram(mode_probs_all[a], range = (0,1), bins = 30)
+            hist2, _ = np.histogram(mode_probs[a], range = (0,1), bins = 30)
+            histograms_all.append(hist1)
+            histograms.append(hist2)
+            inv_hists.append(hist1 - hist2)
+                # print(mode_probs[a])
+        for a in range(self.no_modes):
+            ax[0][a].hist(np.linspace(0,1,30), weights=histograms_all[a],bins=30)
+            ax[0][a].hist(np.linspace(0,1,30), weights=histograms[a],bins=30)
+            ax[1][a].hist(np.linspace(0,1,30), weights=inv_hists[a],bins=30)
+        plt.savefig(self.model_path + '_hist' + '.png', dpi = 500)
     ### META COMMANDS ###
 
     def do_your_thing(self):
@@ -892,7 +942,32 @@ class hep_model(parameter_parser):
         self.plot_timeline()
         self.plot_confusion_matrices()
         self.plot_roc_curves()
+        self.plot_prob_hist()
 
+    def analyse_event(self, filename = None):
+        # accepts location of tfrecord, returns prediction
+        raw_dataset = tf.data.TFRecordDataset([filename])
+        full_dataset = raw_dataset.map(self.parse_function_full).batch(1)
+        return self.model.predict(full_dataset)
+
+    def decode_fn(self, record_bytes):
+        return tf.io.parse_example(
+            # Data
+            record_bytes,
+
+            # Schema
+            self.feature_description
+        )
+
+    def analyse_event_from_raw(self, raw_data):
+        # accepts raw dataset, returns prediction
+        raw_tensor = tf.data.Dataset.from_tensor_slices([tf.constant(raw_data)])
+        # to use .map and .batch, raw_tensor must first be a DATASET, not simply a tensor string
+        # square brackets necessary to convince tf that it's a list of elements rather than just one
+        parsed_tensor = raw_tensor.map(self.parse_function_full).batch(1)#self.parse_function_full(raw_tensor).batch(1)
+        # parse the tensors inside of raw_tensor, so they still have dataset superstructure
+        print(repr(parsed_tensor))
+        return self.model.predict(parsed_tensor)
 
 
 # jez = hep_model(pfaramdict, rootpath_load, rootpath_save)
