@@ -102,18 +102,25 @@ def main(args):#, config):
         jesmond.load_single_event(i_event,1) #change this in the pipeline so its flexible and takes from loadpath
         # jesmond.load_single_event(i) #have to run once for VBF and once for GluGlu
         jesmond2.load_single_event(i_event,2)
-    
+        # for index,row in jesmond.df_full.iterrows():
+        #     print(row["pi0_E_2"])
+        # print(jesmond.df_full["pi0_E_2"])
+        # print(jesmond2.df_full.head(1))
+        #print(jesmond.df_full.head())
         #do preprocessing
-        jesmond.split_full_by_dm(jesmond.df_full)
-        jesmond.split_full_by_dm(jesmond2.df_full)
-        jesmond.modify_dataframe(jesmond.df_full)
-        jesmond.modify_dataframe(jesmond2.df_full)
-        imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full)
-        imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full)
+        # jesmond.modify_dataframe_se(newdf)
+        jesmond.modify_dataframe_se(jesmond.df_full)
+        jesmond.modify_dataframe_se(jesmond2.df_full)
+        # print("got this far")
+        imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=True)
+        imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full, one_event=True)
+        # print(jesmond.df_full)
         #jesmond.clear_dataframe()          
-        test1 = jesmond.generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
-        test2 = jesmond.generate_datasets_anal(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
+        test1 = jesmond.generate_datasets_anal_2(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
+        test2 = jesmond.generate_datasets_anal_2(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
     
+        print(test1)
+        # print(test1.take(1)["hl"])
         #load our model
         model = keras.models.load_model(args.model_folder)
             

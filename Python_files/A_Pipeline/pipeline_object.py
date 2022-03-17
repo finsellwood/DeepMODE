@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import ROOT
-from sklearn.datasets import load_diabetes
 import root_numpy as rnp
 import vector
 import awkward as ak
@@ -145,21 +144,70 @@ class pipeline(feature_name_object):
         #file should not be hardcoded - pass from yaml
         file_ = ROOT.TFile(self.load_path + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
         tree = file_.Get("ntuple") #do GluGlu and VBF separately
-        decay = tree.GetVal(event)
-        print(decay)
+        tree.GetEntry(event)
+        arr = {}
+        self.df_full = pd.Series(dtype=float)
         if which == 1:
-            arr = rnp.tree2array(decay,branches=self.variables_tt_1)
+            for i in self.variables_tt_1:
+                #arr[i] = np.array(getattr(tree, i))
+                # self.df_full[i] = [np.array(getattr(tree, i))]
+                # self.df_full[i] = np.asarray(getattr(tree, i)).astype(float)
+                arr[i] = np.asarray(getattr(tree, i)).astype(float)
         elif which == 2:
-            arr = rnp.tree2array(decay,branches=self.variables_tt_2)
+            for i in self.variables_tt_2:
+                #arr[i] = np.array(getattr(tree, i))
+                # self.df_full[i] = [np.array(getattr(tree, i))]
+                # self.df_full[i] = np.asarray(getattr(tree, i)).astype(float)
+                arr[i] = np.asarray(getattr(tree, i)).astype(float)
         else: raise Exception("Incorrect tau label: can be either 1 or 2") 
         print("converting to dfs")
-        df = pd.DataFrame(arr)
+        # print(self.df_full["gam_px_1"])
+        # print(self.df_full.head())
+        #df = pd.DataFrame(arr, index[0])
         # rename axes to the same as variables 2
         if which == 1: 
-            df.set_axis(self.variables_tt_2, axis=1, inplace=True)
+            # self.df_full.set_axis(self.variables_tt_2, axis=1, inplace=True)
+            # self.df_full.set_axis(self.variables_tt_2, inplace=True)
+            for a in range(len(self.variables_tt_2)):
+                arr[self.variables_tt_2[a]] = arr.pop(self.variables_tt_1[a])
         else: 
             pass
-        self.df_full = df 
+        # print(self.df_full[self.pi0_2_4mom])
+        # self.df_full = self.df_full.to_frame().T
+        # print(self.df_full.head())
+        self.df_full = arr
+        
+    def load_single_event2(self, event):
+        #file should not be hardcoded - pass from yaml
+        file_ = ROOT.TFile(self.load_path + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+        tree = file_.Get("ntuple") #do GluGlu and VBF separately
+        tree.GetEntry(event)
+        arr1 = {}
+        arr2 = {}
+        self.df_full = pd.Series(dtype=float)
+        for i in self.variables_tt_1:
+            #arr[i] = np.array(getattr(tree, i))
+            # self.df_full[i] = [np.array(getattr(tree, i))]
+            # self.df_full[i] = np.asarray(getattr(tree, i)).astype(float)
+            arr1[i] = np.asarray(getattr(tree, i)).astype(float)
+        for i in self.variables_tt_2:
+            #arr[i] = np.array(getattr(tree, i))
+            # self.df_full[i] = [np.array(getattr(tree, i))]
+            # self.df_full[i] = np.asarray(getattr(tree, i)).astype(float)
+            arr2[i] = np.asarray(getattr(tree, i)).astype(float)
+        # print(self.df_full["gam_px_1"])
+        # print(self.df_full.head())
+        #df = pd.DataFrame(arr, index[0])
+        # rename axes to the same as variables 2
+        for a in range(len(self.variables_tt_2)):
+            arr1[self.variables_tt_2[a]] = arr1.pop(self.variables_tt_1[a])
+        else: 
+            pass
+        df = pd.DataFrame([arr1,arr2])
+        # print(self.df_full[self.pi0_2_4mom])
+        # self.df_full = self.df_full.to_frame().T
+        # print(self.df_full.head())
+        self.df_full = df
         
     def load_hl_imvar(self, loadpath, hl_name, imvar_name):
         print("loading dataframes...")
@@ -236,6 +284,8 @@ class pipeline(feature_name_object):
                         py = dataframe[momvariablenames_1[2]],\
                         pz = dataframe[momvariablenames_1[3]],\
                         E = dataframe[momvariablenames_1[0]])
+        # print(momvect1)
+        print(dataframe[momvariablenames_1[0]])
         if momvariablenames_2 is not None:
             momvect2 = vector.obj(px = dataframe[momvariablenames_2[1]],\
                             py = dataframe[momvariablenames_2[2]],\
@@ -245,7 +295,8 @@ class pipeline(feature_name_object):
             name = "rho_mass"
         else:
             rho_vect = momvect1
-            name = "pi0_2mass"
+            name = "pi0_2mass"  
+        # print(rho_vect)
         dataframe[name] = rho_vect.mass
 
     def tau_eta(self, dataframe, momvariablenames_1):
@@ -283,13 +334,21 @@ class pipeline(feature_name_object):
             for b in range(1, len(self.fourmom_list[1])):   
                 dataframe[self.fourmom_list_colnames[a]] += dataframe[self.fourmom_list[a][b]].apply(lambda x: \
                     np.array([x]).flatten().tolist())
+
+    def get_fourmomenta_lists_se(self, dataframe):
+        for a in range(4):
+            dataframe[self.fourmom_list_colnames[a]] = np.array([dataframe[self.fourmom_list[a][0]]]).flatten().tolist()
+            for b in range(1, len(self.fourmom_list[1])):   
+                dataframe[self.fourmom_list_colnames[a]] += np.array([dataframe[self.fourmom_list[a][b]]]).flatten().tolist()
       # This method means that the final lists are flat (i.e. clusters/photons dont have a nested structure)
 
-    def phi_eta_find(self, dataframe):  
+    def phi_eta_find(self, dataframe, one_event = False):  
         # returns another dataframe
-        self.get_fourmomenta_lists(dataframe)
+        if one_event:
+            self.get_fourmomenta_lists_se(dataframe)
+        else:    
+            self.get_fourmomenta_lists(dataframe)
         # Call the function for retrieving lists of 4-mom first
-        output_dataframe = pd.DataFrame
         
         pi0vect = vector.obj(px = dataframe[self.pi0_2_4mom[1]],\
                             py = dataframe[self.pi0_2_4mom[2]],\
@@ -357,6 +416,20 @@ class pipeline(feature_name_object):
         for a in self.fourmom_list_colnames:
             dataframe.drop(columns = a, inplace = True)
 
+    def drop_variables_se(self, dictionary):
+        for a in self.measured4mom[4:]:
+            for b in a:
+                del dictionary[b]
+            # dictionary.pop(a)
+        for a in self.measured4mom[:4]:
+            for b in a[1:]:
+            # dictionary.pop(a[1:])
+                del dictionary[b]
+            # Keeps the energies for pi0, pi, pi2, pi3 as HL variables
+        for a in self.fourmom_list_colnames:
+            del dictionary[a]
+            # dictionary.pop(a)
+
     def drop_variables_2(self, dataframe):
         # for pre-dataset drop
         dataframe.drop(["tauFlag_2", 
@@ -365,6 +438,14 @@ class pipeline(feature_name_object):
                   "tau_px_2", "tau_py_2", "tau_pz_2",
             ], axis=1, inplace = True)
         dataframe.reset_index(drop=True, inplace=True)
+    
+    def drop_variables_2_se(self,dictionary):
+        to_drop = ["tauFlag_2", 
+                  "gam1_px_2", "gam1_py_2", "gam1_pz_2", "gam1_E_2",
+                  "gam2_px_2", "gam2_py_2", "gam2_pz_2", "gam2_E_2",
+                  "tau_px_2", "tau_py_2", "tau_pz_2",]
+        for a in to_drop:
+            del dictionary[a]
   
     def create_featuredesc(self, dataframe):
         # Creates feature descriptions for tfrecord datasets
@@ -419,7 +500,7 @@ class pipeline(feature_name_object):
         etas = np.array(row["rot_eta"])
         energies = row["frac_energies"]
         momenta = row["frac_momenta"]
-        photon_num = row["n_gammas_2"]
+        photon_num = int(row["n_gammas_2"]) #single_event anal addition, hopefully doesn't break
 
         phicoords =  [max(min(a, 20), 0) for a in np.floor((phis/1.21) * dim1 + halfdim1).astype(int)]
         etacoords =  [max(min(a, 20), 0) for a in np.floor(-1 * (etas/1.21) * dim1 + halfdim1).astype(int)]
@@ -475,12 +556,34 @@ class pipeline(feature_name_object):
         self.ang_var(dataframe, self.pi0_2_4mom, self.pi_2_4mom, "pi")
         # NOTE THIS IS BETWEEN PI0 AND PI - IS THIS CORRECT?
 
-    def create_imvar_dataframe(self, dataframe):
+    def modify_dataframe_se(self, dataframe):
+        # ACCEPTS DICTIONARY NOT DATAFRAME
+        print("energyfinder")
+        self.energyfinder_2(dataframe, self.gam_2_3mom)
+        self.energyfinder_2(dataframe, self.cl_2_3mom)
+        print("calc mass")
+        self.calc_mass(dataframe, self.pi0_2_4mom) # calc pi0 mass
+        self.calc_mass(dataframe, self.pi_2_4mom, self.pi0_2_4mom) # calc rho mass
+        print("frac features")
+        dataframe["E_gam/E_tau"] = dataframe["gam1_E_2"]/dataframe["tau_E_2"] #Egamma/Etau
+        dataframe["E_pi/E_tau"] = dataframe["pi_E_2"]/dataframe["tau_E_2"] #Epi/Etau
+        dataframe["E_pi0/E_tau"] = dataframe["pi0_E_2"]/dataframe["tau_E_2"] #Epi0/Etau
+        print("ang features")
+        # self.df_full = pd.DataFrame.from_dict(self.df_full, orient="index").T
+        self.tau_eta(dataframe, self.tau_2_4mom) # calc tau eta value
+        self.ang_var(dataframe, self.gam1_2_4mom, self.gam2_2_4mom, "gam")
+        self.ang_var(dataframe, self.pi0_2_4mom, self.pi_2_4mom, "pi")
+        # NOTE THIS IS BETWEEN PI0 AND PI - IS THIS CORRECT?
+
+    def create_imvar_dataframe(self, dataframe, one_event = False):
         print("generating coordinates")
-        output_df = self.phi_eta_find(dataframe)
+        output_df = self.phi_eta_find(dataframe, one_event)
         print("rotating coordinates")
         self.rotate_dataframe(output_df)
-        self.drop_variables(dataframe)
+        if one_event:
+            self.drop_variables_se(dataframe)
+        else:
+            self.drop_variables(dataframe)
         return output_df
 
     def clear_dataframe(self):
@@ -564,22 +667,30 @@ class pipeline(feature_name_object):
             f.write(str(length))
         print("done")
 
-    def generate_datasets_anal(self, dataframe, imvar_dataframe, tfrecordpath, modeflag):        
+    def generate_datasets_anal(self, dataframe, imvar_dataframe, tfrecordpath):        
         # needs to create the grid for each event, populate it, add to full tensor for event and save
         # per event
-        onehot_flag = [0,0,0,0,0,0]
-        onehot_flag[modeflag] = 1
         # 0) drop unwanted columns from HL
-        self.drop_variables_2(dataframe)
+        self.drop_variables_2_se(dataframe)
         # 1) create dictionaries for tfrecords
-        self.create_featuredesc2(dataframe)
-        path = tfrecordpath + "/dm%s_3in.tfrecords" % index
-        length = self.calc_no_events(dataframe)
+        # self.create_featuredesc2(dataframe)
+        # path = tfrecordpath + "/dm%s_3in.tfrecords" % index
+        length = 1 # self.calc_no_events(dataframe)
         # 2) convert df to numpy, reset indices on imvar_df
+        dataframe = pd.DataFrame(dataframe, index=[0])
+        # print(dataframe)
         npa = dataframe.to_numpy()
+        # print(npa[0])
         imvar_dataframe.reset_index(drop=True, inplace=True)
         fulllen = imvar_dataframe.shape[0]
         del dataframe
+
+        imvar_dataframe = (imvar_dataframe.groupby(["n_gammas_2"]\
+            ).agg({'frac_energies': lambda x: x.tolist(),\
+                'frac_momenta': lambda x: x.tolist(),'rot_phi':\
+                    lambda x: x.tolist(),'rot_eta': lambda x: \
+                        x.tolist()}).reset_index())
+        print(imvar_dataframe)
         for a, row in imvar_dataframe.iterrows():
             print(a/fulllen)
             event_dict = {}
@@ -592,11 +703,56 @@ class pipeline(feature_name_object):
                 tf.train.Int64List(value=grid1.flatten()))
             event_dict["small_image"] = tf.train.Feature(int64_list=\
                 tf.train.Int64List(value=grid2.flatten()))
-            event_dict["Outputs"] = tf.train.Feature(int64_list=\
-                    tf.train.Int64List(value=onehot_flag))
             example = tf.train.Example(features=tf.train.Features(feature=event_dict))
-            # print(example)
+        # print(example)
         return example
+
+    def generate_datasets_anal_2(self, dataframe, imvar_dataframe, tfrecordpath):        
+        # needs to create the grid for each event, populate it, add to full tensor for event and save
+        # per event
+        # 0) drop unwanted columns from HL
+        self.drop_variables_2_se(dataframe)
+        # 1) create dictionaries for tfrecords
+        # self.create_featuredesc2(dataframe)
+        # path = tfrecordpath + "/dm%s_3in.tfrecords" % index
+        length = 1 # self.calc_no_events(dataframe)
+        # 2) convert df to numpy, reset indices on imvar_df
+        dataframe = pd.DataFrame(dataframe, index=[0])
+        # print(dataframe)
+        npa = dataframe.to_numpy()
+        # print(npa[0])
+        imvar_dataframe.reset_index(drop=True, inplace=True)
+        fulllen = imvar_dataframe.shape[0]
+        del dataframe
+
+        imvar_dataframe = (imvar_dataframe.groupby(["n_gammas_2"]\
+            ).agg({'frac_energies': lambda x: x.tolist(),\
+                'frac_momenta': lambda x: x.tolist(),'rot_phi':\
+                    lambda x: x.tolist(),'rot_eta': lambda x: \
+                        x.tolist()}).reset_index())
+        print(imvar_dataframe)
+        for a, row in imvar_dataframe.iterrows():
+            print(a/fulllen)
+            # feature_hl = tf.train.Feature(float_list=\
+            #     tf.train.FloatList(value=npa[a].flatten()))
+            feature_hl = npa[a].flatten()
+            # function for creating grids with a dataframe row
+            (grid1, grid2) = self.generate_grids(row, 21, 11)
+
+            # feature_l = tf.train.Feature(int64_list=\
+            #     tf.train.Int64List(value=grid1.flatten()))
+            feature_l = grid1.flatten()
+            # feature_s = tf.train.Feature(int64_list=\
+            #     tf.train.Int64List(value=grid2.flatten()))
+            feature_s = grid2.flatten()
+            ex_hl =  tf.data.Dataset.from_tensor_slices(feature_hl, name="hl")
+            ex_l =  tf.data.Dataset.from_tensor_slices(feature_l, name="large_image")
+            ex_s =  tf.data.Dataset.from_tensor_slices(feature_s, name="small_image")
+            ex_full = {"hl":ex_hl, "large_image":ex_l, "small_image":ex_s}# tf.data.Dataset.zip((ex_hl, ex_l, ex_s))
+            # example = tf.data.Dataset.from_tensor_slices((feature_hl, feature_l, feature_s))#, name = ("hl", "large_image", "small_image"))
+
+        # print(example)
+        return ex_full
 
     def modify_by_decay_mode(self):
         for a in range(len(self.df_dm)):

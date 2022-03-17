@@ -99,6 +99,7 @@ class hep_model(parameter_parser):
         self.calculated_roc_values = False
         self.calculated_roc_values_mva = False
         self.model_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        print("model datetime is " + str(self.model_datetime))
         self.model_accuracy = 0.0
         self.created_featuredescs = False
 
@@ -515,7 +516,7 @@ class hep_model(parameter_parser):
 
         self.early_stop = EarlyStopping(monitor = 'val_loss', patience = self.stop_patience)
         self.history = History()
-        self.checkpoint_filepath = self.save_path + "/Checkpoints/checkpoint"
+        self.checkpoint_filepath = self.save_path + "/Checkpoints/checkpoint" + str(self.model_datetime)
         self.model_checkpoint = ModelCheckpoint(filepath = self.checkpoint_filepath, monitor = "val_loss", mode = "min",\
         verbose = 0, save_best_only = True, save_weights_only = True)
 
@@ -553,6 +554,8 @@ class hep_model(parameter_parser):
         self.y_pred = (idx[:,None] == np.arange(self.no_modes)).astype(float)
         semi_compressed =  list(self.test_batch.map(lambda a,b: b).take(no_batches))
         self.y_test = np.concatenate([a["Outputs"].numpy() for a in semi_compressed])
+
+        ##make more genereal preduct for a given datawset
 
     def predict_results_mva(self):
         # Rearranges the MVA dataframe based on the predicted mode
@@ -592,7 +595,7 @@ class hep_model(parameter_parser):
     def load_from_checkpoint(self):
         if self.model_built == False:
             raise Exception("Need a blank model to load checkpoints onto")
-        self.checkpoint_filepath = self.save_path + "/Checkpoints/checkpoint"
+        self.checkpoint_filepath = self.save_path + "/Checkpoints/checkpoint" + self.model_datetime
         self.model.load_weights(self.checkpoint_filepath)
     
     def unreaper(self):

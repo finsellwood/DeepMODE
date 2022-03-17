@@ -1,4 +1,4 @@
-from model_object import parameter_parser, hep_model
+from model_object import *
 rootpath_load = "/vols/cms/fjo18/Masters2021"
 rootpath_save = "/vols/cms/fjo18/Masters2021"
 
@@ -18,10 +18,8 @@ Filenames_3in = [ rootpath_save + '/E_TFRecords/dm%s_3in.tfrecords' % a for a in
 # Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
 Weights = [0.0,1.0,1.0,0.0,0.0,1.0]
 # Weights = [0.0,0.0,0.0,1.0,1.0,1.0]
-
-
-#Weights = Weights[0]
 jez = hep_model(rootpath_load, rootpath_save, default_filepath, model_name)
-jez.prep_for_analysis_tf(Filenames_3in, Weights, True, 50, 1000)
-jez.produce_graphs()
+jez.load_tf_model(Filenames_3in, Weights, True, 50, 1000)
 
+for element in jez.test_inputs.take(1):
+    print(element)
