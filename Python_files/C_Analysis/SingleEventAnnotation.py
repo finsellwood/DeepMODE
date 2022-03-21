@@ -56,7 +56,9 @@ def parse_arguments():
     parser.add_argument(
         "--model_folder", default="/D_Models/Models3_TF/", help="Folder name where trained model is.") #change this
     parser.add_argument(
-        "--model_name", default="LSH_model_0.759_20220307_155115", help="Name of trained model is.") #change this
+        "--models", type=str, nargs="+",
+         default=["LSH_model_0.759_20220307_155115", "LSH_model_0.852_20220315_160854"], 
+         help="Names of trained models") #last changed 21.03.2022
     parser.add_argument(
         "--era", default="", help="Year to use.")
     parser.add_argument(
@@ -84,22 +86,65 @@ def main(args):#, config):
     tree = file_.Get(args.tree)
     
     #Book branches for annotation
-    response_scores_1 = array("f", [0,0,0]) #want array instead of float - troubles??
-    branch_scores_1 = tree.Branch("{}_scores_1".format(
-        args.tag), response_scores_1, "{}_scores_1/F".format(args.tag))
+    response_0_scores_1 = array("f", [-9999]) 
+    branch_0_scores_1 = tree.Branch("{}_score_1".format(
+            0), response_0_scores_1, "{}_score_1/F".format(0))
     
-    response_scores_2 = array("f", [0,0,0])
-    branch_scores_2 = tree.Branch("{}_scores_2".format(
-        args.tag), response_scores_2, "{}_scores_2/F".format(args.tag))
+    response_0_scores_2 = array("f", [-9999])
+    branch_0_scores_2 = tree.Branch("{}_score_2".format(
+        0), response_0_scores_2, "{}_score_2/F".format(0))
     
-    model_object = hep_model("/vols/cms/fjo18/Masters2021/", "/vols/cms/fjo18/Masters2021/", args.model_folder, args.model_name)
+    response_1_scores_1 = array("f", [-9999]) 
+    branch_1_scores_1 = tree.Branch("{}_score_1".format(
+            1), response_1_scores_1, "{}_score_1/F".format(1))
+    
+    response_1_scores_2 = array("f", [-9999])
+    branch_1_scores_2 = tree.Branch("{}_score_2".format(
+        1), response_1_scores_2, "{}_score_2/F".format(1))
+    
+    response_2_scores_1 = array("f", [-9999]) 
+    branch_2_scores_1 = tree.Branch("{}_score_1".format(
+            2), response_2_scores_1, "{}_score_1/F".format(2))
+    
+    response_2_scores_2 = array("f", [-9999])
+    branch_2_scores_2 = tree.Branch("{}_score_2".format(
+        2), response_2_scores_2, "{}_score_2/F".format(2))
+
+    response_10_scores_1 = array("f", [-9999]) 
+    branch_10_scores_1 = tree.Branch("{}_score_1".format(
+            10), response_10_scores_1, "{}_score_1/F".format(10))
+    
+    response_10_scores_2 = array("f", [-9999])
+    branch_10_scores_2 = tree.Branch("{}_score_2".format(
+        10), response_10_scores_2, "{}_score_2/F".format(10))
+
+    response_11_scores_1 = array("f", [-9999]) 
+    branch_11_scores_1 = tree.Branch("{}_score_1".format(
+            11), response_11_scores_1, "{}_score_1/F".format(11))
+    
+    response_11_scores_2 = array("f", [-9999])
+    branch_11_scores_2 = tree.Branch("{}_score_2".format(
+        11), response_11_scores_2, "{}_score_2/F".format(11))
+
+    response_other_scores_1 = array("f", [-9999]) 
+    branch_other_scores_1 = tree.Branch("{}_score_1".format(
+            "other"), response_other_scores_1, "{}_score_1/F".format("other"))
+    
+    response_other_scores_2 = array("f", [-9999])
+    branch_other_scores_2 = tree.Branch("{}_score_2".format(
+        "other"), response_other_scores_2, "{}_score_2/F".format("other"))
+    
+    model_object = hep_model("/vols/cms/fjo18/Masters2021/", "/vols/cms/fjo18/Masters2021/", args.model_folder, args.models[0])
     model_object.create_featuredesc()
     model_object.load_model()
 
+    model_object2 = hep_model("/vols/cms/fjo18/Masters2021/", "/vols/cms/fjo18/Masters2021/", args.model_folder, args.models[1])
+    model_object2.create_featuredesc()
+    model_object2.load_model()
 
     # Run the event loop
-    for i_event in range(tree.GetEntries()):
-        print(i_event)
+    for i_event in range(100,200):
+        #print(i_event)
         tree.GetEntry(i_event)
         
         # Get event number and compute response
@@ -137,25 +182,80 @@ def main(args):#, config):
         
         # jesmond.generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
         # response_scores_1 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
-
         raw_ds = jesmond.generate_datasets_anal_4(jesmond.df_full, imvar_jesmond, args.savepath)
         # print(raw_ds)
-        response_scores_1 = model_object.analyse_event_from_raw(raw_ds)
+        if int(getattr(tree, "tau_decay_mode_1"))<10:
+            response_1 = model_object.analyse_event_from_raw(raw_ds)
+        else: 
+            response_1 = model_object2.analyse_event_from_raw(raw_ds)
+
         raw_ds = jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
-        response_scores_2 = model_object.analyse_event_from_raw(raw_ds)
+        if int(getattr(tree, "tau_decay_mode_1"))<10:
+            response_2 = model_object.analyse_event_from_raw(raw_ds)
+        else: 
+            response_2 = model_object2.analyse_event_from_raw(raw_ds)
+        response_2 = model_object.analyse_event_from_raw(raw_ds)
+
+        response_0_scores_1[0] = response_1[0][0]
+        response_0_scores_2[0] = response_2[0][0] 
+        response_1_scores_1[0] = response_1[0][1]
+        response_1_scores_2[0] = response_2[0][1] 
+        response_2_scores_1[0] = response_1[0][2]
+        response_2_scores_2[0] = response_2[0][2] 
+        response_10_scores_1[0] = response_1[0][3]
+        response_10_scores_2[0] = response_2[0][3] 
+        response_11_scores_1[0] = response_1[0][4]
+        response_11_scores_2[0] = response_2[0][4] 
+        response_other_scores_1[0] = response_1[0][5]
+        response_other_scores_2[0] = response_2[0][5] 
 
         # response_scores_1 = model.predict(args.savepath+"/dm.tfrecords") #have to properly feed the whole event with the images #.predict_prova?
         # jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
         # response_scores_2 = model.predict(args.savepath+"/dm.tfrecords")
         # response_scores_2 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
 
-        print(response_scores_1)
+        max_1 = max([response_0_scores_1,response_1_scores_1,response_2_scores_1,response_10_scores_1,response_11_scores_1])
+        max_2 = max([response_0_scores_2,response_1_scores_2,response_2_scores_2,response_10_scores_2,response_11_scores_2])
+        if max_1 == response_0_scores_1:
+            indicator1 = 0
+        elif max_1 == response_1_scores_1:
+            indicator1 = 1
+        elif max_1 == response_2_scores_1:
+            indicator1 = 2
+        elif max_1 == response_10_scores_1:
+            indicator1 == 10
+        elif max_1 == response_11_scores_1:
+            indicator1 == 11
+        else: indicator1 = -1
+        print(indicator1 == tree.tauFlag_1)
+        
+        if max_2 == response_0_scores_2:
+            indicator2 = 0
+        elif max_2 == response_1_scores_2:
+            indicator2 = 1
+        elif max_2 == response_2_scores_2:
+            indicator2 = 2
+        elif max_2 == response_10_scores_2:
+            indicator2 == 10
+        elif max_2 == response_11_scores_2:
+            indicator2 == 11
+        else: indicator2 == -1
+        print(indicator2 == tree.tauFlag_2)
         #response_scores_1 = model.predict(test1)
         #response_scores_2 = model.predict(test2)
         # Fill branches
-        branch_scores_1.Fill()
-        branch_scores_2.Fill()
- 
+        branch_0_scores_1.Fill()
+        branch_0_scores_2.Fill()
+        branch_1_scores_1.Fill()
+        branch_1_scores_2.Fill()
+        branch_2_scores_1.Fill()
+        branch_2_scores_2.Fill()
+        branch_10_scores_1.Fill()
+        branch_10_scores_2.Fill()
+        branch_11_scores_1.Fill()
+        branch_11_scores_2.Fill()
+        branch_other_scores_1.Fill()
+        branch_other_scores_2.Fill()
 
     logger.debug("Finished looping over events")
 

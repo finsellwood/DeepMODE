@@ -14,9 +14,9 @@ default_filepath = "/D_Models/Models3_TF/"
 # model_name = "/LSH_model_0.870_20220316_193352"
 # model_name = "/LSH_model_0.784_20220318_154351" #all prongs, no other
 # model_name = "/LSH_model_0.758_20220318_171635" # 1pr only, no other, complex network
-# model_name = "/LSH_model_0.895_20220319_141905" #1pr only with rho and a1 same flag
-model_name = "/LSH_model_0.822_20220319_162507" #1pr but pi and rho have same flag
-print(model_name)
+model_name = "/LSH_model_0.895_20220319_141905" #1pr only with rho and a1 same flag
+model_name_2 = "/LSH_model_0.822_20220319_162507" #1pr but pi and rho have same flag
+print(model_name, model_name_2)
 # Filenames = [ rootpath_save + '/E_TFRecords/dm%s.tfrecords' % a for a in range(6)]
 Filenames_3in = [ rootpath_save + '/E_TFRecords/dm%s_3in.tfrecords' % a for a in range(6)]
 #Filenames_3in = Filenames_3in[0]
@@ -29,10 +29,15 @@ Weights = [1.0,1.0,1.0,0.0,0.0,0.0]
 
 # Weights = [0.0,0.0,0.0,1.0,1.0,1.0]
 
-
+No_batches = 1
 #Weights = Weights[0]
 jez = hep_model(rootpath_load, rootpath_save, default_filepath, model_name)
-jez.prep_for_analysis_tf(Filenames_3in, Weights, True, 100, 1000, new_flags = True)
+jez.load_tf_model(Filenames_3in, Weights, True, No_batches, 1000, new_flags = False)
+mez = hep_model(rootpath_load, rootpath_save, default_filepath, model_name_2)
+mez.load_model()
+# don't need to load in tensors for mez as it's being tested on jez's
+jez.analyse_multi_model_tf(mez, No_batches)
+# jez.prep_for_analysis_tf(Filenames_3in, Weights, True, 100, 1000, new_flags = True)
 jez.no_modes = 3
 jez.produce_graphs()
 

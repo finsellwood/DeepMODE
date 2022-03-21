@@ -267,6 +267,7 @@ class hep_model(parameter_parser):
         # Parse the input `tf.train.Example` proto using the dictionary above.
         parsed = tf.io.parse_example(example_proto, self.fd_flag)
         return parsed
+
     def parse_function_im_l(self, example_proto):
         # Parse the input `tf.train.Example` proto using the dictionary above.
         parsed = tf.io.parse_example(example_proto, self.fd_im_l)
@@ -285,8 +286,8 @@ class hep_model(parameter_parser):
         # parsed["large_image"] = tf.sparse.reshape(self.sparse_remove(parsed["large_image"]), shape=(21,21,7))
         # parsed["small_image"] = tf.sparse.reshape(self.sparse_remove(parsed["small_image"]), shape=(11,11,7))
         return parsed
-    
-    def load_tfrecords(self, filenames, weights, use_as_mask, one_tensor = True):
+
+    def load_tfrecords(self, filenames, weights, use_as_mask, one_tensor = True, new_flags = False):
         # Load in tfrecrod files and apply manipulations 
         if self.created_featuredescs == False:
             raise Exception("Feature descriptions must be created first")
@@ -294,7 +295,15 @@ class hep_model(parameter_parser):
         for a in range(len(filenames)):
             raw_datasets.append(tf.data.TFRecordDataset([filenames[a]]))
 
-        flag_datasets = [a.map(self.parse_function_flag) for a in raw_datasets]
+        self.flag_datasets = [a.map(self.parse_function_flag) for a in raw_datasets]
+        if new_flags:
+            # self.flag_datasets = [a.map(lambda a:{"Outputs": [a["Outputs"][0], a["Outputs"][1] + a["Outputs"][2]\
+            # , 0, a["Outputs"][3], a["Outputs"][4], a["Outputs"][5]] }) for a in self.flag_datasets]
+            # for pi, (rho and a1)
+            self.flag_datasets = [a.map(lambda a:{"Outputs": [a["Outputs"][0]+ a["Outputs"][1],0, a["Outputs"][2]\
+            , a["Outputs"][3], a["Outputs"][4], a["Outputs"][5]] }) for a in self.flag_datasets]
+            # for (pi and rho), a1
+            print("Flags redone")
 
         no_events = np.array([1271940, 2534458, 1122514, 1265396, 635299, 576278, ])
         # HARD CODED - CHANGE AT SOME POINT - inc in param file?
@@ -324,7 +333,7 @@ class hep_model(parameter_parser):
 
 
         sample_dataset_flag = tf.data.Dataset.sample_from_datasets(
-            flag_datasets, weights=self.mode_weights, seed=1234, stop_on_empty_dataset=True)
+            self.flag_datasets, weights=self.mode_weights, seed=1234, stop_on_empty_dataset=True)
         flag_train_dataset = sample_dataset_flag.take(self.train_size)
         flag_test_dataset = sample_dataset_flag.skip(self.train_size)
         # self.y_test = [element["Outputs"] for element in sample_dataset_flag.as_numpy_iterator()]
@@ -555,18 +564,60 @@ class hep_model(parameter_parser):
         self.y_pred = (idx[:,None] == np.arange(self.prediction.shape[1])).astype(float)
 
     def predict_results_tf(self, no_batches):
-        jez.no_batches = no_batches
+        self.no_batches = no_batches
         self.prediction = self.model.predict(self.test_batch.take(no_batches))
         idx = self.prediction.argmax(axis=1)
         self.y_pred = (idx[:,None] == np.arange(self.no_modes)).astype(float)
         semi_compressed =  list(self.test_batch.map(lambda a,b: b).take(no_batches))
         self.y_test = np.concatenate([a["Outputs"].numpy() for a in semi_compressed])
 
+    def predict_multi_results_tf(self, other, no_batches):
+        # predict results from two models, and gives you the cumulative scores in each case
+        # one model for pi vs all and one for all vs a1 (in that order)
+        # REQUIRE that the first model (pi vs all) is the object calling this function, or the order of decay modes is messed up
+        self.no_batches = no_batches
+        self.prediction = self.model.predict(self.test_batch.take(no_batches))
+        other.no_batches = no_batches
+        other.prediction = other.model.predict(self.test_batch.take(no_batches))
+
+        self.full_prediction = np.transpose(0.5 * np.array([self.prediction[:,0], self.prediction[:,1] + \
+            other.prediction[:,0], other.prediction[:,2], other.prediction[:, 3], other.prediction[:, 4], other.prediction[:, 5]]))
+
+        print(self.prediction, other.prediction, self.full_prediction)
+        idx = self.full_prediction.argmax(axis=1)
+        self.y_pred = (idx[:,None] == np.arange(self.no_modes)).astype(float)
+        semi_compressed =  list(self.test_batch.map(lambda a,b: b).take(no_batches))
+        self.y_test = np.concatenate([a["Outputs"].numpy() for a in semi_compressed])
+
+    def predict_multi_results_tf_2(self, other, no_batches):
+        # attempt no.2
+        self.no_batches = no_batches
+        self.prediction = self.model.predict(self.test_batch.take(no_batches))
+        other.no_batches = no_batches
+        other.prediction = other.model.predict(self.test_batch.take(no_batches))
+        idx_1 = self.prediction.argmax(axis=1)
+        idx_2 = other.prediction.argmax(axis=1)
+        y_pred_1 = (idx_1[:,None] == np.arange(self.no_modes)).astype(float)
+        y_pred_2 = (idx_2[:,None] == np.arange(self.no_modes)).astype(float)
+
+        self.y_pred = np.transpose(np.array([(y_pred_1[:,0] == 1) * 1, ((y_pred_1[:,1] + y_pred_2[:,0]) == 2)*1, \
+                           (y_pred_1[:,1] + y_pred_2[:,2] == 2) * 1, y_pred_2[:, 3], y_pred_2[:, 4], y_pred_2[:, 5]]))
+        # self.full_prediction = np.transpose(0.5 * np.array([self.prediction[:,0], self.prediction[:,1] + \
+        #     other.prediction[:,0], other.prediction[:,2], other.prediction[:, 3], other.prediction[:, 4], other.prediction[:, 5]]))
+
+        # print(self.prediction, other.prediction, self.full_prediction)
+        print(y_pred_1, y_pred_2, self.y_pred)
+        # idx = self.full_prediction.argmax(axis=1)
+        # self.y_pred = (idx[:,None] == np.arange(self.no_modes)).astype(float)
+        semi_compressed =  list(self.test_batch.map(lambda a,b: b).take(no_batches))
+        self.y_test = np.concatenate([a["Outputs"].numpy() for a in semi_compressed])
+
+
     def predict_results_one_tf(self, dataset):
         # for putting in pipeline, accepts a single-event dataset and returns the prediction as an array (?)s
         return self.model.predict(dataset)
       
-#         ##make more genereal preduct for a given datawset
+#        make more general predict for a given dataset
 
     def predict_results_mva(self):
         # Rearranges the MVA dataframe based on the predicted mode
@@ -590,7 +641,13 @@ class hep_model(parameter_parser):
         # loss_acc = self.model.evaluate(self.test_batch)
         # self.model_accuracy = loss_acc[1]
         # self.model_loss = loss_acc[0]
-        print(self.model_accuracy)
+
+    def analyse_multi_model_tf(self, other, no_batches):
+        # calculate scores from another model and compare them to generate a full set of scores
+        # used for when we have grouped decay modes i.e. (pi + rho) vs a1 or pi vs (rho + a1)
+        # NOTE: When loading in the data, do not group the flags
+        self.predict_multi_results_tf(other, no_batches)
+        self.model_accuracy = accuracy_score(self.y_test, self.y_pred)        
 
     def model_save(self, update_name: bool):
         # If loaded model from a file, don't want to rename or save in different place
@@ -764,7 +821,7 @@ class hep_model(parameter_parser):
             no_modes_hold = self.no_modes
             # self.no_modes = 3
             fig2, ax2 = plt.subplots(1,self.no_modes)
-            fig2.set_size_inches(12,4)
+            # fig2.set_size_inches(12,4)
             labellist = [r'$\pi^{\pm}$', r'$\pi^{\pm} \pi^0$', r'$\pi^{\pm} 2\pi^0$', r'$3\pi^{\pm}$', r'$3\pi^{\pm} \pi^0$', 'other']
             for i in range(self.no_modes):
                 ax2[i].plot(fpr1[i], tpr1[i], label="NN ROC Curve (area = %0.2f)" % roc_auc1[i])
@@ -777,7 +834,7 @@ class hep_model(parameter_parser):
                 ax2[i].set_title("ROC_Curve for %s Mode" % labellist[i])
                 for axes in ax2.flat:
                     axes.label_outer()
-                ax2[i].legend()
+                # ax2[i].legend()
                 fig2.tight_layout()
                 ax2[i].set_aspect(1)
             plt.savefig(self.model_path + '_roc_multigraph' + '.png', dpi = 500)
@@ -854,11 +911,12 @@ class hep_model(parameter_parser):
         for a in range(len(prediction)):
             index = flag[a]
             mode_probs[index].append(prediction[a][index])
-        fig, ax = plt.subplots(1,self.no_modes)
+        fig3, ax3 = plt.subplots(1,self.no_modes)
         for a in range(self.no_modes):
-            ax[a].hist(mode_probs_all[a], bins = 30)
-            ax[a].hist(mode_probs[a], bins = 30)
-            
+            ax3[a].hist(mode_probs_all[a], bins = 30)
+            ax3[a].hist(mode_probs[a], bins = 30)
+        for axes in ax3.flat:
+            axes.label_outer()
             # print(mode_probs[a])
         plt.savefig(self.model_path + '_hist' + '.png', dpi = 500)
 
@@ -870,7 +928,7 @@ class hep_model(parameter_parser):
         for a in range(len(prediction)):
             index = flag[a]
             mode_probs[index].append(prediction[a][index])
-        fig, ax = plt.subplots(2,self.no_modes)
+        fig3, ax3 = plt.subplots(2,self.no_modes)
         histograms_all = []
         histograms = []
         inv_hists = []
@@ -882,9 +940,10 @@ class hep_model(parameter_parser):
             inv_hists.append(hist1 - hist2)
                 # print(mode_probs[a])
         for a in range(self.no_modes):
-            ax[0][a].hist(np.linspace(0,1,30), weights=histograms_all[a],bins=30)
-            ax[0][a].hist(np.linspace(0,1,30), weights=histograms[a],bins=30)
-            ax[1][a].hist(np.linspace(0,1,30), weights=inv_hists[a],bins=30)
+            ax3[0][a].hist(np.linspace(0,1,30), weights=histograms_all[a],bins=30)
+            ax3[0][a].hist(np.linspace(0,1,30), weights=histograms[a],bins=30)
+            ax3[1][a].hist(np.linspace(0,1,30), weights=inv_hists[a],bins=30)
+            
         plt.savefig(self.model_path + '_hist' + '.png', dpi = 500)
     ### META COMMANDS ###
 
@@ -899,12 +958,12 @@ class hep_model(parameter_parser):
     def retrain_model(self):
         self.load_data
 
-    def load_tf_model(self, filenames, weights, use_as_mask, no_batches, batch_size = 1000):
+    def load_tf_model(self, filenames, weights, use_as_mask, no_batches, batch_size = 1000, new_flags = False):
         self.no_batches = no_batches
         self.batch_size = batch_size
         self.use_datasets = True
         self.create_featuredesc()
-        self.load_tfrecords(filenames, weights, use_as_mask)
+        self.load_tfrecords(filenames, weights, use_as_mask, new_flags = new_flags)
         self.load_model()
 
     def prep_for_analysis(self, small_dataset = False):
@@ -915,15 +974,15 @@ class hep_model(parameter_parser):
         self.load_model()
         self.analyse_model()
 
-    def prep_for_analysis_tf(self, filenames, weights, use_as_mask, no_batches, batch_size):
-        self.load_tf_model(filenames, weights, use_as_mask, no_batches, batch_size)
+    def prep_for_analysis_tf(self, filenames, weights, use_as_mask, no_batches, batch_size, new_flags = False):
+        self.load_tf_model(filenames, weights, use_as_mask, no_batches, batch_size, new_flags = new_flags)
         # From initialising object, prepares to produce roc curves etc
         self.analyse_model_tf(no_batches)
 
-    def do_your_thing_tf(self, filenames, weights, use_as_mask):
+    def do_your_thing_tf(self, filenames, weights, use_as_mask, new_flags = False):
         self.use_datasets = True
         self.create_featuredesc()
-        self.load_tfrecords(filenames, weights, use_as_mask)
+        self.load_tfrecords(filenames, weights, use_as_mask, new_flags = new_flags)
         self.parameter_dictionary["Weights"] = weights
         self.build_model()
         self.train_model()
@@ -943,21 +1002,8 @@ class hep_model(parameter_parser):
         self.plot_confusion_matrices()
         self.plot_roc_curves()
         self.plot_prob_hist()
+        # self.plot_prob_hist_multi()
 
-    def analyse_event(self, filename = None):
-        # accepts location of tfrecord, returns prediction
-        raw_dataset = tf.data.TFRecordDataset([filename])
-        full_dataset = raw_dataset.map(self.parse_function_full).batch(1)
-        return self.model.predict(full_dataset)
-
-    def decode_fn(self, record_bytes):
-        return tf.io.parse_example(
-            # Data
-            record_bytes,
-
-            # Schema
-            self.feature_description
-        )
 
     def analyse_event_from_raw(self, raw_data):
         # accepts raw dataset, returns prediction

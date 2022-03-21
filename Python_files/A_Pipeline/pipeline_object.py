@@ -830,7 +830,7 @@ class pipeline(feature_name_object):
 
     def modify_by_decay_mode(self):
         for a in range(len(self.df_dm)):
-            print(a)
+            #print(a)
             self.modify_dataframe(self.df_dm[a])
             imv_dm = self.create_imvar_dataframe(self.df_dm[a])
             self.save_dataframe(imv_dm, "/imvar_df_dm%s.pkl" % a)

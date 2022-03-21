@@ -192,5 +192,7 @@ jez = hep_model(rootpath_load, rootpath_save, default_filepath, model_name)
 jez.no_epochs = 1
 jez.create_featuredesc()
 jez.batch_size = 64
-jez.load_tfrecords(Filenames_3in, Weights, True)
+jez.load_tfrecords(Filenames_3in, Weights, True, new_flags = True)
 jez.load_model()
+
+# jez.flag_datasets = [a.map(lambda a:{"Outputs": [a["Outputs"][0], a["Outputs"][1] + a["Outputs"][2], 0, a["Outputs"][3], a["Outputs"][4], a["Outputs"][5]] }) for a in jez.flag_datasets]
