@@ -1,4 +1,4 @@
-#$-q gpu.q@lxbgpu* -l h_rt=3:00:00 
+#$-q gpu.q@lxbgpu* -l h_rt=24:00:00 
 #$-m ea -M fjo18@ic.ac.uk
 
 cd ~/CMSSW_10_2_19/src/UserCode/DeepLearning
@@ -9,6 +9,6 @@ source ~/CMSSW_10_2_19/icenet/setenv.sh
 # source /vols/grid/cms/setup.sh
 # eval `scramv1 runtime -sh`
 
-python3.9 Python_files/B_Training/analyse_tf_model.py
+python3.9 Python_files/B_Training/train_and_analyse.py
 
 conda deactivate

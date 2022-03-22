@@ -32,7 +32,7 @@ Weights = [1.0,1.0,1.0,0.0,0.0,0.0]
 
 #Weights = Weights[0]
 jez = hep_model(rootpath_load, rootpath_save, default_filepath, model_name)
-jez.prep_for_analysis_tf(Filenames_3in, Weights, True, 1, 1000, new_flags = False)
+jez.prep_for_analysis_tf(Filenames_3in, Weights, True, 100, 1000, new_flags = False)
 jez.no_modes = 3
 jez.produce_graphs(True)
 

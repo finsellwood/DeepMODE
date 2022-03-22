@@ -11,7 +11,7 @@ m_list = [2,4,8,16,32]
 initial_nodes = 75
 no_iterations = 2000000
 
-offset = 80
+offset = 20 #10 # 2, 10, 20, 30, 40,
 for N in N_list:
     for iteration in range(offset, offset + int(no_iterations / N)):
         for m in m_list:
@@ -19,7 +19,7 @@ for N in N_list:
             print(Nint, m, int(m/2))
             starttime = timeit.default_timer()
 
-            network = NetO.NetworkBA(m, Nint, initial_nodes, r=int(m/2))  # m, max_time_step, n0, attachment=1, r=0
+            network = NetO.NetworkBA(m, Nint, initial_nodes, attachment=-1, r=int(m/2))  # m, max_time_step, n0, attachment=1, r=0
             network.run()
             #network.print_state()
             mix = 'mix'+str(m)

@@ -774,13 +774,15 @@ class hep_model(parameter_parser):
                 # only checks rho (i = 1) and a1 (i = 2) events
                 filtered_y_test = []
                 filtered_prediction = []
-                for a in range(len(self.y_test[:,1])):
-                    print(self.y_test[a][0], self.y_pred[a][0])
+                length = len(self.y_test[:,1])
+                for a in range(length):
+                    # print(self.y_test[a][0], self.y_pred[a][0])
                     if self.y_test[a][0] == 0 and self.y_pred[a][0] == 0.0:
                         filtered_y_test.append(self.y_test[a][1])
                         filtered_prediction.append(self.prediction[a][1])
-                print(filtered_y_test, filtered_prediction)
-                print(self.y_test)
+                # print(filtered_y_test, filtered_prediction)
+                # print(self.y_test)
+                print(length)
                 
                 self.fpr, self.tpr, _ = roc_curve(filtered_y_test, filtered_prediction)
                 self.roc_auc = auc(self.fpr, self.tpr)
