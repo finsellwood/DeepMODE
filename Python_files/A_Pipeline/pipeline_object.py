@@ -140,9 +140,9 @@ class pipeline(feature_name_object):
         self.df_full = pd.concat([df_1, df_2], ignore_index = True)
         #self.save_dataframe(self.df_full, "df_full.pkl")
         
-    def load_single_event(self, event, which):
+    def load_single_event(self, event, which, file_name):
         #file should not be hardcoded - pass from yaml
-        file_ = ROOT.TFile(self.load_path + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+        file_ = ROOT.TFile(self.load_path +"/"+ file_name)
         tree = file_.Get("ntuple") #do GluGlu and VBF separately
         tree.GetEntry(event)
         arr = {}

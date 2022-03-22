@@ -646,7 +646,7 @@ class hep_model(parameter_parser):
         # calculate scores from another model and compare them to generate a full set of scores
         # used for when we have grouped decay modes i.e. (pi + rho) vs a1 or pi vs (rho + a1)
         # NOTE: When loading in the data, do not group the flags
-        self.predict_multi_results_tf(other, no_batches)
+        self.predict_multi_results_tf_2(other, no_batches)
         self.model_accuracy = accuracy_score(self.y_test, self.y_pred)        
 
     def model_save(self, update_name: bool):
@@ -765,14 +765,30 @@ class hep_model(parameter_parser):
 
         plt.savefig(self.model_path + '_cm_' + '.png', dpi = 100)
 
-    def calc_roc_values(self, roc_mva = False):
+    def calc_roc_values(self, roc_mva = False, relative = False):
         if roc_mva == False:
             self.fpr = dict()
             self.tpr = dict()
             self.roc_auc = dict()
-            for i in range(self.no_modes):
-                self.fpr[i], self.tpr[i], _ = roc_curve(self.y_test[:,i], self.prediction[:,i])
-                self.roc_auc[i] = auc(self.fpr[i], self.tpr[i])
+            if relative:
+                # only checks rho (i = 1) and a1 (i = 2) events
+                filtered_y_test = []
+                filtered_prediction = []
+                for a in range(len(self.y_test[:,1])):
+                    print(self.y_test[a][0], self.y_pred[a][0])
+                    if self.y_test[a][0] == 0 and self.y_pred[a][0] == 0.0:
+                        filtered_y_test.append(self.y_test[a][1])
+                        filtered_prediction.append(self.prediction[a][1])
+                print(filtered_y_test, filtered_prediction)
+                print(self.y_test)
+                
+                self.fpr, self.tpr, _ = roc_curve(filtered_y_test, filtered_prediction)
+                self.roc_auc = auc(self.fpr, self.tpr)
+                print(self.fpr)
+            else:            
+                for i in range(self.no_modes):
+                    self.fpr[i], self.tpr[i], _ = roc_curve(self.y_test[:,i], self.prediction[:,i])
+                    self.roc_auc[i] = auc(self.fpr[i], self.tpr[i])
             self.calculated_roc_values = True
         
         else:
@@ -803,19 +819,28 @@ class hep_model(parameter_parser):
                 self.roc_auc_mva[i] = auc(self.fpr_mva[i], self.tpr_mva[i])
             self.calculated_roc_values_mva = True
 
-    def plot_one_roc_curve(self, fpr1, tpr1, roc_auc1, one_roc_graph = False, plot_effpur = False):
-        if one_roc_graph:
+    def plot_one_roc_curve(self, fpr1, tpr1, roc_auc1, one_roc_graph = False, plot_effpur = False, relative = False):
+        if one_roc_graph or relative:
             fig2, ax2 = plt.subplots(1, 1)
-
-            for i in range(self.no_modes):
-                ax2.plot(fpr1[i], tpr1[i], label="Model 1 mode %s ROC curve (area = %0.2f)" % (i, roc_auc1[i]))
+            if relative:
+                ax2.plot(fpr1, tpr1, label="Relative rho vs a1 ROC curve (area = %0.2f)" % (roc_auc1))
                 ax2.set_xlim([0,1])
                 ax2.set_ylim([0,1.05])
                 ax2.set_xlabel("False Positive Rate")
                 ax2.set_ylabel("True Positive Rate")
                 ax2.set_title("ROC_Curve for One Prong Tau Decays")
                 ax2.legend()
-                plt.savefig(self.model_path + '_roc_' + '.png', dpi = 100)
+                plt.savefig(self.model_path + '_roc_relative_' + '.png', dpi = 100)
+            else:
+                for i in range(self.no_modes):
+                    ax2.plot(fpr1[i], tpr1[i], label="Model 1 mode %s ROC curve (area = %0.2f)" % (i, roc_auc1[i]))
+                    ax2.set_xlim([0,1])
+                    ax2.set_ylim([0,1.05])
+                    ax2.set_xlabel("False Positive Rate")
+                    ax2.set_ylabel("True Positive Rate")
+                    ax2.set_title("ROC_Curve for One Prong Tau Decays")
+                    ax2.legend()
+                    plt.savefig(self.model_path + '_roc_' + '.png', dpi = 100)
         else:
             print('plotting')
             no_modes_hold = self.no_modes
@@ -897,11 +922,11 @@ class hep_model(parameter_parser):
             other.calc_roc_values(False)
         self.plot_two_roc_curves(self.fpr, self.tpr, self.roc_auc, other.fpr, other.tpr, other.roc_auc, False)
 
-    def plot_roc_curves(self, one_roc_graph = False):
+    def plot_roc_curves(self, one_roc_graph = False, rho_vs_a1 = False):
         if self.model_accuracy == 0.0:
             raise Exception("Model has not made any predictions yet")
-        self.calc_roc_values(roc_mva=False)
-        self.plot_one_roc_curve(self.fpr, self.tpr, self.roc_auc, one_roc_graph, False)
+        self.calc_roc_values(roc_mva=False, relative = rho_vs_a1)
+        self.plot_one_roc_curve(self.fpr, self.tpr, self.roc_auc, one_roc_graph, False, relative = rho_vs_a1)
 
     def plot_prob_hist(self):
         prediction = self.prediction
@@ -997,10 +1022,10 @@ class hep_model(parameter_parser):
         self.load_tfrecords(filenames, weights, use_as_mask)
         self.check_dataset_length()
     
-    def produce_graphs(self):
+    def produce_graphs(self, rho_vs_a1 = False):
         self.plot_timeline()
         self.plot_confusion_matrices()
-        self.plot_roc_curves()
+        self.plot_roc_curves(rho_vs_a1 = rho_vs_a1)
         self.plot_prob_hist()
         # self.plot_prob_hist_multi()
 
@@ -1012,7 +1037,7 @@ class hep_model(parameter_parser):
         # square brackets necessary to convince tf that it's a list of elements rather than just one
         parsed_tensor = raw_tensor.map(self.parse_function_full).batch(1)#self.parse_function_full(raw_tensor).batch(1)
         # parse the tensors inside of raw_tensor, so they still have dataset superstructure
-        print(repr(parsed_tensor))
+        # print(repr(parsed_tensor))
         return self.model.predict(parsed_tensor)
 
 

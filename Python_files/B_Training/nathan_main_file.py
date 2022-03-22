@@ -11,8 +11,9 @@ m_list = [2,4,8,16,32]
 initial_nodes = 75
 no_iterations = 2000000
 
+offset = 80
 for N in N_list:
-    for iteration in range(2, int(no_iterations / N)):
+    for iteration in range(offset, offset + int(no_iterations / N)):
         for m in m_list:
             Nint = int(N)
             print(Nint, m, int(m/2))

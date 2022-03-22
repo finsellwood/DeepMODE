@@ -31,6 +31,7 @@ import pickle
 from array import array
 import argparse
 from tensorflow import keras
+import time
 print("loaded packages")
 def parse_arguments():
     """Tool for easy argument calling in functions"""
@@ -62,7 +63,7 @@ def parse_arguments():
     parser.add_argument(
         "--era", default="", help="Year to use.")
     parser.add_argument(
-        "--loadpath", default="/vols/cms/dw515/outputs/SM/Masters2021_ntuples", help="Path to files to use.")
+        "--loadpath", default="/vols/cms/fjo18/Masters2021/RootFiles/Full", help="Path to files to use.")
     parser.add_argument(
         "--savepath", default="/vols/cms/fjo18/Masters2021/Annotation", help="Path to save output files.")
     return parser.parse_args()
@@ -132,13 +133,13 @@ files = ["DY1JetsToLL-LO_tt_2018.root",
 #        # file_names = [os.path.splitext(os.path.basename(file))[0] for file in files]
 #    return file_names
     
-for file_number in files:   
+for file_name in files:   
     def main(args):#, config):
 
         #open original file
-        file_ = ROOT.TFile("{}".format(args.loadpath)+files[file_number], "UPDATE")
+        file_ = ROOT.TFile("{}".format(args.loadpath)+"/"+file_name, "UPDATE")
         tree = file_.Get(args.tree)
-    
+
         #Book branches for annotation
         response_0_scores_1 = array("f", [-9999]) 
         branch_0_scores_1 = tree.Branch("{}_score_1".format(
@@ -197,21 +198,24 @@ for file_number in files:
         model_object2.load_model()
 
         # Run the event loop
-        for i_event in range(100,200):
+        for i_event in range(tree.GetEntries()):
+            time_start = time.time()
             #print(i_event)
             tree.GetEntry(i_event)
-            
+            if i_event % 100 == 0:
+                    logger.debug('Currently on event {}'.format(i_event))
+
             # Get event number and compute response
             event = int(getattr(tree, "event"))
             #print(event)
             #create a jesmond
             jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
             jesmond2 = pipeline(args.loadpath, args.savepath)
-                
+            
             #load root files for preprocessing
-            jesmond.load_single_event(i_event,1) #change this in the pipeline so its flexible and takes from loadpath
+            jesmond.load_single_event(i_event,1,file_name) #change this in the pipeline so its flexible and takes from loadpath
             # jesmond.load_single_event(i) #have to run once for VBF and once for GluGlu
-            jesmond2.load_single_event(i_event,2)
+            jesmond2.load_single_event(i_event,2,file_name)
             # for index,row in jesmond.df_full.iterrows():
             #     print(row["pi0_E_2"])
             # print(jesmond.df_full["pi0_E_2"])
@@ -233,7 +237,8 @@ for file_number in files:
             #load our model
 
             # model = keras.models.load_model(args.model_folder)
-            
+            time_proc = time.time() - time_start
+            print("Processed in"+ str(time_proc))
             # jesmond.generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
             # response_scores_1 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
             raw_ds = jesmond.generate_datasets_anal_4(jesmond.df_full, imvar_jesmond, args.savepath)
@@ -262,7 +267,8 @@ for file_number in files:
             response_11_scores_2[0] = response_2[0][4] 
             response_other_scores_1[0] = response_1[0][5]
             response_other_scores_2[0] = response_2[0][5] 
-
+            time_eval = time.time() - time_start
+            print("Evaluated in"+ str(time_eval))
             # response_scores_1 = model.predict(args.savepath+"/dm.tfrecords") #have to properly feed the whole event with the images #.predict_prova?
             # jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
             # response_scores_2 = model.predict(args.savepath+"/dm.tfrecords")
@@ -311,13 +317,15 @@ for file_number in files:
             branch_other_scores_1.Fill()
             branch_other_scores_2.Fill()
 
+            time_filled = time.time() - time_start
+            print("Filled in"+ str(time_filled))
         logger.debug("Finished looping over events")
 
         # Write everything to file
         file_.Write("ntuple",ROOT.TObject.kWriteDelete)
         file_.Close()
 
-        logger.debug("Closed file")           
+        logger.debug("Closed "+file_name)           
     
     
                       
