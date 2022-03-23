@@ -110,10 +110,10 @@ class pipeline(feature_name_object):
     def load_dataframe(self, loadpath, name):
         return pd.read_pickle(loadpath + name)
 
-    def load_root_files(self):
-        rootGG_tt = ROOT.TFile(self.load_path + "/MVAFILE_GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+    def load_root_files(self, file_name):
+        rootGG_tt = ROOT.TFile(self.load_path + file_name)
         intreeGG_tt = rootGG_tt.Get("ntuple")
-        rootVBF_tt = ROOT.TFile(self.load_path + "/MVAFILE_VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root")
+        rootVBF_tt = ROOT.TFile(self.load_path + file_name)
         intreeVBF_tt = rootVBF_tt.Get("ntuple")
         arrVBF_tt_1 = rnp.tree2array(intreeVBF_tt,branches=self.variables_tt_1)
         arrGG_tt_1 = rnp.tree2array(intreeGG_tt,branches=self.variables_tt_1)
@@ -139,6 +139,26 @@ class pipeline(feature_name_object):
         # rename axes to the same as variables 2
         self.df_full = pd.concat([df_1, df_2], ignore_index = True)
         #self.save_dataframe(self.df_full, "df_full.pkl")
+
+    def load_root_files_2(self, which, file_name):
+        root = ROOT.TFile(self.load_path + file_name)
+        intree = root.Get("ntuple")
+        if which == 1:
+            arr = rnp.tree2array(intree,branches=self.variables_tt_1)
+        elif which == 2:
+            arr = rnp.tree2array(intree,branches=self.variables_tt_2)
+        else: raise Exception("Incorrect tau label: can be either 1 or 2")
+        print("converting to dfs")
+        del root
+        del intree
+        df = pd.DataFrame(arr)
+        del arr
+        print("reshaping")
+        if which == 1:
+            df.set_axis(self.variables_tt_2, axis=1, inplace=True)
+        # rename axes to the same as variables 2
+        self.df_full = df
+        del df
         
     def load_single_event(self, event, which, file_name):
         #file should not be hardcoded - pass from yaml
@@ -828,6 +848,37 @@ class pipeline(feature_name_object):
             # print(example)
         return example.SerializeToString()
 
+    def generate_datasets_anal_multi(self, dataframe, imvar_dataframe, tfrecordpath, modeflag):        
+        # needs to create the grid for each event, populate it, add to full tensor for event and save
+        # per event
+        # 0) drop unwanted columns from HL
+        self.drop_variables_2(dataframe)
+        # 1) create dictionaries for tfrecords
+        self.create_featuredesc2(dataframe)
+        path = tfrecordpath + "/dm%s_3in.tfrecords" % index
+        length = self.calc_no_events(dataframe)
+        # 2) convert df to numpy, reset indices on imvar_df
+        print('Writing')
+        npa = dataframe.to_numpy()
+        imvar_dataframe.reset_index(drop=True, inplace=True)
+        fulllen = imvar_dataframe.shape[0]
+        del dataframe
+        for a, row in imvar_dataframe.iterrows():
+            # print(a/fulllen)
+            event_dict = {}
+            event_dict["hl"] = tf.train.Feature(float_list=\
+                tf.train.FloatList(value=npa[a].flatten()))
+            # function for creating grids with a dataframe row
+            (grid1, grid2) = self.generate_grids(row, 21, 11)
+
+            event_dict["large_image"] = tf.train.Feature(int64_list=\
+                tf.train.Int64List(value=grid1.flatten()))
+            event_dict["small_image"] = tf.train.Feature(int64_list=\
+                tf.train.Int64List(value=grid2.flatten()))
+        example = tf.train.Example(features=tf.train.Features(feature=event_dict))
+        print("done writing")
+        return example.SerializeToString()
+
     def modify_by_decay_mode(self):
         for a in range(len(self.df_dm)):
             #print(a)
@@ -845,7 +896,6 @@ class pipeline(feature_name_object):
         self.save_dataframe(imv_dm, "/imvar_df_dm%s.pkl" % index)
         self.save_dataframe(df, "/df_m_dm%s.pkl" % index)
 
-        
         
 # jez = pipeline(rootpath_load, rootpath_save)
 # print(rootpath_save + jez.object_folder, "/ordereddf.pkl" )

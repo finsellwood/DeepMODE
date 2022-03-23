@@ -23,7 +23,7 @@ jez.no_epochs = 25
 
 ### TRAIN MODEL ###
 
-jez.do_your_thing_tf(Filenames_3in, Weights, use_as_mask=False, new_flags = False)
+jez.do_your_thing_tf(Filenames_3in, Weights, use_as_mask=True, new_flags = False)
 
 ### ANALYSE MODEL ###
 jez.no_batches = No_batches_analysis

@@ -1,8 +1,8 @@
 """
 1. Load a ROOT file
-2. Run the preprocessing on single event - dataframeinit, dataframemod, imgen
-3. Run analyse model pointing to this event
-4. Repeat untill all events analysed then annotate branches
+2. Run the preprocessing on all the data - dataframeinit, dataframemod, imgen
+3. Run analyse model pointing to this data
+4. Annotate branches
 
 Have a config file that sets configs
 """
@@ -18,8 +18,8 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler) 
 import sys
-sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/A_Pipeline/")
-sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/B_Training/")
+sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE//Python_files/A_Pipeline/")
+sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/B_Training/")
 
 
 from pipeline_object import pipeline 
@@ -39,7 +39,7 @@ def parse_arguments():
         description="Apply NN model on ROOT file")
     parser.add_argument(
         "--config-training",
-        default="/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/config.yaml",	#CREATE THIS
+        default="/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/config.yaml",	#CREATE THIS
         help="Path to training config file")
     parser.add_argument(
         "--dir-prefix",
@@ -58,14 +58,14 @@ def parse_arguments():
         "--model_folder", default="/D_Models/Models3_TF/", help="Folder name where trained model is.") #change this
     parser.add_argument(
         "--models", type=str, nargs="+",
-         default=["LSH_model_0.722_20220323_104204", "LSH_model_0.852_20220315_160854"], 
+         default=["LSH_model_0.759_20220307_155115", "LSH_model_0.852_20220315_160854"], 
          help="Names of trained models") #last changed 21.03.2022
     parser.add_argument(
         "--era", default="", help="Year to use.")
     parser.add_argument(
-        "--loadpath", default="/vols/cms/fjo18/Masters2021/RootFiles/Full", help="Path to files to use.")
+        "--loadpath", default="/vols/cms/ab7018/Masters2021/RootFiles/Full", help="Path to files to use.")
     parser.add_argument(
-        "--savepath", default="/vols/cms/fjo18/Masters2021/Annotation", help="Path to save output files.")
+        "--savepath", default="/vols/cms/ab7018/Masters2021/Annotation", help="Path to save output files.")
     return parser.parse_args()
 
 def parse_config(filename):
@@ -197,7 +197,32 @@ for file_name in files:
         model_object2.create_featuredesc()
         model_object2.load_model()
 
-        # Run the event loop
+        #create a jesmond
+        jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
+        jesmond2 = pipeline(args.loadpath, args.savepath)
+            
+        #load root files for preprocessing
+        jesmond.load_root_files(1,file_name)
+        jesmond2.load_root_files(2,file_name)
+
+        jesmond.modify_dataframe(jesmond.df_full)
+        jesmond.modify_dataframe(jesmond2.df_full)
+            
+        imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=False)
+        imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full, one_event=False)
+
+        # model = keras.models.load_model(args.model_folder)
+        time_proc = time.time() - time_start
+        print("Processed in"+ str(time_proc))
+
+        raw_ds = jesmond.generate_datasets_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
+        response_1_1pr = model_object.analyse_multi()
+        response_1_3pr = model_object2.analyse_multi()
+
+        raw_ds = jesmond.generate_datasets_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
+        response_2_1pr = model_object.analyse_multi()
+        response_2_3pr = model_object2.analyse_multi()
+
         for i_event in range(tree.GetEntries()):
             time_start = time.time()
             #print(i_event)
@@ -205,55 +230,6 @@ for file_name in files:
             if i_event % 100 == 0:
                     logger.debug('Currently on event {}'.format(i_event))
 
-            # Get event number and compute response
-            event = int(getattr(tree, "event"))
-            #print(event)
-            #create a jesmond
-            jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
-            jesmond2 = pipeline(args.loadpath, args.savepath)
-            
-            #load root files for preprocessing
-            jesmond.load_single_event(i_event,1,file_name) #change this in the pipeline so its flexible and takes from loadpath
-            # jesmond.load_single_event(i) #have to run once for VBF and once for GluGlu
-            jesmond2.load_single_event(i_event,2,file_name)
-            # for index,row in jesmond.df_full.iterrows():
-            #     print(row["pi0_E_2"])
-            # print(jesmond.df_full["pi0_E_2"])
-            # print(jesmond2.df_full.head(1))
-            #print(jesmond.df_full.head())
-            #do preprocessing
-            # jesmond.modify_dataframe_se(newdf)
-            jesmond.modify_dataframe_se(jesmond.df_full)
-            jesmond.modify_dataframe_se(jesmond2.df_full)
-            # print("got this far") PENISPENIS
-            imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=True)
-            imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full, one_event=True)
-            # print(jesmond.df_full)
-            #jesmond.clear_dataframe()          
-            #test1 = jesmond.generate_datasets_anal_2(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
-            #test2 = jesmond.generate_datasets_anal_2(jesmond2.df_full, imvar_jesmond2, args.savepath)  #modify this not to save but create 
-            #print(test1)
-            # print(test1.take(1)["hl"])
-            #load our model
-
-            # model = keras.models.load_model(args.model_folder)
-            time_proc = time.time() - time_start
-            print("Processed in"+ str(time_proc))
-            # jesmond.generate_datasets_anal(jesmond.df_full, imvar_jesmond, args.savepath)  #modify this not to save but create 
-            # response_scores_1 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
-            raw_ds = jesmond.generate_datasets_anal_4(jesmond.df_full, imvar_jesmond, args.savepath)
-            # print(raw_ds)
-            if int(getattr(tree, "tau_decay_mode_1"))<10:
-                response_1 = model_object.analyse_event_from_raw(raw_ds)
-            else: 
-                response_1 = model_object2.analyse_event_from_raw(raw_ds)
-
-            raw_ds = jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
-            if int(getattr(tree, "tau_decay_mode_1"))<10:
-                response_2 = model_object.analyse_event_from_raw(raw_ds)
-            else: 
-                response_2 = model_object2.analyse_event_from_raw(raw_ds)
-            response_2 = model_object.analyse_event_from_raw(raw_ds)
 
             response_0_scores_1[0] = response_1[0][0]
             response_0_scores_2[0] = response_2[0][0] 
@@ -267,42 +243,7 @@ for file_name in files:
             response_11_scores_2[0] = response_2[0][4] 
             response_other_scores_1[0] = response_1[0][5]
             response_other_scores_2[0] = response_2[0][5] 
-            time_eval = time.time() - time_start
-            print("Evaluated in"+ str(time_eval))
-            # response_scores_1 = model.predict(args.savepath+"/dm.tfrecords") #have to properly feed the whole event with the images #.predict_prova?
-            # jesmond.generate_datasets_anal_4(jesmond2.df_full, imvar_jesmond2, args.savepath)
-            # response_scores_2 = model.predict(args.savepath+"/dm.tfrecords")
-            # response_scores_2 = model_object.analyse_event(args.savepath+"/dm.tfrecords")
 
-            # max_1 = max([response_0_scores_1,response_1_scores_1,response_2_scores_1,response_10_scores_1,response_11_scores_1])
-            # max_2 = max([response_0_scores_2,response_1_scores_2,response_2_scores_2,response_10_scores_2,response_11_scores_2])
-            # if max_1 == response_0_scores_1:
-            #     indicator1 = 0
-            # elif max_1 == response_1_scores_1:
-            #     indicator1 = 1
-            # elif max_1 == response_2_scores_1:
-            #     indicator1 = 2
-            # elif max_1 == response_10_scores_1:
-            #     indicator1 == 10
-            # elif max_1 == response_11_scores_1:
-            #     indicator1 == 11
-            # else: indicator1 = -1
-            # print(indicator1 == tree.tauFlag_1)
-            
-            # if max_2 == response_0_scores_2:
-            #     indicator2 = 0
-            # elif max_2 == response_1_scores_2:
-            #     indicator2 = 1
-            # elif max_2 == response_2_scores_2:
-            #     indicator2 = 2
-            # elif max_2 == response_10_scores_2:
-            #     indicator2 == 10
-            # elif max_2 == response_11_scores_2:
-            #     indicator2 == 11
-            # else: indicator2 == -1
-            # print(indicator2 == tree.tauFlag_2)
-            #response_scores_1 = model.predict(test1)
-            #response_scores_2 = model.predict(test2)
             # Fill branches
             branch_0_scores_1.Fill()
             branch_0_scores_2.Fill()
