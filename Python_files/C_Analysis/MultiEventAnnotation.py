@@ -20,7 +20,8 @@ logger.addHandler(handler)
 import sys
 sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE//Python_files/A_Pipeline/")
 sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/B_Training/")
-
+#sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/A_Pipeline/")
+#sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/B_Training/")
 
 from pipeline_object import pipeline 
 from model_object import hep_model
@@ -64,6 +65,7 @@ def parse_arguments():
         "--era", default="", help="Year to use.")
     parser.add_argument(
         "--loadpath", default="/vols/cms/ab7018/Masters2021/RootFiles/Full", help="Path to files to use.")
+        # default=""
     parser.add_argument(
         "--savepath", default="/vols/cms/ab7018/Masters2021/Annotation", help="Path to save output files.")
     return parser.parse_args()
@@ -198,7 +200,7 @@ for file_name in files:
         model_object2.load_model()
 
         #create a jesmond
-        jesmond = pipeline(args.loadpath, args.savepath) #ideally should take vars from config file
+        jesmond = pipeline(args.loadpath, args.savepath)
         jesmond2 = pipeline(args.loadpath, args.savepath)
             
         #load root files for preprocessing
@@ -215,13 +217,32 @@ for file_name in files:
         time_proc = time.time() - time_start
         print("Processed in"+ str(time_proc))
 
-        raw_ds = jesmond.generate_datasets_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
+        raw_ds = jesmond.generate_dataframes_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
+        mask = jesmond.tau_decay_mode_2
+        #calculate scores for all events with both classifiers
         response_1_1pr = model_object.analyse_multi()
         response_1_3pr = model_object2.analyse_multi()
+        print("response 1_1pr", response_1_1pr) # is the indexing correct?
+        # now filter the scores using the mask
+        response_1 = []
+        for i in range(len(mask)):
+            if mask[i] < 10: 
+                response_1.append(response_1_1pr[i])
+            else: response_1.append(response_1_3pr[i])
 
-        raw_ds = jesmond.generate_datasets_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
+        print("response_1", response_1) # have to make sure how this looks
+
+        raw_ds = jesmond.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
+        mask2 = jesmond2.tau_decay_mode_2
         response_2_1pr = model_object.analyse_multi()
         response_2_3pr = model_object2.analyse_multi()
+
+        response_2 = []
+        for i in range(len(mask)):
+            if mask[i] < 10: 
+                response_2.append(response_1_1pr[i])
+            else: response_2.append(response_1_3pr[i])
+
 
         for i_event in range(tree.GetEntries()):
             time_start = time.time()
@@ -230,7 +251,7 @@ for file_name in files:
             if i_event % 100 == 0:
                     logger.debug('Currently on event {}'.format(i_event))
 
-
+            #does the indexing hold? i dont think so
             response_0_scores_1[0] = response_1[0][0]
             response_0_scores_2[0] = response_2[0][0] 
             response_1_scores_1[0] = response_1[0][1]

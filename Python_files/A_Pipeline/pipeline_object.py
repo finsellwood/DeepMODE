@@ -158,6 +158,7 @@ class pipeline(feature_name_object):
             df.set_axis(self.variables_tt_2, axis=1, inplace=True)
         # rename axes to the same as variables 2
         self.df_full = df
+        self.decay_mode = df["tau_decay_mode_2"]
         del df
         
     def load_single_event(self, event, which, file_name):
@@ -848,7 +849,7 @@ class pipeline(feature_name_object):
             # print(example)
         return example.SerializeToString()
 
-    def generate_datasets_anal_multi(self, dataframe, imvar_dataframe, tfrecordpath, modeflag):        
+    def generate_dataframes_anal_multi(self, dataframe, imvar_dataframe, tfrecordpath):        
         # needs to create the grid for each event, populate it, add to full tensor for event and save
         # per event
         # 0) drop unwanted columns from HL
@@ -863,21 +864,20 @@ class pipeline(feature_name_object):
         imvar_dataframe.reset_index(drop=True, inplace=True)
         fulllen = imvar_dataframe.shape[0]
         del dataframe
-        for a, row in imvar_dataframe.iterrows():
-            # print(a/fulllen)
-            event_dict = {}
-            event_dict["hl"] = tf.train.Feature(float_list=\
-                tf.train.FloatList(value=npa[a].flatten()))
-            # function for creating grids with a dataframe row
-            (grid1, grid2) = self.generate_grids(row, 21, 11)
 
-            event_dict["large_image"] = tf.train.Feature(int64_list=\
-                tf.train.Int64List(value=grid1.flatten()))
-            event_dict["small_image"] = tf.train.Feature(int64_list=\
-                tf.train.Int64List(value=grid2.flatten()))
-        example = tf.train.Example(features=tf.train.Features(feature=event_dict))
-        print("done writing")
-        return example.SerializeToString()
+        large_image = []
+        small_image = []
+        for index, row in imvar_dataframe.iterrows():
+            (grid1, grid2) = self.generate_grids(row, 21, 11)
+            large_image.append(grid1)
+            small_image.append(grid2)
+        data_list = []
+        data_list.append(large_image)
+        data_list.append(small_image)
+        data_list.append(npa) 
+
+        print("done creating data list")
+        return data_list
 
     def modify_by_decay_mode(self):
         for a in range(len(self.df_dm)):
