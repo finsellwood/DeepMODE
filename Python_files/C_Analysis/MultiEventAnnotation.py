@@ -137,7 +137,7 @@ files = ["DY1JetsToLL-LO_tt_2018.root",
     
 for file_name in files:   
     def main(args):#, config):
-
+        time_start = time.time()
         #open original file
         file_ = ROOT.TFile("{}".format(args.loadpath)+"/"+file_name, "UPDATE")
         tree = file_.Get(args.tree)
@@ -204,8 +204,8 @@ for file_name in files:
         jesmond2 = pipeline(args.loadpath, args.savepath)
             
         #load root files for preprocessing
-        jesmond.load_root_files(1,file_name)
-        jesmond2.load_root_files(2,file_name)
+        jesmond.load_root_files_2(1,file_name)
+        jesmond2.load_root_files_2(2,file_name)
 
         jesmond.modify_dataframe(jesmond.df_full)
         jesmond.modify_dataframe(jesmond2.df_full)
@@ -218,10 +218,10 @@ for file_name in files:
         print("Processed in"+ str(time_proc))
 
         raw_ds = jesmond.generate_dataframes_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
-        mask = jesmond.tau_decay_mode_2
+        mask = jesmond.decay_mode
         #calculate scores for all events with both classifiers
-        response_1_1pr = model_object.analyse_multi()
-        response_1_3pr = model_object2.analyse_multi()
+        response_1_1pr = model_object.analyse_multi_model_tf()
+        response_1_3pr = model_object2.analyse_multi_model_tf()
         print("response 1_1pr", response_1_1pr) # is the indexing correct?
         # now filter the scores using the mask
         response_1 = []
@@ -233,9 +233,9 @@ for file_name in files:
         print("response_1", response_1) # have to make sure how this looks
 
         raw_ds = jesmond.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
-        mask2 = jesmond2.tau_decay_mode_2
-        response_2_1pr = model_object.analyse_multi()
-        response_2_3pr = model_object2.analyse_multi()
+        mask2 = jesmond2.decay_mode
+        response_2_1pr = model_object.analyse_multi_model_tf()
+        response_2_3pr = model_object2.analyse_multi_model_tf()
 
         response_2 = []
         for i in range(len(mask)):
@@ -245,7 +245,6 @@ for file_name in files:
 
 
         for i_event in range(tree.GetEntries()):
-            time_start = time.time()
             #print(i_event)
             tree.GetEntry(i_event)
             if i_event % 100 == 0:

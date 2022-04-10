@@ -141,7 +141,7 @@ class pipeline(feature_name_object):
         #self.save_dataframe(self.df_full, "df_full.pkl")
 
     def load_root_files_2(self, which, file_name):
-        root = ROOT.TFile(self.load_path + file_name)
+        root = ROOT.TFile(self.load_path + "/" + file_name)
         intree = root.Get("ntuple")
         if which == 1:
             arr = rnp.tree2array(intree,branches=self.variables_tt_1)
@@ -856,7 +856,7 @@ class pipeline(feature_name_object):
         self.drop_variables_2(dataframe)
         # 1) create dictionaries for tfrecords
         self.create_featuredesc2(dataframe)
-        path = tfrecordpath + "/dm%s_3in.tfrecords" % index
+        # path = tfrecordpath + "/dm%s_3in.tfrecords" % index
         length = self.calc_no_events(dataframe)
         # 2) convert df to numpy, reset indices on imvar_df
         print('Writing')
