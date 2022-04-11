@@ -8,6 +8,6 @@ source ~/CMSSW_10_2_19/icenet/setenv.sh
 # source /vols/grid/cms/setup.sh
 # eval `scramv1 runtime -sh`
 
-python3.9 Python_files/C_Analysis/SingleEventAnnotation.py
+python3.9 Python_files/C_Analysis/MultiEventAnnotation.py
 
 conda deactivate
