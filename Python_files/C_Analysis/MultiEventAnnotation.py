@@ -18,10 +18,10 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler) 
 import sys
-sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE//Python_files/A_Pipeline/")
-sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/B_Training/")
-#sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/A_Pipeline/")
-#sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/B_Training/")
+#sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE//Python_files/A_Pipeline/")
+#sys.path.append("/home/hep/ab7018/CMSSW_10_2_19/DeepMODE/Python_files/B_Training/")
+sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/A_Pipeline/")
+sys.path.append("/home/hep/fjo18/CMSSW_10_2_19/src/UserCode/DeepLearning/Python_files/B_Training/")
 
 from pipeline_object import pipeline 
 from model_object import hep_model
@@ -64,10 +64,9 @@ def parse_arguments():
     parser.add_argument(
         "--era", default="", help="Year to use.")
     parser.add_argument(
-        "--loadpath", default="/vols/cms/ab7018/Masters2021/RootFiles/Full", help="Path to files to use.")
-        # default=""
+        "--loadpath", default="/vols/cms/fjo18/Masters2021/RootFiles/Full", help="Path to files to use.")
     parser.add_argument(
-        "--savepath", default="/vols/cms/ab7018/Masters2021/Annotation", help="Path to save output files.")
+        "--savepath", default="/vols/cms/fjo18/Masters2021/Annotation", help="Path to save output files.")
     return parser.parse_args()
 
 def parse_config(filename):
@@ -135,8 +134,10 @@ files = ["DY1JetsToLL-LO_tt_2018.root",
 #        # file_names = [os.path.splitext(os.path.basename(file))[0] for file in files]
 #    return file_names
     
-for file_name in files:   
-    def main(args):#, config):
+  
+def main(args):#, config):
+    for file_name in files: 
+        print("Updating " + file_name)
         time_start = time.time()
         #open original file
         file_ = ROOT.TFile("{}".format(args.loadpath)+"/"+file_name, "UPDATE")
@@ -220,9 +221,9 @@ for file_name in files:
         raw_ds = jesmond.generate_dataframes_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
         mask = jesmond.decay_mode
         #calculate scores for all events with both classifiers
-        response_1_1pr = model_object.analyse_multi_model_tf()
-        response_1_3pr = model_object2.analyse_multi_model_tf()
-        print("response 1_1pr", response_1_1pr) # is the indexing correct?
+        response_1_1pr = model_object.predict_results_one_tf(raw_ds)
+        response_1_3pr = model_object2.predict_results_one_tf(raw_ds)
+        # print("response 1_1pr", response_1_1pr[0]) # is the indexing correct?
         # now filter the scores using the mask
         response_1 = []
         for i in range(len(mask)):
@@ -230,39 +231,39 @@ for file_name in files:
                 response_1.append(response_1_1pr[i])
             else: response_1.append(response_1_3pr[i])
 
-        print("response_1", response_1) # have to make sure how this looks
-
+        # print("response_1", response_1[0]) # have to make sure how this looks
+        # dont close
         raw_ds = jesmond.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
         mask2 = jesmond2.decay_mode
-        response_2_1pr = model_object.analyse_multi_model_tf()
-        response_2_3pr = model_object2.analyse_multi_model_tf()
+        response_2_1pr = model_object.predict_results_one_tf(raw_ds)
+        response_2_3pr = model_object2.predict_results_one_tf(raw_ds)
 
         response_2 = []
         for i in range(len(mask)):
-            if mask[i] < 10: 
-                response_2.append(response_1_1pr[i])
-            else: response_2.append(response_1_3pr[i])
+            if mask2[i] < 10: 
+                response_2.append(response_2_1pr[i])
+            else: response_2.append(response_2_3pr[i])
 
 
         for i_event in range(tree.GetEntries()):
             #print(i_event)
             tree.GetEntry(i_event)
-            if i_event % 100 == 0:
+            if i_event % 10000 == 0:
                     logger.debug('Currently on event {}'.format(i_event))
 
             #does the indexing hold? i dont think so
-            response_0_scores_1[0] = response_1[0][0]
-            response_0_scores_2[0] = response_2[0][0] 
-            response_1_scores_1[0] = response_1[0][1]
-            response_1_scores_2[0] = response_2[0][1] 
-            response_2_scores_1[0] = response_1[0][2]
-            response_2_scores_2[0] = response_2[0][2] 
-            response_10_scores_1[0] = response_1[0][3]
-            response_10_scores_2[0] = response_2[0][3] 
-            response_11_scores_1[0] = response_1[0][4]
-            response_11_scores_2[0] = response_2[0][4] 
-            response_other_scores_1[0] = response_1[0][5]
-            response_other_scores_2[0] = response_2[0][5] 
+            response_0_scores_1[0] = response_1[i_event][0]
+            response_0_scores_2[0] = response_2[i_event][0] 
+            response_1_scores_1[0] = response_1[i_event][1]
+            response_1_scores_2[0] = response_2[i_event][1] 
+            response_2_scores_1[0] = response_1[i_event][2]
+            response_2_scores_2[0] = response_2[i_event][2] 
+            response_10_scores_1[0] = response_1[i_event][3]
+            response_10_scores_2[0] = response_2[i_event][3] 
+            response_11_scores_1[0] = response_1[i_event][4]
+            response_11_scores_2[0] = response_2[i_event][4] 
+            response_other_scores_1[0] = response_1[i_event][5]
+            response_other_scores_2[0] = response_2[i_event][5] 
 
             # Fill branches
             branch_0_scores_1.Fill()
@@ -278,8 +279,8 @@ for file_name in files:
             branch_other_scores_1.Fill()
             branch_other_scores_2.Fill()
 
-            time_filled = time.time() - time_start
-            print("Filled in"+ str(time_filled))
+        time_filled = time.time() - time_start
+        print("Filled in"+ str(time_filled))
         logger.debug("Finished looping over events")
 
         # Write everything to file

@@ -864,17 +864,19 @@ class pipeline(feature_name_object):
         imvar_dataframe.reset_index(drop=True, inplace=True)
         fulllen = imvar_dataframe.shape[0]
         del dataframe
-
         large_image = []
         small_image = []
         for index, row in imvar_dataframe.iterrows():
             (grid1, grid2) = self.generate_grids(row, 21, 11)
             large_image.append(grid1)
             small_image.append(grid2)
-        data_list = []
-        data_list.append(large_image)
-        data_list.append(small_image)
-        data_list.append(npa) 
+        large_image = np.array(large_image)
+        small_image = np.array(small_image)
+        # data_list = []
+        # data_list.append(large_image)
+        # data_list.append(small_image)
+        # data_list.append(npa) 
+        data_list = [large_image, small_image, npa]
 
         print("done creating data list")
         return data_list
