@@ -73,16 +73,16 @@ def parse_config(filename):
     """For loading the config file with yaml"""				
     return yaml.load(open(filename, "r"))
 
-files = ["DY1JetsToLL-LO_tt_2018.root",
-"GluGluHToTauTau_M-125_tt_2018.root",
-"VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
-"WZTo1L3Nu_tt_2018.root",
-"DY2JetsToLL-LO_tt_2018.root",
+files = [#"DY1JetsToLL-LO_tt_2018.root",
+#"GluGluHToTauTau_M-125_tt_2018.root",
+# "VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root", INCOMPLETE
+#"WZTo1L3Nu_tt_2018.root",
+#"DY2JetsToLL-LO_tt_2018.root",  12.04.2022 4.40 checked
 "GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
 "W1JetsToLNu-LO_tt_2018.root",                             
 "WZTo2L2Q_tt_2018.root",
 "DY3JetsToLL-LO_tt_2018.root",
-"TauA_tt_2018.root",
+# "TauA_tt_2018.root", INCOMPLETE
 "W2JetsToLNu-LO_tt_2018.root",
 "WZTo3LNu-ext1_tt_2018.root",
 "DY4JetsToLL-LO_tt_2018.root",
@@ -94,7 +94,7 @@ files = ["DY1JetsToLL-LO_tt_2018.root",
 "W4JetsToLNu-LO_tt_2018.root",
 "ZHToTauTau_M-125_tt_2018.root",
 "DYJetsToLL_M-10-50-LO_tt_2018.root",
-"TauD_tt_2018.root",
+# "TauD_tt_2018.root", INCOMPLETE
 "WGToLNuG_tt_2018.root",
 "ZHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
 "DYJetsToLL_tt_2018.root",
@@ -202,17 +202,13 @@ def main(args):#, config):
 
         #create a jesmond
         jesmond = pipeline(args.loadpath, args.savepath)
-        jesmond2 = pipeline(args.loadpath, args.savepath)
             
         #load root files for preprocessing
         jesmond.load_root_files_2(1,file_name)
-        jesmond2.load_root_files_2(2,file_name)
 
         jesmond.modify_dataframe(jesmond.df_full)
-        jesmond.modify_dataframe(jesmond2.df_full)
             
         imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=False)
-        imvar_jesmond2 = jesmond.create_imvar_dataframe(jesmond2.df_full, one_event=False)
 
         # model = keras.models.load_model(args.model_folder)
         time_proc = time.time() - time_start
@@ -220,6 +216,7 @@ def main(args):#, config):
 
         raw_ds = jesmond.generate_dataframes_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
         mask = jesmond.decay_mode
+        del jesmond, imvar_jesmond
         #calculate scores for all events with both classifiers
         response_1_1pr = model_object.predict_results_one_tf(raw_ds)
         response_1_3pr = model_object2.predict_results_one_tf(raw_ds)
@@ -230,13 +227,24 @@ def main(args):#, config):
             if mask[i] < 10: 
                 response_1.append(response_1_1pr[i])
             else: response_1.append(response_1_3pr[i])
-
+        del response_1_1pr, response_1_3pr, raw_ds, mask
+        time_eval = time.time() - time_start
+        print("Evaluated in "+ str(time_eval))
         # print("response_1", response_1[0]) # have to make sure how this looks
         # dont close
-        raw_ds = jesmond.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
+        jesmond2 = pipeline(args.loadpath, args.savepath)
+        jesmond2.load_root_files_2(2,file_name)
+        jesmond2.modify_dataframe(jesmond2.df_full)
+        imvar_jesmond2 = jesmond2.create_imvar_dataframe(jesmond2.df_full, one_event=False)
+
+        time_proc2 = time.time() - time_start
+        print("Processed second tau in "+ str(time_proc2))
+
+        raw_ds_2 = jesmond2.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
         mask2 = jesmond2.decay_mode
-        response_2_1pr = model_object.predict_results_one_tf(raw_ds)
-        response_2_3pr = model_object2.predict_results_one_tf(raw_ds)
+        del jesmond2, imvar_jesmond2
+        response_2_1pr = model_object.predict_results_one_tf(raw_ds_2)
+        response_2_3pr = model_object2.predict_results_one_tf(raw_ds_2)
 
         response_2 = []
         for i in range(len(mask)):
@@ -244,6 +252,10 @@ def main(args):#, config):
                 response_2.append(response_2_1pr[i])
             else: response_2.append(response_2_3pr[i])
 
+        del response_2_1pr, response_2_3pr, raw_ds_2, mask2
+        
+        time_eval2 = time.time() - time_start
+        print("Evaluated second tau in "+ str(time_eval2))
 
         for i_event in range(tree.GetEntries()):
             #print(i_event)
