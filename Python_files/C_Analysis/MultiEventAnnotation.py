@@ -75,57 +75,58 @@ def parse_config(filename):
 
 files = [#"DY1JetsToLL-LO_tt_2018.root",
 #"GluGluHToTauTau_M-125_tt_2018.root",
-# "VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root", INCOMPLETE
+# "VBFHToTauTauUncorrelatedDecay_Filtered_tt_2018.root", checked 15.04.2022 09.02
 #"WZTo1L3Nu_tt_2018.root",
 #"DY2JetsToLL-LO_tt_2018.root",  12.04.2022 4.40 checked
-"GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
-"W1JetsToLNu-LO_tt_2018.root",                             
-"WZTo2L2Q_tt_2018.root",
-"DY3JetsToLL-LO_tt_2018.root",
-# "TauA_tt_2018.root", INCOMPLETE
-"W2JetsToLNu-LO_tt_2018.root",
-"WZTo3LNu-ext1_tt_2018.root",
-"DY4JetsToLL-LO_tt_2018.root",
-"TauB_tt_2018.root",
-"W3JetsToLNu-LO_tt_2018.root",
-"WZTo3LNu_tt_2018.root",
-"DYJetsToLL-LO_tt_2018.root",
-"TauC_tt_2018.root",
-"W4JetsToLNu-LO_tt_2018.root",
-"ZHToTauTau_M-125_tt_2018.root",
-"DYJetsToLL_M-10-50-LO_tt_2018.root",
-# "TauD_tt_2018.root", INCOMPLETE
-"WGToLNuG_tt_2018.root",
-"ZHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
-"DYJetsToLL_tt_2018.root",
-"Tbar-t_tt_2018.root",
-"WJetsToLNu-LO_tt_2018.root",
-"ZZTo2L2Nu-ext1_tt_2018.root",
-"EmbeddingTauTauA_tt_2018.root",
-"Tbar-tW-ext1_tt_2018.root",
-"WminusHToTauTau_M-125_tt_2018.root",
-"ZZTo2L2Nu-ext2_tt_2018.root",
-"EmbeddingTauTauB_tt_2018.root",
-"TTTo2L2Nu_tt_2018.root",
-"WminusHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
-"ZZTo2L2Q_tt_2018.root",
-"EmbeddingTauTauC_tt_2018.root",
-"TTToHadronic_tt_2018.root",
-"WplusHToTauTau_M-125_tt_2018.root",
-"ZZTo4L-ext_tt_2018.root",
-"EmbeddingTauTauD_tt_2018.root",
-"TTToSemiLeptonic_tt_2018.root",
-"WplusHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
-"ZZTo4L_tt_2018.root",
-"EWKWMinus2Jets_tt_2018.root",
-"T-t_tt_2018.root",
-"WWTo2L2Nu_tt_2018.root",
-"EWKWPlus2Jets_tt_2018.root",
-"T-tW-ext1_tt_2018.root",
-"WWToLNuQQ_tt_2018.root",
-"EWKZ2Jets_tt_2018.root",
-"VBFHToTauTau_M-125-ext1_tt_2018.root",
-"WZTo1L1Nu2Q_tt_2018.root"]
+#"GluGluHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
+#"W1JetsToLNu-LO_tt_2018.root",                             
+#"WZTo2L2Q_tt_2018.root",
+#"DY3JetsToLL-LO_tt_2018.root",
+#"TauA_tt_2018.root", checked 15.04.2022 10.42 
+#"W2JetsToLNu-LO_tt_2018.root",
+#"WZTo3LNu-ext1_tt_2018.root",
+#"DY4JetsToLL-LO_tt_2018.root",
+#"TauB_tt_2018.root",
+#"W3JetsToLNu-LO_tt_2018.root",
+#"WZTo3LNu_tt_2018.root",
+#"DYJetsToLL-LO_tt_2018.root",
+#"TauC_tt_2018.root",
+#"W4JetsToLNu-LO_tt_2018.root",
+#"ZHToTauTau_M-125_tt_2018.root",
+#"DYJetsToLL_M-10-50-LO_tt_2018.root",
+"TauD_tt_2018.root"#, INCOMPLETE
+#"WGToLNuG_tt_2018.root", 14.04.2022 4.57 checked
+#"ZHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
+#"DYJetsToLL_tt_2018.root",
+#"Tbar-t_tt_2018.root",
+#"WJetsToLNu-LO_tt_2018.root",
+#"ZZTo2L2Nu-ext1_tt_2018.root",
+#"EmbeddingTauTauA_tt_2018.root",
+#"Tbar-tW-ext1_tt_2018.root",
+#"WminusHToTauTau_M-125_tt_2018.root",
+#"ZZTo2L2Nu-ext2_tt_2018.root",
+#"EmbeddingTauTauB_tt_2018.root",
+#"TTTo2L2Nu_tt_2018.root",
+#"WminusHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
+#"ZZTo2L2Q_tt_2018.root",
+#"EmbeddingTauTauC_tt_2018.root",
+#"TTToHadronic_tt_2018.root",
+#"WplusHToTauTau_M-125_tt_2018.root",
+#"ZZTo4L-ext_tt_2018.root",
+#"EmbeddingTauTauD_tt_2018.root",
+#"TTToSemiLeptonic_tt_2018.root",
+#"WplusHToTauTauUncorrelatedDecay_Filtered_tt_2018.root",
+#"ZZTo4L_tt_2018.root",
+#"EWKWMinus2Jets_tt_2018.root",
+#"T-t_tt_2018.root",
+#"WWTo2L2Nu_tt_2018.root",
+#"EWKWPlus2Jets_tt_2018.root",
+#"T-tW-ext1_tt_2018.root",
+#"WWToLNuQQ_tt_2018.root",
+#"EWKZ2Jets_tt_2018.root",
+#"VBFHToTauTau_M-125-ext1_tt_2018.root", 14.04.2022 19.12 checked
+#"WZTo1L1Nu2Q_tt_2018.root"
+]
     
 #def load_files(filelist):
 #    """For loading the data files"""
@@ -202,60 +203,59 @@ def main(args):#, config):
 
         #create a jesmond
         jesmond = pipeline(args.loadpath, args.savepath)
-            
-        #load root files for preprocessing
-        jesmond.load_root_files_2(1,file_name)
-
-        jesmond.modify_dataframe(jesmond.df_full)
-            
-        imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=False)
-
-        # model = keras.models.load_model(args.model_folder)
-        time_proc = time.time() - time_start
-        print("Processed in"+ str(time_proc))
-
-        raw_ds = jesmond.generate_dataframes_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
-        mask = jesmond.decay_mode
-        del jesmond, imvar_jesmond
-        #calculate scores for all events with both classifiers
-        response_1_1pr = model_object.predict_results_one_tf(raw_ds)
-        response_1_3pr = model_object2.predict_results_one_tf(raw_ds)
-        # print("response 1_1pr", response_1_1pr[0]) # is the indexing correct?
-        # now filter the scores using the mask
-        response_1 = []
-        for i in range(len(mask)):
-            if mask[i] < 10: 
-                response_1.append(response_1_1pr[i])
-            else: response_1.append(response_1_3pr[i])
-        del response_1_1pr, response_1_3pr, raw_ds, mask
-        time_eval = time.time() - time_start
-        print("Evaluated in "+ str(time_eval))
-        # print("response_1", response_1[0]) # have to make sure how this looks
-        # dont close
         jesmond2 = pipeline(args.loadpath, args.savepath)
-        jesmond2.load_root_files_2(2,file_name)
-        jesmond2.modify_dataframe(jesmond2.df_full)
-        imvar_jesmond2 = jesmond2.create_imvar_dataframe(jesmond2.df_full, one_event=False)
+        #load root files for preprocessing
+        jesmond.save_dataframes(1,file_name)
+        jesmond2.save_dataframes(2,file_name)
 
-        time_proc2 = time.time() - time_start
-        print("Processed second tau in "+ str(time_proc2))
+        time_saved = time.time() - time_start
+        print("Processed in"+ str(time_saved))
 
-        raw_ds_2 = jesmond2.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
-        mask2 = jesmond2.decay_mode
-        del jesmond2, imvar_jesmond2
-        response_2_1pr = model_object.predict_results_one_tf(raw_ds_2)
-        response_2_3pr = model_object2.predict_results_one_tf(raw_ds_2)
+        response_1 = []
+        for i in range(jesmond.no_blocks): 
+            jesmond.load_dataframes(1,(i+1)*10e6)
+            jesmond.modify_dataframe(jesmond.df_full)
+            imvar_jesmond = jesmond.create_imvar_dataframe(jesmond.df_full, one_event=False)
+            raw_ds = jesmond.generate_dataframes_anal_multi(jesmond.df_full, imvar_jesmond, args.savepath)
+
+            time_proc = time.time() - time_start
+            print("Processed block %s in" % i + str(time_proc))
+            mask = jesmond.decay_mode
+            #calculate scores for all events with both classifiers
+            response_1_1pr = model_object.predict_results_one_tf(raw_ds)
+            response_1_3pr = model_object2.predict_results_one_tf(raw_ds)
+            # now filter the scores using the mask
+            for j in range(len(mask)):
+                if mask[j] < 10: 
+                    response_1.append(response_1_1pr[j])
+                else: response_1.append(response_1_3pr[j])
+            time_eval = time.time() - time_start
+            print("Evaluated block %s in " % i + str(time_eval))
+
+        del jesmond, imvar_jesmond, response_1_1pr, response_1_3pr, raw_ds, mask
 
         response_2 = []
-        for i in range(len(mask)):
-            if mask2[i] < 10: 
-                response_2.append(response_2_1pr[i])
-            else: response_2.append(response_2_3pr[i])
+        for i in range(jesmond.no_blocks): 
+            jesmond2.load_dataframes(1,(i+1)*10e6)
+            jesmond2.modify_dataframe(jesmond2.df_full)
+            imvar_jesmond2 = jesmond2.create_imvar_dataframe(jesmond2.df_full, one_event=False)
+            raw_ds_2 = jesmond2.generate_dataframes_anal_multi(jesmond2.df_full, imvar_jesmond2, args.savepath)
 
-        del response_2_1pr, response_2_3pr, raw_ds_2, mask2
-        
-        time_eval2 = time.time() - time_start
-        print("Evaluated second tau in "+ str(time_eval2))
+            time_proc = time.time() - time_start
+            print("Processed second tau block %s in" % i + str(time_proc))
+            mask2 = jesmond2.decay_mode
+            #calculate scores for all events with both classifiers
+            response_2_1pr = model_object.predict_results_one_tf(raw_ds_2)
+            response_2_3pr = model_object2.predict_results_one_tf(raw_ds_2)
+            # now filter the scores using the mask
+            for j in range(len(mask2)):
+                if mask2[j] < 10: 
+                    response_2.append(response_2_1pr[j])
+                else: response_2.append(response_2_3pr[j])
+            time_eval = time.time() - time_start
+            print("Evaluated second tau block %s in " % i + str(time_eval))
+
+        del jesmond2, imvar_jesmond2, response_2_1pr, response_2_3pr, raw_ds_2, mask2
 
         for i_event in range(tree.GetEntries()):
             #print(i_event)

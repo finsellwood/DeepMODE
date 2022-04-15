@@ -160,7 +160,38 @@ class pipeline(feature_name_object):
         self.df_full = df
         self.decay_mode = df["tau_decay_mode_2"]
         del df
-        
+    
+    def save_dataframes(self, which, file_name):
+        root = ROOT.TFile(self.load_path + "/" + file_name)
+        intree = root.Get("ntuple")
+        if which == 1:
+            arr = rnp.tree2array(intree,branches=self.variables_tt_1)
+        elif which == 2:
+            arr = rnp.tree2array(intree,branches=self.variables_tt_2)
+        else: raise Exception("Incorrect tau label: can be either 1 or 2")
+        print("converting to dfs")
+        del root
+        del intree
+        df = pd.DataFrame(arr)
+        del arr
+        print("reshaping")
+        if which == 1:
+            df.set_axis(self.variables_tt_2, axis=1, inplace=True)
+        print("saving")
+        no_blocks = np.ceil(len(df)/10e6)
+        self.no_blocks = no_blocks
+        for i in range(no_blocks):
+            start = i*10e6
+            stop = (i+1)*10e6
+            pd.to_pickle(df[start:stop], "/vols/cms/fjo18/Masters2021/RootFiles/PartialDF/%s" % stop + "which%s" % which)
+        del df
+
+    def load_dataframes(self, which, stop):
+        df = pd.read_pickle("/vols/cms/fjo18/Masters2021/RootFiles/PartialDF/%s" % stop + "which%s" % which)
+        self.df_full = df
+        self.decay_mode = df["tau_decay_mode_2"]
+        del df
+
     def load_single_event(self, event, which, file_name):
         #file should not be hardcoded - pass from yaml
         file_ = ROOT.TFile(self.load_path +"/"+ file_name)
