@@ -172,18 +172,18 @@ class pipeline(feature_name_object):
         print("converting to dfs")
         del root
         del intree
-        df = pd.DataFrame(arr)
-        del arr
-        print("reshaping")
-        if which == 1:
-            df.set_axis(self.variables_tt_2, axis=1, inplace=True)
         print("saving")
-        no_blocks = np.ceil(len(df)/10e6)
+        no_blocks = int(np.ceil(len(arr)/1e6))
         self.no_blocks = no_blocks
         for i in range(no_blocks):
-            start = i*10e6
-            stop = (i+1)*10e6
-            pd.to_pickle(df[start:stop], "/vols/cms/fjo18/Masters2021/RootFiles/PartialDF/%s" % stop + "which%s" % which)
+            start = int(i*1e6)
+            stop = int((i+1)*1e6)
+            df = pd.DataFrame(arr[start:stop])
+            print("reshaping")
+            if which == 1:
+                df.set_axis(self.variables_tt_2, axis=1, inplace=True)
+            pd.to_pickle(df, "/vols/cms/fjo18/Masters2021/RootFiles/PartialDF/%s" % stop + "which%s" % which)
+        del arr
         del df
 
     def load_dataframes(self, which, stop):
